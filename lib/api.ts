@@ -30,6 +30,7 @@ class ApiClient {
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseURL}${endpoint}`
+    console.log("API: Making request to:", url)
 
     const config: RequestInit = {
       headers: {
@@ -42,10 +43,12 @@ class ApiClient {
 
     try {
       const response = await fetch(url, config)
+      console.log("API: Response status:", response.status)
 
       if (!response.ok) {
         if (response.status === 401) {
           // Token expired, try to refresh
+          console.log("API: Token expired, refreshing...")
           await this.refreshToken()
           // Retry original request
           const retryConfig = {
@@ -56,17 +59,24 @@ class ApiClient {
             },
           }
           const retryResponse = await fetch(url, retryConfig)
+          console.log("API: Retry response status:", retryResponse.status)
           if (!retryResponse.ok) {
-            throw new Error(`HTTP error! status: ${retryResponse.status}`)
+            const errorData = await retryResponse.json()
+            console.error("API: Retry failed:", errorData)
+            throw new Error(errorData.detail || `HTTP error! status: ${retryResponse.status}`)
           }
           return retryResponse.json()
         }
-        throw new Error(`HTTP error! status: ${response.status}`)
+        const errorData = await response.json()
+        console.error("API: Request failed:", errorData)
+        throw new Error(errorData.detail || `HTTP error! status: ${response.status}`)
       }
 
-      return response.json()
+      const data = await response.json()
+      console.log("API: Request successful, data:", data)
+      return data
     } catch (error) {
-      console.error("API request failed:", error)
+      console.error("API: Request failed:", error)
       throw error
     }
   }
@@ -87,7 +97,8 @@ class ApiClient {
 
       if (!response.ok) {
         this.removeToken()
-        throw new Error("Token refresh failed")
+        const errorData = await response.json()
+        throw new Error(errorData.detail || "Token refresh failed")
       }
 
       const data = await response.json()
@@ -121,14 +132,30 @@ class ApiClient {
   }
 
   async getBook(slug: string) {
-    return this.request<Book>(`/books/${slug}/`)
+    console.log("API: Getting book with slug:", slug)
+    try {
+      // Önce slug ile deneyelim
+      const result = await this.request<Book>(`/books/${slug}/`)
+      console.log("API: Book data received:", result)
+      return result
+    } catch (error) {
+      console.error("API: Error getting book with slug, trying with detail endpoint:", error)
+      try {
+        // Eğer slug ile çalışmazsa, detail endpoint'ini deneyelim
+        const result = await this.request<Book>(`/books/detail/${slug}/`)
+        console.log("API: Book data received from detail endpoint:", result)
+        return result
+      } catch (detailError) {
+        console.error("API: Error getting book with detail endpoint:", detailError)
+        throw detailError
+      }
+    }
   }
 
-  // Featured Books API metodunu yenilə
   async getFeaturedBooks() {
     try {
-      const response = await this.request<Book[]>(`/books/featured/`)
-      console.log("API Response for featured books:", response) // Debug
+      const response = await this.request<BooksResponse | Book[]>(`/books/featured/`)
+      console.log("API Response for featured books:", response)
       return response
     } catch (error) {
       console.error("API Error in getFeaturedBooks:", error)
@@ -137,15 +164,15 @@ class ApiClient {
   }
 
   async getBestsellerBooks() {
-    return this.request<Book[]>(`/books/bestsellers/`)
+    return this.request<BooksResponse | Book[]>(`/books/bestsellers/`)
   }
 
   async getNewBooks() {
-    return this.request<Book[]>(`/books/new/`)
+    return this.request<BooksResponse | Book[]>(`/books/new/`)
   }
 
   async getCategories() {
-    return this.request<Category[]>(`/books/categories/`)
+    return this.request<CategoriesResponse | Category[]>(`/books/categories/`)
   }
 
   async getBookStats() {
@@ -237,6 +264,18 @@ class ApiClient {
       body: JSON.stringify(addressData),
     })
   }
+
+  // Reviews API
+  async createReview(bookId: number, rating: number, comment: string) {
+    return this.request<BookReview>(`/books/${bookId}/reviews/`, {
+      method: "POST",
+      body: JSON.stringify({ rating, comment }),
+    })
+  }
+
+  async getBookReviews(bookId: number) {
+    return this.request<BookReview[]>(`/books/${bookId}/reviews/`)
+  }
 }
 
 // Types
@@ -310,6 +349,13 @@ export interface BooksResponse {
   next?: string
   previous?: string
   results: Book[]
+}
+
+export interface CategoriesResponse {
+  count: number
+  next?: string
+  previous?: string
+  results: Category[]
 }
 
 export interface BookStats {
