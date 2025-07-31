@@ -2,6 +2,10 @@ import type { Metadata } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import './globals.css'
+import { Footer } from '@/components/footer'
+import { AuthProvider } from '@/contexts/auth-context'
+import { CartProvider } from '@/contexts/cart-context'
+import { HeaderWrapper } from '@/components/header-wrapper'
 
 export const metadata: Metadata = {
   title: 'v0 App',
@@ -25,7 +29,19 @@ html {
 }
         `}</style>
       </head>
-      <body>{children}</body>
+      <body>
+        <AuthProvider>
+          <CartProvider>
+            <div className="min-h-screen bg-gray-50 flex flex-col">
+              <HeaderWrapper />
+              <main className="flex-1">
+                {children}
+              </main>
+              <Footer />
+            </div>
+          </CartProvider>
+        </AuthProvider>
+      </body>
     </html>
   )
 }
