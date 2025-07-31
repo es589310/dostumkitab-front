@@ -52,7 +52,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoading(true)
       const response = await api.addToCart(bookId, quantity)
-      setCart(response.cart)
+      
+      // Mevcut cart verisini güncelle, backend'den gelen veriyi kullanma
+      if (cart && response.cart) {
+        const updatedCart = {
+          ...cart,
+          items: response.cart.items,
+          total_price: response.cart.total_price,
+          total_items: response.cart.total_items,
+          updated_at: response.cart.updated_at
+        }
+        setCart(updatedCart)
+      } else {
+        // Fallback: Backend'den gelen veriyi kullan
+        setCart(response.cart)
+      }
     } catch (error) {
       console.error("Failed to add item to cart:", error)
       throw error
@@ -70,8 +84,28 @@ export function CartProvider({ children }: { children: ReactNode }) {
         await removeItem(itemId)
         return
       }
+      
+      // Backend'e güncelleme isteği gönder
       const response = await api.updateCartItem(itemId, quantity)
-      setCart(response.cart)
+      
+      // Mevcut cart verisini güncelle, backend'den gelen veriyi kullanma
+      if (cart && response.cart) {
+        const updatedCart = {
+          ...cart,
+          items: cart.items.map(item => 
+            item.id === itemId 
+              ? { ...item, quantity: quantity }
+              : item
+          ),
+          total_price: response.cart.total_price,
+          total_items: response.cart.total_items,
+          updated_at: response.cart.updated_at
+        }
+        setCart(updatedCart)
+      } else {
+        // Fallback: Backend'den gelen veriyi kullan
+        setCart(response.cart)
+      }
     } catch (error) {
       console.error("Failed to update cart item:", error)
       throw error

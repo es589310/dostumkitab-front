@@ -9,20 +9,44 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Star, ShoppingCart } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import { useAuth } from "@/contexts/auth-context"
-import api, { type Book, type Category } from "@/lib/api"
+import api, { type Book, type Category, type CategoriesResponse } from "@/lib/api" // CategoriesResponse import edildi
+import Link from "next/link"
 
-export function BookGrid() {
+interface BookGridProps {
+  searchTerm?: string
+  categoryId?: string
+  bestseller?: boolean
+  isNew?: boolean
+  discount?: boolean
+}
+
+export function BookGrid({
+  searchTerm = "",
+  categoryId = "",
+  bestseller = false,
+  isNew = false,
+  discount = false,
+}: BookGridProps) {
   const [books, setBooks] = useState<Book[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [selectedCategory, setSelectedCategory] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState(categoryId)
   const [sortBy, setSortBy] = useState("created_at")
-  const [searchTerm, setSearchTerm] = useState("")
+  const [internalSearchTerm, setInternalSearchTerm] = useState(searchTerm)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
 
   const { addItem } = useCart()
   const { isAuthenticated } = useAuth()
+
+  // Sync initial props with internal state
+  useEffect(() => {
+    setInternalSearchTerm(searchTerm)
+  }, [searchTerm])
+
+  useEffect(() => {
+    setSelectedCategory(categoryId)
+  }, [categoryId])
 
   useEffect(() => {
     fetchCategories()
@@ -30,15 +54,15 @@ export function BookGrid() {
 
   useEffect(() => {
     fetchBooks()
-  }, [selectedCategory, sortBy, searchTerm, currentPage])
+  }, [selectedCategory, sortBy, internalSearchTerm, currentPage])
 
   const fetchCategories = async () => {
     try {
-      const data = await api.getCategories()
+      const data: CategoriesResponse | Category[] = await api.getCategories() // Cavab tipi dəyişdirildi
       if (Array.isArray(data)) {
         setCategories(data)
-      } else if (data && typeof data === "object" && "results" in data && Array.isArray((data as any).results)) {
-        setCategories((data as any).results)
+      } else if (data && typeof data === "object" && "results" in data && Array.isArray(data.results)) {
+        setCategories(data.results)
       } else {
         console.error("Unexpected categories API response:", data)
         setCategories([])
@@ -57,7 +81,7 @@ export function BookGrid() {
         ordering: sortBy === "price-low" ? "price" : sortBy === "price-high" ? "-price" : `-${sortBy}`,
       }
 
-      if (searchTerm) params.search = searchTerm
+      if (internalSearchTerm) params.search = internalSearchTerm
       if (selectedCategory) params.category = selectedCategory
 
       const response = await api.getBooks(params)
@@ -94,7 +118,7 @@ export function BookGrid() {
   }
 
   const handleSearch = (value: string) => {
-    setSearchTerm(value)
+    setInternalSearchTerm(value)
     setCurrentPage(1)
   }
 
@@ -143,7 +167,7 @@ export function BookGrid() {
           <div className="flex-1">
             <Input
               placeholder="Kitab və ya müəllif axtarın..."
-              value={searchTerm}
+              value={internalSearchTerm}
               onChange={(e) => handleSearch(e.target.value)}
               className="w-full"
             />
@@ -181,6 +205,7 @@ export function BookGrid() {
           {Array.isArray(books) &&
             books.map((book) => (
               <Card key={book.id} className="group hover:shadow-lg transition-shadow duration-300">
+                <Link href={`/book/${book.slug}`} className="block">
                 <CardContent className="p-4">
                   <div className="relative mb-4">
                     <img
@@ -227,12 +252,22 @@ export function BookGrid() {
                     </div>
                     <span className="text-xs text-gray-500">Stok: {book.stock_quantity}</span>
                   </div>
-
-                  <Button className="w-full" onClick={() => handleAddToCart(book)} disabled={book.stock_quantity === 0}>
+                  </CardContent>
+                </Link>
+                
+                <div className="px-4 pb-4">
+                  <Button 
+                    className="w-full" 
+                    onClick={(e) => {
+                      e.preventDefault()
+                      handleAddToCart(book)
+                    }} 
+                    disabled={book.stock_quantity === 0}
+                  >
                     <ShoppingCart className="h-4 w-4 mr-2" />
                     {book.stock_quantity === 0 ? "Stokda Yoxdur" : "Səbətə At"}
                   </Button>
-                </CardContent>
+                </div>
               </Card>
             ))}
         </div>
