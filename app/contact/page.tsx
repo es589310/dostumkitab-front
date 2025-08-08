@@ -13,6 +13,14 @@ export default function ContactPage() {
   const [authMode, setAuthMode] = useState<"login" | "register">("login")
   const [settings, setSettings] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
   const { user, isAuthenticated } = useAuth()
 
   useEffect(() => {
@@ -30,6 +38,63 @@ export default function ContactPage() {
   const openAuthModal = (mode: "login" | "register") => {
     setAuthMode(mode)
     setIsAuthModalOpen(true)
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    setSubmitMessage(null)
+
+    try {
+      console.log('Contact form - isAuthenticated:', isAuthenticated)
+      console.log('Contact form - user:', user)
+      
+      const submitData = isAuthenticated 
+        ? {
+            subject: formData.subject,
+            message: formData.message
+            // Giriş olan istifadəçilər üçün name və email göndərilmir
+          }
+        : {
+            name: formData.name,
+            email: formData.email,
+            subject: formData.subject,
+            message: formData.message
+          }
+
+      console.log('Sending contact message:', submitData)
+
+      const response = await api.sendContactMessage(submitData)
+      
+      if (response.success) {
+        setSubmitMessage({ type: 'success', text: response.message })
+        // Formu təmizlə
+        setFormData({
+          name: '',
+          email: '',
+          subject: '',
+          message: ''
+        })
+      } else {
+        setSubmitMessage({ type: 'error', text: response.message || 'Xəta baş verdi' })
+      }
+    } catch (error: any) {
+      console.error('Contact form error:', error)
+      setSubmitMessage({ 
+        type: 'error', 
+        text: error.message || 'Mesaj göndərilərkən xəta baş verdi' 
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (loading) {
@@ -112,6 +177,17 @@ export default function ContactPage() {
                       <div>
                         <h3 className="font-semibold text-gray-900">Ünvan</h3>
                         <p className="text-gray-600">{settings.address}</p>
+                        <a 
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.address)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 transition-colors text-sm mt-1 inline-flex items-center"
+                        >
+                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                          Xəritədə göstər
+                        </a>
                       </div>
                     </div>
                   )}
@@ -136,16 +212,31 @@ export default function ContactPage() {
               <div className="bg-white rounded-lg shadow-lg p-8">
                 <h2 className="text-2xl font-semibold mb-6">Mesaj Göndərin</h2>
                 
-                <form className="space-y-6">
+                {/* Submit mesajı */}
+                {submitMessage && (
+                  <div className={`mb-6 p-4 rounded-md ${
+                    submitMessage.type === 'success' 
+                      ? 'bg-green-50 border border-green-200 text-green-800' 
+                      : 'bg-red-50 border border-red-200 text-red-800'
+                  }`}>
+                    {submitMessage.text}
+                  </div>
+                )}
+                
+                <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Ad Soyad sahəsi - yalnız giriş olmayan istifadəçilər üçün */}
                   {!isAuthenticated && (
                     <div>
                       <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                        Ad Soyad
+                        Ad Soyad *
                       </label>
                       <input
                         type="text"
                         id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        required
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Adınızı və soyadınızı daxil edin"
                       />
@@ -156,11 +247,15 @@ export default function ContactPage() {
                   {!isAuthenticated && (
                     <div>
                       <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                        E-mail
+                        E-mail *
                       </label>
                       <input
                         type="email"
                         id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        required
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="E-mail ünvanınızı daxil edin"
                       />
@@ -178,11 +273,15 @@ export default function ContactPage() {
 
                   <div>
                     <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-                      Mövzu
+                      Mövzu *
                     </label>
                     <input
                       type="text"
                       id="subject"
+                      name="subject"
+                      value={formData.subject}
+                      onChange={handleInputChange}
+                      required
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Mesajınızın mövzusunu daxil edin"
                     />
@@ -190,10 +289,14 @@ export default function ContactPage() {
 
                   <div>
                     <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                      Mesaj
+                      Mesaj *
                     </label>
                     <textarea
                       id="message"
+                      name="message"
+                      value={formData.message}
+                      onChange={handleInputChange}
+                      required
                       rows={4}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Mesajınızı daxil edin"
@@ -202,9 +305,14 @@ export default function ContactPage() {
 
                   <button
                     type="submit"
-                    className="w-full bg-blue-600 text-white py-3 px-6 rounded-md font-semibold hover:bg-blue-700 transition duration-300"
+                    disabled={isSubmitting}
+                    className={`w-full py-3 px-6 rounded-md font-semibold transition duration-300 ${
+                      isSubmitting
+                        ? 'bg-gray-400 text-white cursor-not-allowed'
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                    }`}
                   >
-                    Mesaj Göndər
+                    {isSubmitting ? 'Göndərilir...' : 'Mesaj Göndər'}
                   </button>
                 </form>
               </div>

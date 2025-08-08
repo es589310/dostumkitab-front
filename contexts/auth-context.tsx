@@ -25,7 +25,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const checkAuthStatus = async () => {
     try {
-      const token = localStorage.getItem("access_token")
+      const token = localStorage.getItem("auth_token")
       if (token) {
         const userData = await api.getProfile()
         setUser(userData)
