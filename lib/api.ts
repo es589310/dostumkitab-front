@@ -151,8 +151,8 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify(credentials),
     });
-    if (response.access) {
-      this.saveToken(response.access);
+    if (response.tokens && response.tokens.access) {
+      this.saveToken(response.tokens.access);
     }
     return response;
   }
@@ -162,8 +162,8 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify(userData),
     });
-    if (response.access) {
-      this.saveToken(response.access);
+    if (response.tokens && response.tokens.access) {
+      this.saveToken(response.tokens.access);
     }
     return response;
   }
@@ -205,6 +205,32 @@ class ApiClient {
   async removeCartItem(itemId: number) {
     return this.request<any>(`/orders/cart/remove/${itemId}/`, {
       method: 'DELETE',
+    });
+  }
+
+  // Contact API
+  async sendContactMessage(data: {
+    name?: string;
+    email?: string;
+    subject: string;
+    message: string;
+  }) {
+    // Giriş olan istifadəçilər üçün name və email sahələrini tamamilə çıxar
+    const cleanData = { ...data };
+    
+    // Əgər name və email boş və ya undefined-dirsə, onları çıxar
+    if (!cleanData.name || cleanData.name === '') {
+      delete cleanData.name;
+    }
+    if (!cleanData.email || cleanData.email === '') {
+      delete cleanData.email;
+    }
+    
+    console.log('Contact API - Sending data:', cleanData);
+    
+    return this.request<any>('/contact/send/', {
+      method: 'POST',
+      body: JSON.stringify(cleanData),
     });
   }
 }
