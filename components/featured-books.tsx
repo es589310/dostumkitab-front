@@ -14,15 +14,24 @@ export function FeaturedBooks() {
   const [books, setBooks] = useState<Book[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const { addItem } = useCart()
+  const { addItem, cart } = useCart()
   const { isAuthenticated } = useAuth()
+  
+  // Cart yenilənməsini izlə
+  useEffect(() => {
+    console.log('FeaturedBooks: Cart updated:', cart)
+    if (cart) {
+      console.log('FeaturedBooks: Total items in cart:', cart.total_items)
+    }
+  }, [cart])
 
   const handleAddToCart = async (book: Book) => {
     try {
       await addItem(book.id)
-      alert("Kitab səbətə əlavə edildi!")
+      // Bildiriş silindi - cart avtomatik yenilənir
     } catch (error: any) {
-      alert(error.message || "Xəta baş verdi!")
+      console.error("Səbətə əlavə edərkən xəta:", error)
+      // Xəta halında da bildiriş göstərilmir
     }
   }
 

@@ -36,8 +36,16 @@ export function BookGrid({
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
 
-  const { addItem } = useCart()
+  const { addItem, cart } = useCart()
   const { isAuthenticated } = useAuth()
+  
+  // Cart yenilənməsini izlə
+  useEffect(() => {
+    console.log('BookGrid: Cart updated:', cart)
+    if (cart) {
+      console.log('BookGrid: Total items in cart:', cart.total_items)
+    }
+  }, [cart])
 
   // Sync initial props with internal state
   useEffect(() => {
@@ -106,9 +114,10 @@ export function BookGrid({
   const handleAddToCart = async (book: Book) => {
     try {
       await addItem(book.id)
-      alert("Kitab səbətə əlavə edildi!")
+      // Bildiriş silindi - cart avtomatik yenilənir
     } catch (error: any) {
-      alert(error.message || "Xəta baş verdi!")
+      console.error("Səbətə əlavə edərkən xəta:", error)
+      // Xəta halında da bildiriş göstərilmir
     }
   }
 

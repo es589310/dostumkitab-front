@@ -53,9 +53,10 @@ export default function BookDetailPage() {
 
     try {
       await addItem(book.id)
-      alert("Kitab səbətə əlavə edildi!")
+      // Bildiriş silindi - cart avtomatik yenilənir
     } catch (error: any) {
-      alert(error.message || "Xəta baş verdi!")
+      console.error("Səbətə əlavə edərkən xəta:", error)
+      // Xəta halında da bildiriş göstərilmir
     }
   }
 
