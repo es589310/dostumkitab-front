@@ -37,7 +37,7 @@ html {
               <main className="flex-1">
                 {children}
               </main>
-              <Footer />
+              <Footer key="main-footer" />
             </div>
           </CartProvider>
         </AuthProvider>

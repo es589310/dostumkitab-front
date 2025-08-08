@@ -18,11 +18,6 @@ export function FeaturedBooks() {
   const { isAuthenticated } = useAuth()
 
   const handleAddToCart = async (book: Book) => {
-    if (!isAuthenticated) {
-      alert("Səbətə əlavə etmək üçün giriş etməlisiniz!")
-      return
-    }
-
     try {
       await addItem(book.id)
       alert("Kitab səbətə əlavə edildi!")
@@ -38,21 +33,29 @@ export function FeaturedBooks() {
   const fetchFeaturedBooks = async () => {
     try {
       setError(null)
+      console.log("FeaturedBooks: API çağırışı başladı")
+      console.log("FeaturedBooks: API URL:", `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api"}/books/?is_featured=true`)
+      
       const data = await api.getFeaturedBooks()
-      console.log("Featured books data:", data) // Debug üçün
+      console.log("FeaturedBooks: API cavabı:", data)
+      console.log("FeaturedBooks: Response type:", typeof data)
+      console.log("FeaturedBooks: Response keys:", Object.keys(data || {}))
 
       // API cavabını yoxla
       if (Array.isArray(data)) {
+        console.log("FeaturedBooks: Response is array")
         setBooks(data)
       } else if (data && typeof data === "object" && "results" in data && Array.isArray((data as any).results)) {
+        console.log("FeaturedBooks: Response has results array")
         setBooks((data as any).results)
       } else {
-        console.error("Unexpected API response format:", data)
+        console.error("FeaturedBooks: Unexpected API response format:", data)
         setBooks([])
         setError("Məlumat formatı düzgün deyil")
       }
     } catch (error) {
-      console.error("Failed to fetch featured books:", error)
+      console.error("FeaturedBooks: Failed to fetch featured books:", error)
+      console.error("FeaturedBooks: Error details:", error)
       setError("Kitablar yüklənə bilmədi")
       setBooks([])
     } finally {

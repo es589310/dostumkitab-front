@@ -6,7 +6,16 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Star } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
-import api, { type BookReview } from "@/lib/api"
+import api from "@/lib/api"
+
+interface BookReview {
+  id: number
+  user_name: string
+  user?: number
+  rating: number
+  comment: string
+  created_at: string
+}
 
 interface BookReviewsProps {
   bookId: number
@@ -32,7 +41,18 @@ export function BookReviews({ bookId, bookSlug }: BookReviewsProps) {
       console.log("Fetching reviews for book ID:", bookId)
       const data = await api.getBookReviews(bookId)
       console.log("Reviews data received:", data)
-      setReviews(Array.isArray(data) ? data : [])
+      
+      // API response strukturunu yoxla
+      let reviewsData = data
+      if (data && typeof data === 'object' && 'results' in data) {
+        reviewsData = data.results
+      } else if (Array.isArray(data)) {
+        reviewsData = data
+      } else {
+        reviewsData = []
+      }
+      
+      setReviews(reviewsData)
     } catch (error) {
       console.error("Failed to fetch reviews:", error)
       setReviews([])
@@ -42,11 +62,6 @@ export function BookReviews({ bookId, bookSlug }: BookReviewsProps) {
   }
 
   const handleSubmitReview = async () => {
-    if (!isAuthenticated) {
-      alert("Rəy yazmaq üçün giriş etməlisiniz!")
-      return
-    }
-
     if (userRating === 0) {
       alert("Zəhmət olmasa reytinq seçin!")
       return
@@ -62,7 +77,10 @@ export function BookReviews({ bookId, bookSlug }: BookReviewsProps) {
       console.log("Submitting review:", { bookId, userRating, userComment })
       
       // Rəyi gönder
-      const newReview = await api.createReview(bookId, userRating, userComment)
+      const newReview = await api.createBookReview(bookId, {
+        rating: userRating,
+        comment: userComment
+      })
       console.log("New review created:", newReview)
       
       // Yeni rəyi hemen listeye ekle
@@ -123,14 +141,12 @@ export function BookReviews({ bookId, bookSlug }: BookReviewsProps) {
     <div className="mt-8">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-2xl font-bold">Rəylər ({reviews.length})</h3>
-        {isAuthenticated && (
-          <Button
-            onClick={() => setShowReviewForm(!showReviewForm)}
-            variant="outline"
-          >
-            {showReviewForm ? "Rəy yazmağı ləğv et" : "Rəy yaz"}
-          </Button>
-        )}
+        <Button
+          onClick={() => setShowReviewForm(!showReviewForm)}
+          variant="outline"
+        >
+          {showReviewForm ? "Rəy yazmağı ləğv et" : "Rəy yaz"}
+        </Button>
       </div>
 
       {/* Rəy yazma formu */}

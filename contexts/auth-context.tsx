@@ -33,7 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error("Auth check failed:", error)
       // Token invalid olarsa təmizlə
-      api.removeToken()
+      api.logout()
     } finally {
       setIsLoading(false)
     }
@@ -60,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const logout = () => {
-    api.removeToken()
+    api.logout()
     setUser(null)
   }
 
