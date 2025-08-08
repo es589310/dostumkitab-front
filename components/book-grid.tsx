@@ -104,11 +104,6 @@ export function BookGrid({
   }
 
   const handleAddToCart = async (book: Book) => {
-    if (!isAuthenticated) {
-      alert("Səbətə əlavə etmək üçün giriş etməlisiniz!")
-      return
-    }
-
     try {
       await addItem(book.id)
       alert("Kitab səbətə əlavə edildi!")

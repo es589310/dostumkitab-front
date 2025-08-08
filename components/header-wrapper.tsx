@@ -21,16 +21,12 @@ export function HeaderWrapper() {
     }
   }
 
-  const handleCategorySelect = (categoryId: string) => {
-    router.push(`/category/${categoryId}`)
-  }
-
   return (
     <>
       <Header 
         onAuthClick={openAuthModal} 
         onSearch={handleSearch} 
-        onCategorySelect={handleCategorySelect} 
+        onCategorySelect={() => {}} // Boş funksiya, artıq istifadə olunmur
       />
       <AuthModal
         isOpen={isAuthModalOpen}

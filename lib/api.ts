@@ -1,502 +1,270 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api"
+// lib/api.ts
+import { getDeviceId } from './device-id';
 
-// API client class
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+
 class ApiClient {
-  private baseURL: string
-  private token: string | null = null
+  private baseURL: string;
+  private token: string | null = null;
 
-  constructor(baseURL: string) {
-    this.baseURL = baseURL
-    // Token-i localStorage-dan al
-    if (typeof window !== "undefined") {
-      this.token = localStorage.getItem("access_token")
+  constructor() {
+    this.baseURL = API_BASE_URL;
+    this.loadToken();
+  }
+
+  private loadToken() {
+    if (typeof window !== 'undefined') {
+      this.token = localStorage.getItem('auth_token');
     }
   }
 
-  setToken(token: string) {
-    this.token = token
-    if (typeof window !== "undefined") {
-      localStorage.setItem("access_token", token)
+  private saveToken(token: string) {
+    this.token = token;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('auth_token', token);
     }
   }
 
-  removeToken() {
-    this.token = null
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("access_token")
-      localStorage.removeItem("refresh_token")
+  private clearToken() {
+    this.token = null;
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('auth_token');
     }
+  }
+
+  private getCsrfToken(): string | null {
+    if (typeof window !== 'undefined') {
+      const match = document.cookie.match(new RegExp('(^| )csrftoken=([^;]+)'));
+      return match ? match[2] : null;
+    }
+    return null;
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const url = `${this.baseURL}${endpoint}`
+    const url = `${this.baseURL}${endpoint}`;
+    console.log('API Request:', url);
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'X-Device-ID': getDeviceId(),
+    };
+
+    if (this.token) {
+      headers['Authorization'] = `Bearer ${this.token}`;
+    }
+
+    // CSRF tokenu əlavə et
+    if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(options.method?.toUpperCase() || '')) {
+      const csrfToken = this.getCsrfToken();
+      if (csrfToken) {
+        headers['X-CSRFToken'] = csrfToken;
+      } else {
+        console.warn('API: CSRF token not found');
+      }
+    }
 
     const config: RequestInit = {
-      headers: {
-        "Content-Type": "application/json",
-        ...(this.token && { Authorization: `Bearer ${this.token}` }),
-        ...options.headers,
-      },
       ...options,
-    }
+      headers,
+      credentials: 'include', // Sessiya və CSRF üçün
+    };
 
     try {
-      const response = await fetch(url, config)
+      console.log('API: Sending request to:', url, config);
+      const response = await fetch(url, config);
+      console.log('API: Response status:', response.status);
 
       if (!response.ok) {
-        if (response.status === 401) {
-          // Token expired, try to refresh
-          await this.refreshToken()
-          // Retry original request
-          const retryConfig = {
-            ...config,
-            headers: {
-              ...config.headers,
-              Authorization: `Bearer ${this.token}`,
-            },
-          }
-          const retryResponse = await fetch(url, retryConfig)
-          if (!retryResponse.ok) {
-            throw new Error(`HTTP error! status: ${retryResponse.status}`)
-          }
-          return retryResponse.json()
+        let errorData = {};
+        try {
+          errorData = await response.json();
+        } catch (e) {
+          console.error('API: Failed to parse error response');
         }
-        throw new Error(`HTTP error! status: ${response.status}`)
+        console.error('API: Response not ok:', response.status, errorData);
+        throw new Error(`HTTP error! status: ${response.status}, message: ${JSON.stringify(errorData)}`);
       }
 
-      // Check if response has content
-      const contentType = response.headers.get("content-type")
-      if (contentType && contentType.includes("application/json")) {
-        return response.json()
-      } else {
-        // If not JSON, return empty object for non-JSON responses
-        return {} as T
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await response.json();
+        console.log('API: JSON response:', data);
+        return data;
       }
+      console.log('API: Non-JSON response');
+      return {} as T;
     } catch (error) {
-      console.error("API request failed:", error)
-      throw error
-    }
-  }
-
-  private async refreshToken() {
-    const refreshToken = localStorage.getItem("refresh_token")
-    if (!refreshToken) {
-      this.removeToken()
-      throw new Error("No refresh token available")
-    }
-
-    try {
-      const response = await fetch(`${this.baseURL}/auth/token/refresh/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ refresh: refreshToken }),
-      })
-
-      if (!response.ok) {
-        this.removeToken()
-        const errorData = await response.json()
-        throw new Error(errorData.detail || "Token refresh failed")
-      }
-
-      const data = await response.json()
-      this.setToken(data.access)
-    } catch (error) {
-      this.removeToken()
-      throw error
+      console.error('API request failed:', error);
+      throw error;
     }
   }
 
   // Books API
-  async getBooks(params?: {
-    page?: number
-    search?: string
-    category?: string
-    ordering?: string
-    is_featured?: boolean
-    is_bestseller?: boolean
-    is_new?: boolean
-  }) {
-    const searchParams = new URLSearchParams()
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== "") {
-          searchParams.append(key, value.toString())
-        }
-      })
-    }
-    const query = searchParams.toString()
-    return this.request<BooksResponse>(`/books/${query ? `?${query}` : ""}`)
+  async getBooks(params: Record<string, string> = {}): Promise<BookListResponse> {
+    const queryString = new URLSearchParams(params).toString();
+    return this.request<BookListResponse>(`/books/?${queryString}`);
   }
-
-  async getBook(slug: string) {
-    console.log("API: Getting book with slug:", slug)
-    try {
-      // Önce slug ile deneyelim
-      const result = await this.request<Book>(`/books/${slug}/`)
-      console.log("API: Book data received:", result)
-      return result
-    } catch (error) {
-      console.error("API: Error getting book with slug, trying with detail endpoint:", error)
-      try {
-        // Eğer slug ile çalışmazsa, detail endpoint'ini deneyelim
-        const result = await this.request<Book>(`/books/detail/${slug}/`)
-        console.log("API: Book data received from detail endpoint:", result)
-        return result
-      } catch (detailError) {
-        console.error("API: Error getting book with detail endpoint:", detailError)
-        throw detailError
-      }
-    }
-  }
+  
 
   async getFeaturedBooks() {
-    try {
-      const response = await this.request<BooksResponse | Book[]>(`/books/featured/`)
-      console.log("API Response for featured books:", response)
-      return response
-    } catch (error) {
-      console.error("API Error in getFeaturedBooks:", error)
-      throw error
-    }
+    return this.request<BookListResponse>('/books/featured/');
   }
 
   async getBestsellerBooks() {
-    return this.request<BooksResponse | Book[]>(`/books/bestsellers/`)
+    return this.request<BookListResponse>('/books/bestsellers/');
   }
 
   async getNewBooks() {
-    return this.request<BooksResponse | Book[]>(`/books/new/`)
+    return this.request<BookListResponse>('/books/new/');
+  }
+
+  async getBook(slug: string) {
+    return this.request<Book>(`/books/${slug}/`);
   }
 
   async getCategories() {
-    return this.request<CategoriesResponse | Category[]>(`/books/categories/`)
+    return this.request<Category[]>('/books/categories/');
   }
 
-  async getBookStats() {
-    return this.request<BookStats>(`/books/stats/`)
+  async getBookReviews(bookId: number) {
+    return this.request<any>(`/books/${bookId}/reviews/`);
+  }
+
+  async createBookReview(bookId: number, data: any) {
+    return this.request<any>(`/books/${bookId}/reviews/`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   }
 
   async getBanners() {
-    return this.request<any[]>('/books/banners/')
+    return this.request<any[]>('/books/banners/');
+  }
+
+  async getSiteSettings() {
+    return this.request<any>('/books/settings/');
   }
 
   // Auth API
-  async register(userData: RegisterData) {
-    return this.request<AuthResponse>(`/auth/register/`, {
-      method: "POST",
-      body: JSON.stringify(userData),
-    })
+  async login(credentials: { username: string; password: string }) {
+    const response = await this.request<any>('/auth/login/', {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+    });
+    if (response.access) {
+      this.saveToken(response.access);
+    }
+    return response;
   }
 
-  async login(credentials: LoginData) {
-    const response = await this.request<AuthResponse>(`/auth/login/`, {
-      method: "POST",
-      body: JSON.stringify(credentials),
-    })
-
-    if (response.tokens) {
-      this.setToken(response.tokens.access)
-      localStorage.setItem("refresh_token", response.tokens.refresh)
+  async register(userData: { username: string; email: string; password: string; first_name?: string; last_name?: string }) {
+    const response = await this.request<any>('/auth/register/', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    });
+    if (response.access) {
+      this.saveToken(response.access);
     }
-
-    return response
+    return response;
   }
 
   async getProfile() {
-    return this.request<User>(`/auth/profile/`)
+    return this.request<any>('/auth/profile/');
   }
 
-  async updateProfile(userData: Partial<User>) {
-    return this.request<User>(`/auth/profile/`, {
-      method: "PATCH",
-      body: JSON.stringify(userData),
-    })
+  logout() {
+    this.clearToken();
   }
 
   // Cart API
   async getCart() {
-    return this.request<Cart>(`/orders/cart/`)
+    return this.request<any>('/orders/cart/');
   }
 
-  async addToCart(bookId: number, quantity = 1) {
-    return this.request<{ message: string; cart: Cart }>(`/orders/cart/add/`, {
-      method: "POST",
-      body: JSON.stringify({ book_id: bookId, quantity }),
-    })
+  async addToCart(bookId: number, quantity: number = 1) {
+    try {
+      const response = await this.request<any>('/orders/cart/add/', {
+        method: 'POST',
+        body: JSON.stringify({ book_id: bookId, quantity }),
+      });
+      console.log('API: Added to cart:', response);
+      return response;
+    } catch (error) {
+      console.error('API: Error adding to cart:', error);
+      throw error;
+    }
   }
 
   async updateCartItem(itemId: number, quantity: number) {
-    return this.request<{ message: string; cart: Cart }>(`/orders/cart/items/${itemId}/`, {
-      method: "PUT",
+    return this.request<any>(`/orders/cart/update/${itemId}/`, {
+      method: 'PUT',
       body: JSON.stringify({ quantity }),
-    })
+    });
   }
 
-  async removeFromCart(itemId: number) {
-    return this.request<{ message: string }>(`/orders/cart/items/${itemId}/remove/`, {
-      method: "DELETE",
-    })
-  }
-
-  // Orders API
-  async getOrders() {
-    return this.request<OrdersResponse>(`/orders/`)
-  }
-
-  async getOrder(orderId: number) {
-    return this.request<Order>(`/orders/${orderId}/`)
-  }
-
-  async createOrder(orderData: CreateOrderData) {
-    return this.request<{ message: string; order: Order }>(`/orders/create/`, {
-      method: "POST",
-      body: JSON.stringify(orderData),
-    })
-  }
-
-  // Addresses API
-  async getAddresses() {
-    return this.request<Address[]>(`/auth/addresses/`)
-  }
-
-  async createAddress(addressData: CreateAddressData) {
-    return this.request<Address>(`/auth/addresses/`, {
-      method: "POST",
-      body: JSON.stringify(addressData),
-    })
-  }
-
-  // Reviews API
-  async createReview(bookId: number, rating: number, comment: string) {
-    return this.request<BookReview>(`/books/${bookId}/reviews/`, {
-      method: "POST",
-      body: JSON.stringify({ rating, comment }),
-    })
-  }
-
-  async getBookReviews(bookId: number) {
-    return this.request<BookReview[]>(`/books/${bookId}/reviews/`)
+  async removeCartItem(itemId: number) {
+    return this.request<any>(`/orders/cart/remove/${itemId}/`, {
+      method: 'DELETE',
+    });
   }
 }
+
+const api = new ApiClient();
+
+export default api;
 
 // Types
 export interface Book {
-  id: number
-  title: string
-  slug: string
-  authors: Author[]
-  category: Category
-  publisher?: Publisher
-  isbn?: string
-  description: string
-  language: string
-  pages: number
-  publication_date: string
-  price: string
-  original_price?: string
-  stock_quantity: number
-  cover_image: string
-  back_image?: string
-  is_featured: boolean
-  is_bestseller: boolean
-  is_new: boolean
-  views_count: number
-  sales_count: number
-  created_at: string
-  average_rating: number
-  reviews_count: number
-  discount_percentage: number
-  reviews?: BookReview[]
+  id: number;
+  title: string;
+  slug: string;
+  description: string;
+  price: number;
+  original_price?: number;
+  cover_image?: string;
+  stock_quantity: number;
+  average_rating: number;
+  reviews_count: number;
+  is_featured: boolean;
+  is_bestseller: boolean;
+  is_new: boolean;
+  discount_percentage: number;
+  language: string;
+  pages: number;
+  publication_date: string;
+  isbn?: string;
+  authors: Author[];
+  category: Category;
+  publisher?: Publisher;
 }
 
 export interface Author {
-  id: number
-  name: string
-  biography?: string
-  birth_date?: string
-  death_date?: string
-  photo?: string
-  nationality?: string
+  id: number;
+  name: string;
 }
 
 export interface Category {
-  id: number
-  name: string
-  slug: string
-  description?: string
-  image?: string
+  id: number;
+  name: string;
+  description?: string;
+  books_count?: number;
 }
 
 export interface Publisher {
-  id: number
-  name: string
-  address?: string
-  phone?: string
-  email?: string
-  website?: string
+  id: number;
+  name: string;
 }
 
-export interface BookReview {
-  id: number
-  user: number
-  user_name: string
-  rating: number
-  comment: string
-  created_at: string
-}
-
-export interface BooksResponse {
-  count: number
-  next?: string
-  previous?: string
-  results: Book[]
+export interface BookListResponse {
+  count: number;
+  next?: string;
+  previous?: string;
+  results: Book[];
 }
 
 export interface CategoriesResponse {
-  count: number
-  next?: string
-  previous?: string
-  results: Category[]
+  count: number;
+  next?: string;
+  previous?: string;
+  results: Category[];
 }
-
-export interface BookStats {
-  total_books: number
-  featured_books: number
-  bestsellers: number
-  new_books: number
-}
-
-export interface User {
-  id: number
-  username: string
-  email: string
-  first_name: string
-  last_name: string
-  full_name: string
-  profile: UserProfile
-  date_joined: string
-}
-
-export interface UserProfile {
-  phone?: string
-  birth_date?: string
-  gender?: string
-  avatar?: string
-  address?: string
-  city?: string
-  postal_code?: string
-  newsletter_subscription: boolean
-  sms_notifications: boolean
-  email_notifications: boolean
-}
-
-export interface RegisterData {
-  username: string
-  email: string
-  first_name: string
-  last_name: string
-  password: string
-  password_confirm: string
-}
-
-export interface LoginData {
-  username: string
-  password: string
-}
-
-export interface AuthResponse {
-  user: User
-  tokens: {
-    access: string
-    refresh: string
-  }
-}
-
-export interface CartItem {
-  id: number
-  book: Book
-  quantity: number
-  total_price: string
-  added_at: string
-}
-
-export interface Cart {
-  id: number
-  items: CartItem[]
-  total_price: string
-  total_items: number
-  updated_at: string
-}
-
-export interface Order {
-  id: number
-  order_number: string
-  status: string
-  status_display: string
-  payment_status: string
-  payment_status_display: string
-  payment_method: string
-  subtotal: string
-  shipping_cost: string
-  discount_amount: string
-  total_amount: string
-  delivery_name: string
-  delivery_phone: string
-  delivery_address: Address
-  delivery_address_text: string
-  notes?: string
-  created_at: string
-  items: OrderItem[]
-}
-
-export interface OrderItem {
-  id: number
-  book: Book
-  quantity: number
-  price: string
-  total_price: string
-}
-
-export interface OrdersResponse {
-  count: number
-  next?: string
-  previous?: string
-  results: Order[]
-}
-
-export interface CreateOrderData {
-  delivery_address_id: number
-  delivery_name: string
-  delivery_phone: string
-  payment_method: string
-  notes?: string
-}
-
-export interface Address {
-  id: number
-  title: string
-  address_type: string
-  full_address: string
-  city: string
-  district?: string
-  postal_code?: string
-  phone?: string
-  is_default: boolean
-  is_active: boolean
-}
-
-export interface CreateAddressData {
-  title: string
-  address_type: string
-  full_address: string
-  city: string
-  district?: string
-  postal_code?: string
-  phone?: string
-  is_default?: boolean
-}
-
-// API client instance
-export const api = new ApiClient(API_BASE_URL)
-
-export default api

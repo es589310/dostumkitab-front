@@ -75,7 +75,7 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
   }
 
   const handleCategoryClick = (categoryId: string) => {
-    onCategorySelect(categoryId)
+    router.push(`/category/${categoryId}`)
   }
 
   // İstifadəçi adını və soyadını birləşdir

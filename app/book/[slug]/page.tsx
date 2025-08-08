@@ -45,7 +45,7 @@ export default function BookDetailPage() {
 
   const handleAddToCart = async () => {
     if (!book) return
-
+    
     if (!isAuthenticated) {
       alert("Səbətə əlavə etmək üçün giriş etməlisiniz!")
       return
@@ -200,4 +200,4 @@ export default function BookDetailPage() {
       <BookReviews bookId={book.id} bookSlug={book.slug} />
     </div>
   )
-}
+} 

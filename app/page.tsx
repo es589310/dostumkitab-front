@@ -4,7 +4,6 @@ import { useState } from "react"
 import { HeroSection } from "@/components/hero-section"
 import { FeaturedBooks } from "@/components/featured-books"
 import { BookGrid } from "@/components/book-grid"
-import { Footer } from "@/components/footer"
 import { AuthModal } from "@/components/auth-modal"
 import { CartProvider } from "@/contexts/cart-context"
 import { AuthProvider } from "@/contexts/auth-context"
@@ -39,7 +38,6 @@ export default function HomePage() {
             <FeaturedBooks />
             <BookGrid searchTerm={globalSearchTerm} categoryId={selectedCategoryFilter} />
           </main>
-          <Footer />
           <AuthModal
             isOpen={isAuthModalOpen}
             onClose={() => setIsAuthModalOpen(false)}
