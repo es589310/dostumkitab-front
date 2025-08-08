@@ -25,12 +25,17 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
   const [searchQuery, setSearchQuery] = useState("")
   const [categories, setCategories] = useState<Category[]>([])
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
-  const { getTotalItems } = useCart()
+  const { getTotalItems, cart } = useCart()
   const { user, logout, isAuthenticated } = useAuth()
   const router = useRouter()
   const userMenuRef = useRef<HTMLDivElement>(null)
 
   const totalItems = getTotalItems()
+  
+  // Cart sayının yenilənməsini izlə
+  useEffect(() => {
+    console.log('Header: Cart total items updated:', totalItems)
+  }, [totalItems, cart]) // cart state-ini də izlə
 
   // Click outside handler for user menu
   useEffect(() => {

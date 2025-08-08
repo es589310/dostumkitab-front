@@ -60,10 +60,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // Səbətə əlavə et
   const addItem = async (bookId: number, quantity: number = 1) => {
     try {
-      await api.addToCart(bookId, quantity)
-      await loadCart() // Cart-i yenidən yüklə
+      console.log('Adding item to cart:', bookId, quantity)
+      const response = await api.addToCart(bookId, quantity)
+      
+      // Cart-i dərhal yenilə
+      if (response && response.cart) {
+        console.log('Cart response received:', response.cart)
+        
+        // Cart state-ini dərhal yenilə
+        setCart(response.cart)
+        
+        // State yenilənməsini təmin et
+        console.log('Cart state set, total items:', response.cart.total_items)
+      } else {
+        console.log('No cart in response, reloading cart')
+        // Əgər response-da cart yoxdursa, yenidən yüklə
+        await loadCart()
+      }
     } catch (error: any) {
       console.error('Səbətə əlavə edərkən xəta:', error)
+      // Xəta halında da cart-i yenidən yüklə
+      await loadCart()
       throw error
     }
   }
@@ -97,8 +114,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   // Ümumi item sayı
   const getTotalItems = () => {
-    return cart?.total_items || 0
+    if (!cart) return 0
+    
+    // Əgər total_items varsa onu istifadə et, yoxdursa items array-indən hesabla
+    if (cart.total_items !== undefined) {
+      console.log('Using total_items from cart:', cart.total_items)
+      return cart.total_items
+    }
+    
+    // Items array-indən hesabla
+    const calculatedTotal = cart.items?.reduce((total, item) => total + item.quantity, 0) || 0
+    console.log('Calculated total from items:', calculatedTotal)
+    return calculatedTotal
   }
+  
+  // Cart state-inin yenilənməsini izlə
+  useEffect(() => {
+    console.log('Cart context: Cart state changed:', cart)
+    if (cart) {
+      console.log('Cart context: Total items:', getTotalItems())
+    }
+  }, [cart])
 
   // Ümumi qiymət
   const getTotalPrice = () => {

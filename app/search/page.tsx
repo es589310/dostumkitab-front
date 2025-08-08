@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
-import api, { BooksResponse, Book, Category } from "@/lib/api"
+import api, { Book, Category, BookListResponse } from "@/lib/api"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -59,8 +59,8 @@ function SearchContent() {
         // Query yoxdursa bütün kitabları gətir
 
         const data = await api.getBooks(searchParams)
-        if (data && typeof data === 'object' && 'results' in data && Array.isArray((data as any).results)) {
-          setBooks((data as any).results)
+        if (data && data.results && Array.isArray(data.results)) {
+          setBooks(data.results)
         } else {
           setBooks([])
         }
@@ -78,9 +78,10 @@ function SearchContent() {
   const handleAddToCart = async (book: Book) => {
     try {
       await addItem(book.id)
-      alert("Kitab səbətə əlavə edildi!")
+      // Bildiriş silindi - cart avtomatik yenilənir
     } catch (error: any) {
-      alert(error.message || "Xəta baş verdi!")
+      console.error("Səbətə əlavə edərkən xəta:", error)
+      // Xəta halında da bildiriş göstərilmir
     }
   }
 
