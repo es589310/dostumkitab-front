@@ -31,6 +31,7 @@ interface CartContextType {
   clearCart: () => void
   getTotalItems: () => number
   getTotalPrice: () => number
+  notification: { message: string; type: 'success' | 'error' } | null
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
@@ -38,6 +39,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined)
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<Cart | null>(null)
   const [loading, setLoading] = useState(true)
+  const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
 
   // Cart-i yüklə
   const loadCart = async () => {
@@ -70,6 +72,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         // Cart state-ini dərhal yenilə
         setCart(response.cart)
         
+        // Success notification göstər
+        showNotification('Kitab səbətə əlavə edildi!', 'success')
+        
         // State yenilənməsini təmin et
         console.log('Cart state set, total items:', response.cart.total_items)
       } else {
@@ -79,6 +84,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
     } catch (error: any) {
       console.error('Səbətə əlavə edərkən xəta:', error)
+      
+      // Stok xətasını yoxla
+      if (error.message && error.message.includes('Stokda yalnız')) {
+        // Stok xətası - cart-i yenidən yükləmə
+        await loadCart()
+        showNotification(error.message, 'error')
+        // Stok hatası durumunda hata fırlatma, sadece notification göster
+        return
+      }
+      
       // Xəta halında da cart-i yenidən yüklə
       await loadCart()
       throw error
@@ -88,10 +103,26 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // Item-i yenilə
   const updateItem = async (itemId: number, quantity: number) => {
     try {
-      await api.updateCartItem(itemId, quantity)
+      console.log('Updating cart item:', itemId, 'quantity:', quantity)
+      const response = await api.updateCartItem(itemId, quantity)
+      console.log('Update response:', response)
       await loadCart()
+      
+      // Success notification göstər
+      showNotification('Səbət yeniləndi!', 'success')
     } catch (error: any) {
       console.error('Item yenilənərkən xəta:', error)
+      
+      // Stok xətasını yoxla
+      if (error.message && error.message.includes('Stokda yalnız')) {
+        // Stok xətası - cart-i yenidən yükləmə və notification göstər
+        await loadCart()
+        showNotification(error.message, 'error')
+        // Stok hatası durumunda hata fırlatma, sadece notification göster
+        return
+      }
+      
+      // Digər xətaları yenidən fırlat
       throw error
     }
   }
@@ -99,7 +130,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // Item-i sil
   const removeItem = async (itemId: number) => {
     try {
-      await api.removeCartItem(itemId)
+      console.log('Removing cart item:', itemId)
+      const response = await api.removeCartItem(itemId)
+      console.log('Remove response:', response)
       await loadCart()
     } catch (error: any) {
       console.error('Item silinərkən xəta:', error)
@@ -107,9 +140,25 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  // Notification göstər
+  const showNotification = (message: string, type: 'success' | 'error' = 'success') => {
+    setNotification({ message, type })
+    // 5 saniyə sonra notification-i gizlət
+    setTimeout(() => {
+      setNotification(null)
+    }, 5000)
+  }
+
   // Səbəti təmizlə
-  const clearCart = () => {
-    setCart(null)
+  const clearCart = async () => {
+    try {
+      await api.clearCart()
+      setCart(null)
+    } catch (error) {
+      console.error('Səbət təmizlənərkən xəta:', error)
+      // Xəta halında da state-i təmizlə
+      setCart(null)
+    }
   }
 
   // Ümumi item sayı
@@ -150,6 +199,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     clearCart,
     getTotalItems,
     getTotalPrice,
+    notification,
   }
 
   return (

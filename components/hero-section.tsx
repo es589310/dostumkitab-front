@@ -105,42 +105,47 @@ export function HeroSection() {
     )
   }
 
-  const currentBanner = banners[currentIndex]
-
   return (
     <div className="relative w-full h-[400px] overflow-hidden">
-      {/* Banner şəkli */}
-      <div className="relative w-full h-full">
-        {currentBanner.image ? (
-          <img 
-            src={currentBanner.image} 
-            alt={currentBanner.title} 
-            className="w-full h-full object-cover transition-opacity duration-500"
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600"></div>
-        )}
-        
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-        
-        {/* Məzmun */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center text-white z-10">
-            <h1 className="text-4xl font-bold mb-4">{currentBanner.title}</h1>
-            {currentBanner.subtitle && (
-              <p className="text-xl mb-6 opacity-90">{currentBanner.subtitle}</p>
+      {/* Banner Slider Container */}
+      <div 
+        className="flex w-full h-full transition-transform duration-700 ease-in-out"
+        style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+      >
+        {banners.map((banner, index) => (
+          <div key={index} className="w-full h-full flex-shrink-0 relative">
+            {banner.image ? (
+              <img 
+                src={banner.image} 
+                alt={banner.title} 
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600"></div>
             )}
-            {currentBanner.link && (
-              <a 
-                href={currentBanner.link} 
-                className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition duration-300 shadow-lg"
-              >
-                Ətraflı
-              </a>
-            )}
+            
+            {/* Overlay */}
+            <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+            
+            {/* Məzmun */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center text-white z-10">
+                <h1 className="text-4xl font-bold mb-4">{banner.title}</h1>
+                {banner.subtitle && (
+                  <p className="text-xl mb-6 opacity-90">{banner.subtitle}</p>
+                )}
+                {banner.link && (
+                  <a 
+                    href={banner.link} 
+                    className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition duration-300 shadow-lg"
+                  >
+                    Ətraflı
+                  </a>
+                )}
+              </div>
+            </div>
           </div>
-        </div>
+        ))}
       </div>
 
       {/* Naviqasiya düymələri */}

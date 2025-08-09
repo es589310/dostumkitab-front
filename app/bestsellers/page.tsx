@@ -59,11 +59,11 @@ export default function BestsellersPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-2xl font-bold mb-6">Bestseller Kitablar</h1>
+              <h1 className="text-2xl font-bold mb-6">Ən Çox Satılan Kitablar</h1>
       {loading && <div>Yüklənir...</div>}
       {error && <div className="text-red-500">{error}</div>}
       {!loading && !error && books.length === 0 && (
-        <div className="text-gray-500 text-lg">Bestseller kitab tapılmadı</div>
+        <div className="text-gray-500 text-lg">Ən çox satılan kitab tapılmadı</div>
       )}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {books.map((book) => (
@@ -78,7 +78,7 @@ export default function BestsellersPage() {
                   />
                   <div className="absolute top-2 left-2 flex flex-col gap-1">
                     {book.is_featured && <Badge variant="destructive">Seçilmiş</Badge>}
-                    {book.is_bestseller && <Badge variant="secondary">Bestseller</Badge>}
+                    {book.is_bestseller && <Badge variant="secondary">Ən Çox Satılan</Badge>}
                     {book.is_new && <Badge className="bg-green-500">Yeni</Badge>}
                   </div>
                   {book.discount_percentage > 0 && (

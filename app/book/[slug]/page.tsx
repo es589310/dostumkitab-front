@@ -100,7 +100,7 @@ export default function BookDetailPage() {
             />
             <div className="absolute top-4 left-4 flex flex-col gap-2">
               {book.is_featured && <Badge variant="destructive">Seçilmiş</Badge>}
-              {book.is_bestseller && <Badge variant="secondary">Bestseller</Badge>}
+              {book.is_bestseller && <Badge variant="secondary">Ən Çox Satılan</Badge>}
               {book.is_new && <Badge className="bg-green-500">Yeni</Badge>}
             </div>
             {book.discount_percentage > 0 && (
