@@ -75,12 +75,19 @@ class ApiClient {
       console.log('API: Response status:', response.status);
 
       if (!response.ok) {
-        let errorData = {};
+        let errorData: any = {};
         try {
           errorData = await response.json();
         } catch (e) {
           console.error('API: Failed to parse error response');
         }
+        
+        // Stok hatası durumunda daha anlamlı mesaj
+        if (response.status === 400 && errorData.error && errorData.error.includes('Stokda yalnız')) {
+          throw new Error(errorData.error);
+        }
+        
+        // Digər xətalar üçün console.error
         console.error('API: Response not ok:', response.status, errorData);
         throw new Error(`HTTP error! status: ${response.status}, message: ${JSON.stringify(errorData)}`);
       }
@@ -145,6 +152,10 @@ class ApiClient {
     return this.request<any>('/books/settings/');
   }
 
+  async getWhatsAppNumber() {
+    return this.request<{ whatsapp_number: string }>('/books/whatsapp-number/');
+  }
+
   // Auth API
   async login(credentials: { username: string; password: string }) {
     const response = await this.request<any>('/auth/login/', {
@@ -204,6 +215,12 @@ class ApiClient {
 
   async removeCartItem(itemId: number) {
     return this.request<any>(`/orders/cart/remove/${itemId}/`, {
+      method: 'DELETE',
+    });
+  }
+
+  async clearCart() {
+    return this.request<any>('/orders/cart/clear/', {
       method: 'DELETE',
     });
   }

@@ -45,14 +45,11 @@ export const Footer = memo(function Footer() {
           {/* Sol hissə - Logo və məlumatlar */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
-              <Image
-                src="/logo.png"
+              <img
+                src="/logo.jpg"
                 alt="Fəzilət Kitab"
-                width={32}
-                height={32}
-                className="h-8 w-8"
+                className="h-[39px] w-[250px] object-contain"
               />
-              <span className="text-2xl font-bold">{settings?.site_name || "Fəzilət Kitab"}</span>
             </div>
             
             <p className="text-gray-300 mb-4 max-w-md">
@@ -102,7 +99,7 @@ export const Footer = memo(function Footer() {
               </li>
               <li>
                 <Link href="/bestsellers" className="hover:text-white transition-colors">
-                  Bestsellerlər
+                  Ən Çox Satılan
                 </Link>
               </li>
               <li>

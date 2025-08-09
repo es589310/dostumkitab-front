@@ -6,6 +6,7 @@ import { Footer } from '@/components/footer'
 import { AuthProvider } from '@/contexts/auth-context'
 import { CartProvider } from '@/contexts/cart-context'
 import { HeaderWrapper } from '@/components/header-wrapper'
+import { NavigationBar } from '@/components/navigation-bar'
 
 export const metadata: Metadata = {
   title: 'v0 App',
@@ -34,6 +35,7 @@ html {
           <CartProvider>
             <div className="min-h-screen bg-gray-50 flex flex-col">
               <HeaderWrapper />
+              <NavigationBar />
               <main className="flex-1">
                 {children}
               </main>

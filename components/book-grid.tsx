@@ -11,6 +11,7 @@ import { useCart } from "@/contexts/cart-context"
 import { useAuth } from "@/contexts/auth-context"
 import api, { type Book, type Category, type CategoriesResponse } from "@/lib/api" // CategoriesResponse import edildi
 import Link from "next/link"
+import { toast } from "@/components/ui/use-toast"
 
 interface BookGridProps {
   searchTerm?: string
@@ -113,6 +114,34 @@ export function BookGrid({
 
   const handleAddToCart = async (book: Book) => {
     try {
+      // Stok kontrolü - cart'ta bu kitaptan ne kadar var
+      const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+      const currentQuantity = currentCartItem?.quantity || 0
+      const availableStock = book.stock_quantity
+      
+      // Əgər cart'ta bu kitaptan artıq varsa və stok limitinə çatıbsa
+      if (currentQuantity >= availableStock) {
+        // Stok məlumatını göstər
+        const remainingStock = availableStock - currentQuantity
+        if (remainingStock <= 0) {
+          // Stokda heç bir şey yoxdur
+          toast({
+            title: "Stokda yoxdur!",
+            description: `Bu kitabdan artıq ${currentQuantity} ədəd səbətinizdə var və stokda yalnız ${availableStock} ədəd var.`,
+            variant: "destructive",
+          })
+          return
+        } else {
+          // Stokda məhdud sayda var
+          toast({
+            title: "Stok məhdudiyyəti!",
+            description: `Bu kitabdan artıq ${currentQuantity} ədəd səbətinizdə var. Stokda yalnız ${remainingStock} ədəd qalıb.`,
+            variant: "destructive",
+          })
+          return
+        }
+      }
+      
       await addItem(book.id)
       // Bildiriş silindi - cart avtomatik yenilənir
     } catch (error: any) {
@@ -219,7 +248,7 @@ export function BookGrid({
                     />
                     <div className="absolute top-2 left-2 flex flex-col gap-1">
                       {book.is_featured && <Badge variant="destructive">Seçilmiş</Badge>}
-                      {book.is_bestseller && <Badge variant="secondary">Bestseller</Badge>}
+                      {book.is_bestseller && <Badge variant="secondary">Ən Çox Satılan</Badge>}
                       {book.is_new && <Badge className="bg-green-500">Yeni</Badge>}
                     </div>
                     {book.discount_percentage > 0 && (
@@ -266,10 +295,23 @@ export function BookGrid({
                       e.preventDefault()
                       handleAddToCart(book)
                     }} 
-                    disabled={book.stock_quantity === 0}
+                    disabled={book.stock_quantity === 0 || (() => {
+                      const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                      const currentQuantity = currentCartItem?.quantity || 0
+                      return currentQuantity >= book.stock_quantity
+                    })()}
                   >
                     <ShoppingCart className="h-4 w-4 mr-2" />
-                    {book.stock_quantity === 0 ? "Stokda Yoxdur" : "Səbətə At"}
+                    {book.stock_quantity === 0 ? "Stokda Yoxdur" : 
+                     (() => {
+                       const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                       const currentQuantity = currentCartItem?.quantity || 0
+                       if (currentQuantity >= book.stock_quantity) {
+                         return "Stokda Maksimum"
+                       }
+                       return "Səbətə At"
+                     })()
+                    }
                   </Button>
                 </div>
               </Card>
