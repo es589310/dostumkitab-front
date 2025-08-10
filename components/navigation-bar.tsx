@@ -5,6 +5,7 @@ import { ChevronDown } from "lucide-react"
 import Link from "next/link"
 import api, { type Category, type CategoriesResponse } from "@/lib/api"
 import { useRouter } from "next/navigation"
+import SocialMediaIcons from "./social-media-icons"
 
 interface NavigationBarProps {
   onCategorySelect?: (categoryId: string) => void
@@ -63,7 +64,9 @@ export function NavigationBar({ onCategorySelect }: NavigationBarProps) {
   return (
     <div className="bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <nav className="flex items-center justify-center space-x-4 md:space-x-8 py-3 overflow-x-auto">
+        <nav className="flex items-center justify-between py-3">
+          {/* Sol tərəf - Kateqoriyalar */}
+          <div className="flex items-center space-x-4 md:space-x-8 overflow-x-auto">
           {/* Kateqoriyalar Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <button 
@@ -128,6 +131,12 @@ export function NavigationBar({ onCategorySelect }: NavigationBarProps) {
           >
             Endirimlər
           </Link>
+          </div>
+
+          {/* Sağ tərəf - Sosial Media İkonları */}
+          <div className="hidden md:flex">
+            <SocialMediaIcons variant="navbar" />
+          </div>
         </nav>
       </div>
     </div>

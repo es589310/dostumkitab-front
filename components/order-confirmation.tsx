@@ -44,16 +44,18 @@ Sifariş məlumatları:
 ${items.map(item => {
   const bookUrl = `${window.location.origin}/book/${item.book.slug}`
   const imageUrl = getMediaUrl(item.book.cover_image)
-  return `- ${item.book.title} (${item.quantity} ədəd)
-  Link: ${bookUrl}
-  ${imageUrl ? `Şəkil: ${imageUrl}` : ''}`
+  return `📚 ${item.book.title} (${item.quantity} ədəd)
+💰 Qiymət: ${item.book.price}₼
+🔗 Məhsul linki: ${bookUrl}
+🖼️ Şəkil: ${imageUrl}`
 }).join('\n\n')}
 
-Ümumi məbləğ: ${totalPrice.toFixed(2)}₼
+💳 Ümumi məbləğ: ${totalPrice.toFixed(2)}₼
+🛒 Sifariş linki: ${window.location.origin}/cart
 
-Sifariş linki: ${window.location.origin}/cart
+📱 Şəkilləri görmək üçün linkləri kopyalayıb brauzerə yapışdırın!
 
-Təşəkkürlər!`
+Təşəkkürlər! 🚀`
 
   const handleConfirmOrder = async () => {
     setIsConfirming(true)
@@ -135,10 +137,25 @@ Təşəkkürlər!`
                   <Phone className="h-4 w-4 text-blue-600" />
                   <span className="font-medium text-blue-800">WhatsApp ilə sifariş</span>
                 </div>
-                <p className="text-sm text-blue-700">
+                <p className="text-sm text-blue-700 mb-3">
                   Sifarişinizi təsdiqləmək üçün WhatsApp-a yönləndiriləcəksiniz. 
                   Satış nömrəsi: <span className="font-semibold">{whatsappNumber}</span>
                 </p>
+                
+                {/* Şəkil Təlimatı */}
+                <div className="bg-blue-100 p-3 rounded-lg border-l-4 border-blue-400">
+                  <div className="flex items-start gap-2">
+                    <span className="text-blue-600 text-lg">💡</span>
+                    <div className="text-xs text-blue-800">
+                      <p className="font-medium mb-1">Şəkilləri görmək üçün:</p>
+                      <ol className="list-decimal list-inside space-y-1 text-xs">
+                        <li>WhatsApp mesajındakı şəkil linkini kopyalayın</li>
+                        <li>Brauzerə yapışdırıb Enter basın</li>
+                        <li>Şəkli tam ölçüdə görə bilərsiniz</li>
+                      </ol>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
