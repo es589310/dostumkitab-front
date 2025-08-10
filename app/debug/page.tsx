@@ -1,161 +1,114 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from 'react'
 
 export default function DebugPage() {
-  const [result, setResult] = useState<any>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [serverResult, setServerResult] = useState<any>(null)
-  const [serverLoading, setServerLoading] = useState(false)
-  const [serverError, setServerError] = useState<string | null>(null)
+  const [siteSettings, setSiteSettings] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  const testAPI = async () => {
-    setLoading(true)
-    setError(null)
-    setResult(null)
-
-    try {
-      console.log("Testing API connection...")
-      const response = await fetch("http://127.0.0.1:8000/api/books/?is_featured=true", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Device-ID": "test-device"
-        },
-      })
-
-      console.log("Response status:", response.status)
-      console.log("Response headers:", Object.fromEntries(response.headers.entries()))
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+  useEffect(() => {
+    const fetchSiteSettings = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch('http://127.0.0.1:8000/api/contact/site-settings/')
+        
+        if (!response.ok) {
+          throw new Error('Site settings yüklənə bilmədi')
+        }
+        
+        const data = await response.json()
+        setSiteSettings(data)
+        setError(null)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Xəta baş verdi')
+        console.error('Site settings error:', err)
+      } finally {
+        setLoading(false)
       }
-
-      const data = await response.json()
-      console.log("API Response:", data)
-      setResult(data)
-    } catch (err) {
-      console.error("API Error:", err)
-      setError(err instanceof Error ? err.message : "Unknown error")
-    } finally {
-      setLoading(false)
     }
-  }
 
-  const testServerAPI = async () => {
-    setServerLoading(true)
-    setServerError(null)
-    setServerResult(null)
-
-    try {
-      console.log("Testing server-side API connection...")
-      const response = await fetch("/api/test", {
-        method: "GET"
-      })
-
-      console.log("Server API Response status:", response.status)
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      const data = await response.json()
-      console.log("Server API Response:", data)
-      setServerResult(data)
-    } catch (err) {
-      console.error("Server API Error:", err)
-      setServerError(err instanceof Error ? err.message : "Unknown error")
-    } finally {
-      setServerLoading(false)
-    }
-  }
-
-  const testCartAPI = async () => {
-    try {
-      console.log("Testing cart functionality...")
-      const response = await fetch("/api/test-cart", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ book_id: 12, quantity: 1 }) // Use valid book ID
-      })
-
-      const data = await response.json()
-      console.log("Cart test result:", data)
-      alert(JSON.stringify(data, null, 2))
-    } catch (err) {
-      console.error("Cart test error:", err)
-      alert("Cart test failed: " + (err instanceof Error ? err.message : "Unknown error"))
-    }
-  }
+    fetchSiteSettings()
+  }, [])
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">API Debug Page</h1>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-8">Debug Səhifəsi</h1>
       
-      <div className="space-y-4">
-        <div>
-          <h2 className="text-lg font-semibold mb-2">Direct API Test (Client → Backend)</h2>
-          <button 
-            onClick={testAPI}
-            disabled={loading}
-            className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
-          >
-            {loading ? "Testing..." : "Test Direct API Connection"}
-          </button>
-        </div>
-
-        <div>
-          <h2 className="text-lg font-semibold mb-2">Server API Test (Client → Next.js → Backend)</h2>
-          <button 
-            onClick={testServerAPI}
-            disabled={serverLoading}
-            className="bg-green-500 text-white px-4 py-2 rounded disabled:opacity-50"
-          >
-            {serverLoading ? "Testing..." : "Test Server API Connection"}
-          </button>
-        </div>
-
-        <div>
-          <h2 className="text-lg font-semibold mb-2">Cart Functionality Test</h2>
-          <button 
-            onClick={testCartAPI}
-            className="bg-purple-500 text-white px-4 py-2 rounded"
-          >
-            Test Add to Cart
-          </button>
-        </div>
+      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 className="text-xl font-semibold mb-4">Site Settings API Test</h2>
+        
+        {loading && (
+          <div className="text-gray-600">Yüklənir...</div>
+        )}
+        
+        {error && (
+          <div className="text-red-600 bg-red-100 p-4 rounded">
+            Xəta: {error}
+          </div>
+        )}
+        
+        {siteSettings && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h3 className="font-medium text-gray-700">Site Name:</h3>
+                <p className="text-gray-900">{siteSettings.site_name}</p>
+              </div>
+              
+              <div>
+                <h3 className="font-medium text-gray-700">Site Description:</h3>
+                <p className="text-gray-900">{siteSettings.site_description || 'Boş'}</p>
+              </div>
+              
+              <div>
+                <h3 className="font-medium text-gray-700">Navbar Logo:</h3>
+                <p className="text-gray-900">{siteSettings.navbar_logo}</p>
+                {siteSettings.navbar_logo_imagekit_url && (
+                  <div className="mt-2">
+                    <img 
+                      src={siteSettings.navbar_logo_imagekit_url} 
+                      alt="Navbar Logo" 
+                      className="h-20 object-contain border rounded"
+                    />
+                  </div>
+                )}
+              </div>
+              
+              <div>
+                <h3 className="font-medium text-gray-700">Footer Logo:</h3>
+                <p className="text-gray-900">{siteSettings.footer_logo}</p>
+                {siteSettings.footer_logo_imagekit_url && (
+                  <div className="mt-2">
+                    <img 
+                      src={siteSettings.footer_logo_imagekit_url} 
+                      alt="Footer Logo" 
+                      className="h-20 object-contain border rounded"
+                    />
+                  </div>
+                )}
+              </div>
+              
+              <div>
+                <h3 className="font-medium text-gray-700">Phone:</h3>
+                <p className="text-gray-900">{siteSettings.phone || 'Boş'}</p>
+              </div>
+              
+              <div>
+                <h3 className="font-medium text-gray-700">Email:</h3>
+                <p className="text-gray-900">{siteSettings.email || 'Boş'}</p>
+              </div>
+            </div>
+            
+            <div className="mt-6 p-4 bg-gray-100 rounded">
+              <h3 className="font-medium text-gray-700 mb-2">Raw API Response:</h3>
+              <pre className="text-sm text-gray-800 overflow-auto">
+                {JSON.stringify(siteSettings, null, 2)}
+              </pre>
+            </div>
+          </div>
+        )}
       </div>
-
-      {error && (
-        <div className="mt-4 p-4 bg-red-100 text-red-700 rounded">
-          <strong>Error:</strong> {error}
-        </div>
-      )}
-
-      {serverError && (
-        <div className="mt-4 p-4 bg-red-100 text-red-700 rounded">
-          <strong>Server API Error:</strong> {serverError}
-        </div>
-      )}
-
-      {serverResult && (
-        <div className="mt-4">
-          <h2 className="text-lg font-semibold">Server API Response:</h2>
-          <pre className="bg-gray-100 p-4 rounded mt-2 overflow-auto text-sm">
-            {JSON.stringify(serverResult, null, 2)}
-          </pre>
-        </div>
-      )}
-
-      {result && (
-        <div className="mt-4">
-          <h2 className="text-lg font-semibold">Direct API Response:</h2>
-          <pre className="bg-gray-100 p-4 rounded mt-2 overflow-auto text-sm">
-            {JSON.stringify(result, null, 2)}
-          </pre>
-        </div>
-      )}
     </div>
   )
 }

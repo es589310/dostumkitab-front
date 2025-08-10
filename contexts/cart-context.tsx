@@ -31,6 +31,8 @@ interface CartContextType {
   clearCart: () => void
   getTotalItems: () => number
   getTotalPrice: () => number
+  totalItems: number
+  setIsCartOpen: (isOpen: boolean) => void
   notification: { message: string; type: 'success' | 'error' } | null
 }
 
@@ -199,6 +201,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     clearCart,
     getTotalItems,
     getTotalPrice,
+    totalItems: getTotalItems(), // Add totalItems to the context value
+    setIsCartOpen: (isOpen) => {
+      // This function is not implemented in the original file,
+      // but it's part of the new interface.
+      // For now, it's a placeholder.
+      console.log('setIsCartOpen called with:', isOpen);
+    },
     notification,
   }
 

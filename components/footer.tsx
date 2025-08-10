@@ -1,55 +1,45 @@
 "use client"
 
-import { useEffect, useState, memo } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import api from "@/lib/api"
+import React, { memo, useEffect } from 'react'
+import Link from 'next/link'
+import { useSiteSettings } from '@/hooks/useSiteSettings'
 
 export const Footer = memo(function Footer() {
-  const [settings, setSettings] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const { settings, loading: settingsLoading } = useSiteSettings()
 
+  // Site settings məlumatlarını izlə
   useEffect(() => {
-    console.log("Footer: Component mounted, fetching settings...")
-    api.getSiteSettings()
-      .then((data) => {
-        console.log("Footer: Site settings loaded:", data)
-        setSettings(data)
-        setLoading(false)
-      })
-      .catch((err) => {
-        console.error("Footer: Error loading settings:", err)
-        setLoading(false)
-      })
-  }, [])
-
-  console.log("Footer: Rendering with settings:", settings, "loading:", loading)
-
-  if (loading) {
-    return (
-      <footer className="bg-gray-900 text-white" key="footer-loading">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto"></div>
-            <p className="mt-4 text-gray-300">Yüklənir...</p>
-          </div>
-        </div>
-      </footer>
-    )
-  }
+    console.log('Footer: Site settings updated:', settings)
+    if (settings) {
+      console.log('Footer: Navbar logo URL:', settings.navbar_logo_imagekit_url)
+      console.log('Footer: Footer logo URL:', settings.footer_logo_imagekit_url)
+    }
+  }, [settings])
 
   return (
-    <footer className="bg-gray-900 text-white" key="footer-loaded">
+    <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
           {/* Sol hissə - Logo və məlumatlar */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
-              <img
-                src="/logo.jpg"
-                alt="Fəzilət Kitab"
-                className="h-[39px] w-[250px] object-contain"
-              />
+              <Link href="/" className="hover:opacity-80 transition-opacity">
+                {settingsLoading ? (
+                  <div className="h-[39px] w-[250px] bg-gray-700 animate-pulse rounded"></div>
+                ) : settings?.footer_logo_imagekit_url ? (
+                  <img
+                    src={settings.footer_logo_imagekit_url}
+                    alt={settings.site_name || "Fəzilət Kitab"}
+                    className="h-[39px] w-[250px] object-contain"
+                  />
+                ) : (
+                  <img
+                    src="/placeholder-logo.png"
+                    alt="Fəzilət Kitab"
+                    className="h-[39px] w-[250px] object-contain"
+                  />
+                )}
+              </Link>
             </div>
             
             <p className="text-gray-300 mb-4 max-w-md">
@@ -145,6 +135,15 @@ export const Footer = memo(function Footer() {
                 </Link>
               </li>
             </ul>
+          </div>
+
+          {/* Sosial Media */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Sosial Media</h3>
+            {/* Assuming SocialMediaIcons component is removed or replaced */}
+            <p className="text-sm text-gray-400 mt-4">
+              Bizi sosial mediada izləyin və yeniliklərdən xəbərdar olun
+            </p>
           </div>
         </div>
 
