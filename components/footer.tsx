@@ -3,6 +3,7 @@
 import React, { memo, useEffect } from 'react'
 import Link from 'next/link'
 import { useSiteSettings } from '@/hooks/useSiteSettings'
+import SocialMediaIcons from './social-media-icons'
 
 export const Footer = memo(function Footer() {
   const { settings, loading: settingsLoading } = useSiteSettings()
@@ -13,6 +14,8 @@ export const Footer = memo(function Footer() {
     if (settings) {
       console.log('Footer: Navbar logo URL:', settings.navbar_logo_imagekit_url)
       console.log('Footer: Footer logo URL:', settings.footer_logo_imagekit_url)
+      console.log('Footer: Navbar logo file:', settings.navbar_logo)
+      console.log('Footer: Footer logo file:', settings.footer_logo)
     }
   }, [settings])
 
@@ -31,13 +34,29 @@ export const Footer = memo(function Footer() {
                     src={settings.footer_logo_imagekit_url}
                     alt={settings.site_name || "Fəzilət Kitab"}
                     className="h-[39px] w-[250px] object-contain"
+                    onError={(e) => {
+                      console.log('ImageKit footer logo yüklenemedi, local logo kullanılıyor')
+                      const target = e.target as HTMLImageElement
+                      if (settings?.footer_logo) {
+                        target.src = `http://127.0.0.1:8000${settings.footer_logo}`
+                      } else {
+                        target.style.display = 'none'
+                        target.nextElementSibling?.classList.remove('hidden')
+                      }
+                    }}
                   />
-                ) : (
+                ) : settings?.footer_logo ? (
                   <img
-                    src="/placeholder-logo.png"
-                    alt="Fəzilət Kitab"
+                    src={`http://127.0.0.1:8000${settings.footer_logo}`}
+                    alt={settings.site_name || "Fəzilət Kitab"}
                     className="h-[39px] w-[250px] object-contain"
                   />
+                ) : (
+                  <div className="h-[39px] w-[250px] bg-gray-700 rounded flex items-center justify-center">
+                    <span className="text-white font-bold text-lg">
+                      {settings?.site_name || "Logo Yoxdur"}
+                    </span>
+                  </div>
                 )}
               </Link>
             </div>
@@ -140,7 +159,7 @@ export const Footer = memo(function Footer() {
           {/* Sosial Media */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Sosial Media</h3>
-            {/* Assuming SocialMediaIcons component is removed or replaced */}
+            <SocialMediaIcons variant="footer" />
             <p className="text-sm text-gray-400 mt-4">
               Bizi sosial mediada izləyin və yeniliklərdən xəbərdar olun
             </p>

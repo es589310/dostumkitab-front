@@ -149,11 +149,11 @@ class ApiClient {
   }
 
   async getSiteSettings() {
-    return this.request<any>('/books/settings/');
+    return this.request<any>('/settings/site-settings/');
   }
 
   async getWhatsAppNumber() {
-    return this.request<{ whatsapp_number: string }>('/books/whatsapp-number/');
+    return this.request<{ whatsapp_number: string }>('/settings/whatsapp-number/');
   }
 
   // Auth API

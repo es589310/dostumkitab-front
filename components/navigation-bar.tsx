@@ -27,9 +27,9 @@ export function NavigationBar({ onCategorySelect }: NavigationBarProps) {
         if (Array.isArray(data)) {
           setCategories(data)
           console.log("NavigationBar: Set categories (direct array):", data.length, "items")
-        } else if (data && typeof data === "object" && "results" in data && Array.isArray(data.results)) {
-          setCategories(data.results)
-          console.log("NavigationBar: Set categories (from results):", data.results.length, "items")
+        } else if (data && typeof data === "object" && "results" in data && Array.isArray((data as CategoriesResponse).results)) {
+          setCategories((data as CategoriesResponse).results)
+          console.log("NavigationBar: Set categories (from results):", (data as CategoriesResponse).results.length, "items")
         } else {
           console.error("NavigationBar: Unexpected categories API response format:", data)
           setCategories([])
@@ -80,7 +80,7 @@ export function NavigationBar({ onCategorySelect }: NavigationBarProps) {
             
             {isDropdownOpen && (
               <div 
-                className="fixed top-24 left-1/2 transform -translate-x-1/2 w-80 bg-white border border-gray-200 rounded-lg shadow-2xl z-[99999]"
+                className="fixed top-40 left-8 w-80 bg-white border border-gray-200 rounded-lg shadow-2xl z-[99999]"
                 onMouseLeave={() => setIsDropdownOpen(false)}
               >
                 <div className="py-2 max-h-80 overflow-y-auto">

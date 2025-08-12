@@ -41,7 +41,7 @@ export default function SocialMediaIcons({ variant = 'footer', className = '' }:
   useEffect(() => {
     const fetchSocialLinks = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api/contact/social-links/');
+        const response = await fetch('http://127.0.0.1:8000/api/contact/social-links/');
         if (response.ok) {
           const data = await response.json();
           if (data.success) {
