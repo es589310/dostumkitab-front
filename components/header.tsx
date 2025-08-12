@@ -39,6 +39,8 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
     if (settings) {
       console.log('Header: Navbar logo URL:', settings.navbar_logo_imagekit_url)
       console.log('Header: Footer logo URL:', settings.footer_logo_imagekit_url)
+      console.log('Header: Navbar logo file:', settings.navbar_logo)
+      console.log('Header: Footer logo file:', settings.footer_logo)
     }
   }, [settings])
 
@@ -90,14 +92,30 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
                   <img 
                     src={settings.navbar_logo_imagekit_url} 
                     alt={settings.site_name || "KitabSat Logo"} 
+                    className="h-[39px] w-[250px] object-contain"
+                    onError={(e) => {
+                      console.log('ImageKit logo yüklenemedi, local logo kullanılıyor')
+                      const target = e.target as HTMLImageElement
+                      if (settings?.navbar_logo) {
+                        target.src = `http://127.0.0.1:8000${settings.navbar_logo}`
+                      } else {
+                        target.style.display = 'none'
+                        target.nextElementSibling?.classList.remove('hidden')
+                      }
+                    }}
+                  />
+                ) : settings?.navbar_logo ? (
+                  <img 
+                    src={`http://127.0.0.1:8000${settings.navbar_logo}`}
+                    alt={settings.site_name || "KitabSat Logo"} 
                     className="h-[39px] w-[250px] object-contain" 
                   />
                 ) : (
-                  <img 
-                    src="/placeholder-logo.png" 
-                    alt="KitabSat Logo" 
-                    className="h-[39px] w-[250px] object-contain" 
-                  />
+                  <div className="h-[39px] w-[250px] bg-gray-200 rounded flex items-center justify-center">
+                    <span className="text-gray-600 font-bold text-lg">
+                      {settings?.site_name || "Logo Yoxdur"}
+                    </span>
+                  </div>
                 )}
               </Link>
               {/* "KitabSat" mətni silindi */}

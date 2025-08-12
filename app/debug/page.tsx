@@ -1,110 +1,146 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useSiteSettings } from '@/hooks/useSiteSettings'
 
 export default function DebugPage() {
-  const [siteSettings, setSiteSettings] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  useEffect(() => {
-    const fetchSiteSettings = async () => {
-      try {
-        setLoading(true)
-        const response = await fetch('http://127.0.0.1:8000/api/contact/site-settings/')
-        
-        if (!response.ok) {
-          throw new Error('Site settings yüklənə bilmədi')
-        }
-        
-        const data = await response.json()
-        setSiteSettings(data)
-        setError(null)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Xəta baş verdi')
-        console.error('Site settings error:', err)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchSiteSettings()
-  }, [])
+  const { settings, loading, error } = useSiteSettings()
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Debug Səhifəsi</h1>
-      
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Site Settings API Test</h2>
+    <div className="min-h-screen bg-gray-50 p-8">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">Logo Debug Sayfası</h1>
         
         {loading && (
-          <div className="text-gray-600">Yüklənir...</div>
+          <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-4">
+            Yüklənir...
+          </div>
         )}
         
         {error && (
-          <div className="text-red-600 bg-red-100 p-4 rounded">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             Xəta: {error}
           </div>
         )}
         
-        {siteSettings && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <h3 className="font-medium text-gray-700">Site Name:</h3>
-                <p className="text-gray-900">{siteSettings.site_name}</p>
-              </div>
-              
-              <div>
-                <h3 className="font-medium text-gray-700">Site Description:</h3>
-                <p className="text-gray-900">{siteSettings.site_description || 'Boş'}</p>
-              </div>
-              
-              <div>
-                <h3 className="font-medium text-gray-700">Navbar Logo:</h3>
-                <p className="text-gray-900">{siteSettings.navbar_logo}</p>
-                {siteSettings.navbar_logo_imagekit_url && (
-                  <div className="mt-2">
-                    <img 
-                      src={siteSettings.navbar_logo_imagekit_url} 
-                      alt="Navbar Logo" 
-                      className="h-20 object-contain border rounded"
-                    />
-                  </div>
-                )}
-              </div>
-              
-              <div>
-                <h3 className="font-medium text-gray-700">Footer Logo:</h3>
-                <p className="text-gray-900">{siteSettings.footer_logo}</p>
-                {siteSettings.footer_logo_imagekit_url && (
-                  <div className="mt-2">
-                    <img 
-                      src={siteSettings.footer_logo_imagekit_url} 
-                      alt="Footer Logo" 
-                      className="h-20 object-contain border rounded"
-                    />
-                  </div>
-                )}
-              </div>
-              
-              <div>
-                <h3 className="font-medium text-gray-700">Phone:</h3>
-                <p className="text-gray-900">{siteSettings.phone || 'Boş'}</p>
-              </div>
-              
-              <div>
-                <h3 className="font-medium text-gray-700">Email:</h3>
-                <p className="text-gray-900">{siteSettings.email || 'Boş'}</p>
-              </div>
+        {settings && (
+          <div className="space-y-6">
+            <div className="bg-white p-6 rounded-lg shadow">
+              <h2 className="text-xl font-semibold mb-4">Site Settings</h2>
+              <pre className="bg-gray-100 p-4 rounded overflow-auto">
+                {JSON.stringify(settings, null, 2)}
+              </pre>
             </div>
             
-            <div className="mt-6 p-4 bg-gray-100 rounded">
-              <h3 className="font-medium text-gray-700 mb-2">Raw API Response:</h3>
-              <pre className="text-sm text-gray-800 overflow-auto">
-                {JSON.stringify(siteSettings, null, 2)}
-              </pre>
+            <div className="bg-white p-6 rounded-lg shadow">
+              <h2 className="text-xl font-semibold mb-4">Logo Test</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Navbar Logo */}
+                <div>
+                  <h3 className="text-lg font-medium mb-3">Navbar Logo</h3>
+                  
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">ImageKit URL:</p>
+                      <p className="text-xs text-gray-500 break-all">
+                        {settings.navbar_logo_imagekit_url || 'Yoxdur'}
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">Local URL:</p>
+                      <p className="text-xs text-gray-500 break-all">
+                        {settings.navbar_logo || 'Yoxdur'}
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">ImageKit Logo:</p>
+                      {settings.navbar_logo_imagekit_url ? (
+                        <img
+                          src={settings.navbar_logo_imagekit_url}
+                          alt="Navbar Logo (ImageKit)"
+                          className="max-w-full h-20 object-contain border border-gray-300 rounded"
+                          onError={(e) => {
+                            console.log('ImageKit navbar logo yüklenemedi')
+                            const target = e.target as HTMLImageElement
+                            target.style.display = 'none'
+                            target.nextElementSibling?.classList.remove('hidden')
+                          }}
+                        />
+                      ) : (
+                        <p className="text-gray-500">ImageKit URL yoxdur</p>
+                      )}
+                    </div>
+                    
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">Local Logo:</p>
+                      {settings.navbar_logo ? (
+                        <img
+                          src={`http://127.0.0.1:8000${settings.navbar_logo}`}
+                          alt="Navbar Logo (Local)"
+                          className="max-w-full h-20 object-contain border border-gray-300 rounded"
+                        />
+                      ) : (
+                        <p className="text-gray-500">Local logo yoxdur</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Footer Logo */}
+                <div>
+                  <h3 className="text-lg font-medium mb-3">Footer Logo</h3>
+                  
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">ImageKit URL:</p>
+                      <p className="text-xs text-gray-500 break-all">
+                        {settings.footer_logo_imagekit_url || 'Yoxdur'}
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">Local URL:</p>
+                      <p className="text-xs text-gray-500 break-all">
+                        {settings.footer_logo || 'Yoxdur'}
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">ImageKit Logo:</p>
+                      {settings.footer_logo_imagekit_url ? (
+                        <img
+                          src={settings.footer_logo_imagekit_url}
+                          alt="Footer Logo (ImageKit)"
+                          className="max-w-full h-20 object-contain border border-gray-300 rounded"
+                          onError={(e) => {
+                            console.log('ImageKit footer logo yüklenemedi')
+                            const target = e.target as HTMLImageElement
+                            target.style.display = 'none'
+                            target.nextElementSibling?.classList.remove('hidden')
+                          }}
+                        />
+                      ) : (
+                        <p className="text-gray-500">ImageKit URL yoxdur</p>
+                      )}
+                    </div>
+                    
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">Local Logo:</p>
+                      {settings.footer_logo ? (
+                        <img
+                          src={`http://127.0.0.1:8000${settings.footer_logo}`}
+                          alt="Footer Logo (Local)"
+                          className="max-w-full h-20 object-contain border border-gray-300 rounded"
+                        />
+                      ) : (
+                        <p className="text-gray-500">Local logo yoxdur</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}
