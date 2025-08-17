@@ -10,6 +10,7 @@ interface SiteSettings {
   phone: string
   email: string
   address: string
+  working_hours?: string
   copyright_year?: number
 }
 
@@ -22,10 +23,15 @@ export function useSiteSettings() {
     const fetchSettings = async () => {
       try {
         setLoading(true)
-        console.log('Fetching site settings from:', 'http://127.0.0.1:8000/api/settings/site-settings/')
+        
+        // Environment variable-dan API URL-ni al
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api'
+        const settingsUrl = `${apiUrl}/settings/site-settings/`
+        
+        console.log('Fetching site settings from:', settingsUrl)
         
         // Tam site settings məlumatlarını al
-        const settingsResponse = await fetch('http://127.0.0.1:8000/api/settings/site-settings/')
+        const settingsResponse = await fetch(settingsUrl)
         
         if (settingsResponse.ok) {
           const settingsData = await settingsResponse.json()
@@ -42,6 +48,7 @@ export function useSiteSettings() {
             phone: settingsData.phone || "+994 12 345 67 89",
             email: settingsData.email || "info@faziletkitab.az",
             address: settingsData.address || "Bakı, Azərbaycan",
+            working_hours: settingsData.working_hours || "Buxar 09:00 - 18:00, Şənbə 09:00 - 18:00, Yaxşı 09:00 - 18:00",
             copyright_year: settingsData.copyright_year || new Date().getFullYear()
           }
           console.log('Combined data:', combinedData)
@@ -59,6 +66,7 @@ export function useSiteSettings() {
             phone: "+994 12 345 67 89",
             email: "info@faziletkitab.az",
             address: "Bakı, Azərbaycan",
+            working_hours: "Buxar 09:00 - 18:00, Şənbə 09:00 - 18:00, Yaxşı 09:00 - 18:00",
             copyright_year: new Date().getFullYear()
           }
           setSettings(defaultData)
@@ -80,6 +88,7 @@ export function useSiteSettings() {
           phone: "+994 12 345 67 89",
           email: "info@faziletkitab.az",
           address: "Bakı, Azərbaycan",
+          working_hours: "Buxar 09:00 - 18:00, Şənbə 09:00 - 18:00, Yaxşı 09:00 - 18:00",
           copyright_year: new Date().getFullYear()
         }
         setSettings(defaultData)

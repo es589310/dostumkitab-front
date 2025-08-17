@@ -29,6 +29,18 @@ export const Footer = memo(function Footer() {
               <Link href="/" className="hover:opacity-80 transition-opacity">
                 {settingsLoading ? (
                   <div className="h-[39px] w-[250px] bg-gray-700 animate-pulse rounded"></div>
+                ) : settings?.footer_logo_imagekit_url ? (
+                  <img
+                    src={settings.footer_logo_imagekit_url}
+                    alt={settings.site_name || "KitabSat Logo"}
+                    className="h-[39px] w-[250px] object-contain"
+                    onError={(e) => {
+                      console.log('Footer logo failed to load, using default')
+                      const target = e.target as HTMLImageElement
+                      target.style.display = 'none'
+                      target.nextElementSibling?.classList.remove('hidden')
+                    }}
+                  />
                 ) : settings?.footer_logo ? (
                   <img
                     src={settings.footer_logo}
@@ -54,6 +66,27 @@ export const Footer = memo(function Footer() {
             <p className="text-gray-300 mb-4 max-w-md">
               {settings?.site_description || "Azərbaycanda ən böyük onlayn kitab mağazası. Minlərlə kitab, ən yaxşı qiymətlər və sürətli çatdırılma xidməti."}
             </p>
+            
+            {/* Ünvan və iş saatları */}
+            {settings?.address && (
+              <div className="flex items-start text-sm text-gray-300 mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0">
+                  <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                <span>{settings.address}</span>
+              </div>
+            )}
+            
+            {settings?.working_hours && (
+              <div className="flex items-start text-sm text-gray-300 mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12,6 12,12 16,14"></polyline>
+                </svg>
+                <span>{settings.working_hours}</span>
+              </div>
+            )}
             
             <div className="flex space-x-4">
               <div className="flex items-center text-sm text-gray-300">
