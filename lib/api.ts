@@ -1,7 +1,14 @@
 // lib/api.ts
 import { getDeviceId } from './device-id';
 
+// Debug: Environment variables yoxlayırıq
+console.log('API Client - Environment Variables:');
+console.log('NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
+console.log('NODE_ENV:', process.env.NODE_ENV);
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+
+console.log('API Client - Final API_BASE_URL:', API_BASE_URL);
 
 class ApiClient {
   private baseURL: string;
@@ -9,6 +16,7 @@ class ApiClient {
 
   constructor() {
     this.baseURL = API_BASE_URL;
+    console.log('ApiClient constructor - baseURL:', this.baseURL);
     this.loadToken();
   }
 
