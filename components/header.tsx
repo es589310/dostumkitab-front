@@ -83,7 +83,14 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
           <div className="flex items-center justify-between h-[100px]">
             {/* Logo */}
             <div className="flex items-center space-x-2">
-              <Link href="/">
+              <button 
+                onClick={() => {
+                  // Saytı yenilə (refresh)
+                  window.location.reload()
+                }}
+                className="hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
+                title="Saytı yenilə"
+              >
                 {settingsLoading ? (
                   <div className="h-[39px] w-[250px] bg-gray-200 animate-pulse rounded"></div>
                 ) : settings?.navbar_logo_imagekit_url ? (
@@ -117,7 +124,7 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
                     </span>
                   </div>
                 )}
-              </Link>
+              </button>
             </div>
 
             {/* Search Bar */}
