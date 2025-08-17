@@ -70,7 +70,14 @@ export function FeaturedBooks() {
     try {
       setError(null)
       console.log("FeaturedBooks: API call started")
-      console.log("FeaturedBooks: API URL:", `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api"}/books/?is_featured=true`)
+      
+      // Debug: Environment variables yoxlayırıq
+      console.log("FeaturedBooks: NEXT_PUBLIC_API_URL:", process.env.NEXT_PUBLIC_API_URL)
+      console.log("FeaturedBooks: NODE_ENV:", process.env.NODE_ENV)
+      
+      // API URL-i düzgün alırıq
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api"
+      console.log("FeaturedBooks: Final API URL:", apiUrl)
       
       const data = await api.getFeaturedBooks()
       console.log("FeaturedBooks: API response:", data)
