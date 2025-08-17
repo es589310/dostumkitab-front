@@ -114,7 +114,7 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
                 ) : (
                   <div className="h-[39px] w-[250px] bg-gray-200 rounded flex items-center justify-center">
                     <span className="text-gray-600 font-bold text-lg">
-                      {settings?.site_name || "Logo Yoxdur"}
+                      {settings?.site_name || "dostumkitab.az"}
                     </span>
                   </div>
                 )}
