@@ -26,7 +26,7 @@ export function HeaderWrapper() {
       <Header 
         onAuthClick={openAuthModal} 
         onSearch={handleSearch} 
-        onCategorySelect={() => {}} // Boş funksiya, artıq istifadə olunmur
+        onCategorySelect={() => {}}
       />
       <AuthModal
         isOpen={isAuthModalOpen}

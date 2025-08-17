@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Star, ShoppingCart } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
-import { useAuth } from "@/contexts/auth-context"
 import api, { type Book } from "@/lib/api"
 import Link from "next/link"
 import { toast } from "@/components/ui/use-toast"
@@ -16,9 +15,8 @@ export function FeaturedBooks() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const { addItem, cart } = useCart()
-  const { isAuthenticated } = useAuth()
   
-  // Cart yenilənməsini izlə
+  // Track cart updates
   useEffect(() => {
     console.log('FeaturedBooks: Cart updated:', cart)
     if (cart) {
@@ -28,17 +26,17 @@ export function FeaturedBooks() {
 
   const handleAddToCart = async (book: Book) => {
     try {
-      // Stok kontrolü - cart'ta bu kitaptan ne kadar var
+      // Stock check - how many of this book are already in cart
       const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
       const currentQuantity = currentCartItem?.quantity || 0
       const availableStock = book.stock_quantity
       
-      // Əgər cart'ta bu kitaptan artıq varsa və stok limitinə çatıbsa
+      // If this book is already in cart and stock limit is reached
       if (currentQuantity >= availableStock) {
-        // Stok məlumatını göstər
+        // Show stock information
         const remainingStock = availableStock - currentQuantity
         if (remainingStock <= 0) {
-          // Stokda heç bir şey yoxdur
+          // No stock available
           toast({
             title: "Stokda yoxdur!",
             description: `Bu kitabdan artıq ${currentQuantity} ədəd səbətinizdə var və stokda yalnız ${availableStock} ədəd var.`,
@@ -46,7 +44,7 @@ export function FeaturedBooks() {
           })
           return
         } else {
-          // Stokda məhdud sayda var
+          // Limited stock available
           toast({
             title: "Stok məhdudiyyəti!",
             description: `Bu kitabdan artıq ${currentQuantity} ədəd səbətinizdə var. Stokda yalnız ${remainingStock} ədəd qalıb.`,
@@ -57,10 +55,10 @@ export function FeaturedBooks() {
       }
       
       await addItem(book.id)
-      // Bildiriş silindi - cart avtomatik yenilənir
+      // Notification removed - cart updates automatically
     } catch (error: any) {
       console.error("Səbətə əlavə edərkən xəta:", error)
-      // Xəta halında da bildiriş göstərilmir
+      // No notification shown on error
     }
   }
 
@@ -71,15 +69,15 @@ export function FeaturedBooks() {
   const fetchFeaturedBooks = async () => {
     try {
       setError(null)
-      console.log("FeaturedBooks: API çağırışı başladı")
+      console.log("FeaturedBooks: API call started")
       console.log("FeaturedBooks: API URL:", `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api"}/books/?is_featured=true`)
       
       const data = await api.getFeaturedBooks()
-      console.log("FeaturedBooks: API cavabı:", data)
+      console.log("FeaturedBooks: API response:", data)
       console.log("FeaturedBooks: Response type:", typeof data)
       console.log("FeaturedBooks: Response keys:", Object.keys(data || {}))
 
-      // API cavabını yoxla
+      // Check API response
       if (Array.isArray(data)) {
         console.log("FeaturedBooks: Response is array")
         setBooks(data)
@@ -101,7 +99,7 @@ export function FeaturedBooks() {
     }
   }
 
-  // Error state əlavə edin
+  // Add error state
   if (error) {
     return (
       <section className="py-16 bg-white">
@@ -117,7 +115,7 @@ export function FeaturedBooks() {
     )
   }
 
-  // Loading state-də də books.length yoxlaması əlavə edin
+  // Add books.length check in loading state
   if (isLoading) {
     return (
       <section className="py-16 bg-white">
@@ -142,7 +140,7 @@ export function FeaturedBooks() {
     )
   }
 
-  // Books array-ini yoxlayın
+  // Check books array
   if (!Array.isArray(books) || books.length === 0) {
     return (
       <section className="py-16 bg-white">
@@ -156,7 +154,7 @@ export function FeaturedBooks() {
     )
   }
 
-  // Render books - artıq təhlükəsizdir
+  // Render books - now safe
   return (
     <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -222,7 +220,7 @@ export function FeaturedBooks() {
               
               <div className="px-4 pb-4">
                 <Button 
-                  className="w-full" 
+                  className={`w-full ${book.stock_quantity === 0 ? '' : 'bg-green-600 hover:bg-green-700'}`}
                   onClick={(e) => {
                     e.preventDefault()
                     handleAddToCart(book)

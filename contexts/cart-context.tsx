@@ -2,15 +2,11 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import api from '@/lib/api'
+import { type Book } from '@/lib/api'
 
 interface CartItem {
   id: number
-  book: {
-    id: number
-    title: string
-    price: number
-    cover_image?: string
-  }
+  book: Book
   quantity: number
   total_price: number
 }

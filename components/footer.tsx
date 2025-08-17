@@ -8,7 +8,7 @@ import SocialMediaIcons from './social-media-icons'
 export const Footer = memo(function Footer() {
   const { settings, loading: settingsLoading } = useSiteSettings()
 
-  // Site settings məlumatlarını izlə
+  // Track site settings data
   useEffect(() => {
     console.log('Footer: Site settings updated:', settings)
     if (settings) {
@@ -23,7 +23,7 @@ export const Footer = memo(function Footer() {
     <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
-          {/* Sol hissə - Logo və məlumatlar */}
+          {/* Left section - Logo and information */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
               <Link href="/" className="hover:opacity-80 transition-opacity">
@@ -35,7 +35,7 @@ export const Footer = memo(function Footer() {
                     alt={settings.site_name || "Fəzilət Kitab"}
                     className="h-[39px] w-[250px] object-contain"
                     onError={(e) => {
-                      console.log('ImageKit footer logo yüklenemedi, local logo kullanılıyor')
+                      console.log('ImageKit footer logo failed to load, using local logo')
                       const target = e.target as HTMLImageElement
                       if (settings?.footer_logo) {
                         target.src = `http://127.0.0.1:8000${settings.footer_logo}`
@@ -92,7 +92,7 @@ export const Footer = memo(function Footer() {
             </div>
           </div>
 
-          {/* Sürətli Keçidlər */}
+          {/* Quick Links */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Sürətli Keçidlər</h3>
             <ul className="space-y-2 text-gray-300">
@@ -124,7 +124,7 @@ export const Footer = memo(function Footer() {
             </ul>
           </div>
 
-          {/* Müştəri Xidməti */}
+          {/* Customer Service */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Müştəri Xidməti</h3>
             <ul className="space-y-2 text-gray-300">
@@ -156,7 +156,7 @@ export const Footer = memo(function Footer() {
             </ul>
           </div>
 
-          {/* Sosial Media */}
+          {/* Social Media */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Sosial Media</h3>
             <SocialMediaIcons variant="footer" />
@@ -166,7 +166,7 @@ export const Footer = memo(function Footer() {
           </div>
         </div>
 
-        {/* Alt hissə */}
+        {/* Bottom section */}
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
           <p>© {settings?.copyright_year || 2024} {settings?.site_name || "Fəzilət Kitab"}. Bütün hüquqlar qorunur.</p>
         </div>

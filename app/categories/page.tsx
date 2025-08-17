@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import api, { type Category } from "@/lib/api"
+import api, { type Category, type CategoriesResponse } from "@/lib/api"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -38,8 +38,8 @@ export default function CategoriesPage() {
         const data = await api.getCategories()
         if (Array.isArray(data)) {
           setCategories(data)
-        } else if (data && typeof data === "object" && "results" in data && Array.isArray(data.results)) {
-          setCategories(data.results)
+        } else if (data && typeof data === "object" && "results" in data && Array.isArray((data as CategoriesResponse).results)) {
+          setCategories((data as CategoriesResponse).results)
         } else {
           setCategories([])
         }
@@ -141,7 +141,7 @@ export default function CategoriesPage() {
                     )}
                     
                     <div className="flex items-center justify-center space-x-2">
-                      {category.books_count > 0 ? (
+                      {category.books_count && category.books_count > 0 ? (
                         <Badge variant="secondary" className="text-xs">
                           {category.books_count} kitab
                         </Badge>

@@ -129,8 +129,8 @@ class ApiClient {
     return this.request<Book>(`/books/${slug}/`);
   }
 
-  async getCategories() {
-    return this.request<Category[]>('/books/categories/');
+  async getCategories(): Promise<CategoriesResponse | Category[]> {
+    return this.request<CategoriesResponse | Category[]>('/books/categories/');
   }
 
   async getBookReviews(bookId: number) {
@@ -225,6 +225,36 @@ class ApiClient {
     });
   }
 
+  // Orders API
+  async createOrder(orderData: {
+    delivery_name: string;
+    delivery_phone: string;
+    delivery_address_text: string;
+    payment_method: string;
+    notes?: string;
+  }) {
+    // Device ID-ni al
+    const deviceId = this.getDeviceId();
+    
+    return this.request<any>('/orders/orders/create/', {
+      method: 'POST',
+      headers: {
+        'X-Device-ID': deviceId
+      },
+      body: JSON.stringify(orderData),
+    });
+  }
+
+  private getDeviceId(): string {
+    // Local storage-dan device ID-ni al və ya yeni yarad
+    let deviceId = localStorage.getItem('device_id');
+    if (!deviceId) {
+      deviceId = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('device_id', deviceId);
+    }
+    return deviceId;
+  }
+
   // Contact API
   async sendContactMessage(data: {
     name?: string;
@@ -310,4 +340,29 @@ export interface CategoriesResponse {
   next?: string;
   previous?: string;
   results: Category[];
+}
+
+// Auth types
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  first_name?: string;
+  last_name?: string;
+  is_active: boolean;
+  date_joined: string;
+}
+
+export interface LoginData {
+  username: string;
+  password: string;
+}
+
+export interface RegisterData {
+  username: string;
+  email: string;
+  password: string;
+  password_confirm: string;
+  first_name?: string;
+  last_name?: string;
 }

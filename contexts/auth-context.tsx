@@ -19,7 +19,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Səhifə yüklənəndə istifadəçi məlumatlarını yoxla
     checkAuthStatus()
   }, [])
 
@@ -32,7 +31,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error("Auth check failed:", error)
-      // Token invalid olarsa təmizlə
       api.logout()
     } finally {
       setIsLoading(false)

@@ -6,6 +6,10 @@ import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 
+// Modern React 19+ type definitions with proper constraints
+type ComponentRef<T extends React.ElementType<any, keyof React.JSX.IntrinsicElements>> = React.ComponentRef<T>
+type ComponentPropsWithoutRef<T extends React.ElementType<any, keyof React.JSX.IntrinsicElements>> = React.ComponentPropsWithoutRef<T>
+
 const toggleVariants = cva(
   "inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors hover:bg-muted hover:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 gap-2",
   {
@@ -29,8 +33,8 @@ const toggleVariants = cva(
 )
 
 const Toggle = React.forwardRef<
-  React.ElementRef<typeof TogglePrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof TogglePrimitive.Root> &
+  ComponentRef<typeof TogglePrimitive.Root>,
+  ComponentPropsWithoutRef<typeof TogglePrimitive.Root> &
     VariantProps<typeof toggleVariants>
 >(({ className, variant, size, ...props }, ref) => (
   <TogglePrimitive.Root

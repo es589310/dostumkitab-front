@@ -7,6 +7,10 @@ import { X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
+// Modern React 19+ type definitions with proper constraints
+type ComponentRef<T extends React.ElementType<any, keyof React.JSX.IntrinsicElements>> = React.ComponentRef<T>
+type ComponentPropsWithoutRef<T extends React.ElementType<any, keyof React.JSX.IntrinsicElements>> = React.ComponentPropsWithoutRef<T>
+
 const Sheet = SheetPrimitive.Root
 
 const SheetTrigger = SheetPrimitive.Trigger
@@ -16,8 +20,8 @@ const SheetClose = SheetPrimitive.Close
 const SheetPortal = SheetPrimitive.Portal
 
 const SheetOverlay = React.forwardRef<
-  React.ElementRef<typeof SheetPrimitive.Overlay>,
-  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Overlay>
+  ComponentRef<typeof SheetPrimitive.Overlay>,
+  ComponentPropsWithoutRef<typeof SheetPrimitive.Overlay>
 >(({ className, ...props }, ref) => (
   <SheetPrimitive.Overlay
     className={cn(
@@ -54,7 +58,7 @@ interface SheetContentProps
     VariantProps<typeof sheetVariants> {}
 
 const SheetContent = React.forwardRef<
-  React.ElementRef<typeof SheetPrimitive.Content>,
+  ComponentRef<typeof SheetPrimitive.Content>,
   SheetContentProps
 >(({ side = "right", className, children, ...props }, ref) => (
   <SheetPortal>
@@ -103,8 +107,8 @@ const SheetFooter = ({
 SheetFooter.displayName = "SheetFooter"
 
 const SheetTitle = React.forwardRef<
-  React.ElementRef<typeof SheetPrimitive.Title>,
-  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Title>
+  ComponentRef<typeof SheetPrimitive.Title>,
+  ComponentPropsWithoutRef<typeof SheetPrimitive.Title>
 >(({ className, ...props }, ref) => (
   <SheetPrimitive.Title
     ref={ref}
@@ -115,8 +119,8 @@ const SheetTitle = React.forwardRef<
 SheetTitle.displayName = SheetPrimitive.Title.displayName
 
 const SheetDescription = React.forwardRef<
-  React.ElementRef<typeof SheetPrimitive.Description>,
-  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Description>
+  ComponentRef<typeof SheetPrimitive.Description>,
+  ComponentPropsWithoutRef<typeof SheetPrimitive.Description>
 >(({ className, ...props }, ref) => (
   <SheetPrimitive.Description
     ref={ref}

@@ -6,9 +6,13 @@ import { Circle } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
+// Modern React 19+ type definitions with proper constraints
+type ComponentRef<T extends React.ElementType<any, keyof React.JSX.IntrinsicElements>> = React.ComponentRef<T>
+type ComponentPropsWithoutRef<T extends React.ElementType<any, keyof React.JSX.IntrinsicElements>> = React.ComponentPropsWithoutRef<T>
+
 const RadioGroup = React.forwardRef<
-  React.ElementRef<typeof RadioGroupPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
+  ComponentRef<typeof RadioGroupPrimitive.Root>,
+  ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
 >(({ className, ...props }, ref) => {
   return (
     <RadioGroupPrimitive.Root
@@ -21,8 +25,8 @@ const RadioGroup = React.forwardRef<
 RadioGroup.displayName = RadioGroupPrimitive.Root.displayName
 
 const RadioGroupItem = React.forwardRef<
-  React.ElementRef<typeof RadioGroupPrimitive.Item>,
-  React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>
+  ComponentRef<typeof RadioGroupPrimitive.Item>,
+  ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>
 >(({ className, ...props }, ref) => {
   return (
     <RadioGroupPrimitive.Item

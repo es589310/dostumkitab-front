@@ -1,12 +1,11 @@
 "use client"
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { CheckCircle, X, Phone } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import { useState, useEffect } from "react"
-import api from "@/lib/api"
-import { getMediaUrl } from "@/lib/utils"
+import api, { type Book } from "@/lib/api"
+import { useToast } from "@/hooks/use-toast"
 
 interface OrderConfirmationProps {
   isOpen: boolean
@@ -17,15 +16,16 @@ export function OrderConfirmation({ isOpen, onClose }: OrderConfirmationProps) {
   const { cart, getTotalPrice, clearCart } = useCart()
   const [isConfirming, setIsConfirming] = useState(false)
   const [whatsappNumber, setWhatsAppNumber] = useState("+994501234567")
+  const { toast } = useToast()
   
-  // WhatsApp nömrəsini API-dən al
+  // Get WhatsApp number from API
   useEffect(() => {
     const fetchWhatsAppNumber = async () => {
       try {
         const response = await api.getWhatsAppNumber()
         setWhatsAppNumber(response.whatsapp_number)
       } catch (error) {
-        console.error('WhatsApp nömrəsi alınmadı:', error)
+        console.error('Failed to get WhatsApp number:', error)
       }
     }
     
@@ -41,37 +41,72 @@ export function OrderConfirmation({ isOpen, onClose }: OrderConfirmationProps) {
   const whatsappMessage = `Salam! Kitab sifarişi vermək istəyirəm.
 
 Sifariş məlumatları:
-${items.map(item => {
+${items.map((item) => {
   const bookUrl = `${window.location.origin}/book/${item.book.slug}`
-  const imageUrl = getMediaUrl(item.book.cover_image)
   return `📚 ${item.book.title} (${item.quantity} ədəd)
 💰 Qiymət: ${item.book.price}₼
-🔗 Məhsul linki: ${bookUrl}
-🖼️ Şəkil: ${imageUrl}`
+✍️ Müəllif: ${item.book.authors?.map((author) => author.name).join(", ") || "Məlumat yoxdur"}
+🔗 Məhsul linki: ${bookUrl}`
 }).join('\n\n')}
 
 💳 Ümumi məbləğ: ${totalPrice.toFixed(2)}₼
 🛒 Sifariş linki: ${window.location.origin}/cart
 
-📱 Şəkilləri görmək üçün linkləri kopyalayıb brauzerə yapışdırın!
+📱 Məhsul linklərini WhatsApp-da açdığınızda şəkillər avtomatik görünəcək!
 
 Təşəkkürlər! 🚀`
 
   const handleConfirmOrder = async () => {
     setIsConfirming(true)
     
-    // WhatsApp-a yönləndir
-    const whatsappUrl = `https://wa.me/${whatsappNumber.replace('+', '')}?text=${encodeURIComponent(whatsappMessage)}`
-    window.open(whatsappUrl, '_blank')
-    
-    // Səbəti təmizlə
-    await clearCart()
-    
-    // Pəncərəni bağla
-    setTimeout(() => {
-      onClose()
+    try {
+      // Create order in backend
+      const orderData = {
+        delivery_name: 'WhatsApp',
+        delivery_phone: '0000000000',
+        delivery_address_text: 'WhatsApp-də təyin ediləcək',
+        payment_method: 'cash',
+        notes: 'WhatsApp sifarişi'
+      }
+      
+      const orderResponse = await api.createOrder(orderData)
+      console.log('Order created:', orderResponse)
+      
+      // Prepare WhatsApp number in correct format
+      const cleanWhatsAppNumber = whatsappNumber.replace(/[^0-9]/g, '')
+      const whatsappUrl = `https://wa.me/${cleanWhatsAppNumber}?text=${encodeURIComponent(whatsappMessage)}`
+      
+      // Redirect to WhatsApp after order is successfully created
+      window.open(whatsappUrl, '_blank')
+      
+      // Clear cart
+      await clearCart()
+      
+      // Show success notification
+      toast({
+        title: "🎉 Sifariş Uğurla Yaradıldı!",
+        description: "Sifarişiniz təsdiqləndi və WhatsApp-a yönləndirildiniz.",
+        variant: "success",
+      })
+      
+      // Close window
+      setTimeout(() => {
+        onClose()
+        setIsConfirming(false)
+      }, 2000)
+      
+    } catch (error: any) {
+      console.error('Error creating order:', error)
+      
+              // Show error notification
+      toast({
+        title: "❌ Xəta Baş Verdi",
+        description: error.message || 'Sifariş yaradılarkən xəta baş verdi!',
+        variant: "destructive",
+      })
+      
       setIsConfirming(false)
-    }, 1000)
+    }
   }
 
   return (
@@ -99,17 +134,13 @@ Təşəkkürlər! 🚀`
                   {items.map((item) => (
                     <div key={item.id} className="flex items-center space-x-3 bg-white p-3 rounded-lg shadow-sm">
                       <img
-                        src={getMediaUrl(item.book.cover_image)}
+                        src={item.book.cover_image || "/placeholder.svg"}
                         alt={item.book.title}
                         className="h-20 w-16 object-cover rounded"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = "/placeholder.svg";
-                        }}
                       />
                       <div className="flex-1">
                         <h4 className="font-medium text-sm line-clamp-2">{item.book.title}</h4>
-                        <p className="text-xs text-gray-600">{item.book.authors.map((a) => a.name).join(", ")}</p>
+                        <p className="text-xs text-gray-600">{item.book.authors?.map((a) => a.name).join(", ") || "Məlumat yoxdur"}</p>
                         <p className="text-sm font-semibold text-green-600">{item.book.price}₼</p>
                       </div>
                       <div className="text-right">
@@ -132,26 +163,27 @@ Təşəkkürlər! 🚀`
               </div>
 
               {/* WhatsApp Info */}
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <Phone className="h-4 w-4 text-blue-600" />
-                  <span className="font-medium text-blue-800">WhatsApp ilə sifariş</span>
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
+                <div className="flex items-center gap-2 mb-3">
+                  <Phone className="h-5 w-5 text-green-600" />
+                  <span className="font-semibold text-green-800 text-lg">WhatsApp ilə Sifariş</span>
                 </div>
-                <p className="text-sm text-blue-700 mb-3">
+                <p className="text-sm text-green-700 mb-3">
                   Sifarişinizi təsdiqləmək üçün WhatsApp-a yönləndiriləcəksiniz. 
-                  Satış nömrəsi: <span className="font-semibold">{whatsappNumber}</span>
+                  Satış nömrəsi: <span className="font-semibold text-green-800">{whatsappNumber}</span>
                 </p>
                 
-                {/* Şəkil Təlimatı */}
-                <div className="bg-blue-100 p-3 rounded-lg border-l-4 border-blue-400">
-                  <div className="flex items-start gap-2">
-                    <span className="text-blue-600 text-lg">💡</span>
-                    <div className="text-xs text-blue-800">
-                      <p className="font-medium mb-1">Şəkilləri görmək üçün:</p>
-                      <ol className="list-decimal list-inside space-y-1 text-xs">
-                        <li>WhatsApp mesajındakı şəkil linkini kopyalayın</li>
-                        <li>Brauzerə yapışdırıb Enter basın</li>
-                        <li>Şəkli tam ölçüdə görə bilərsiniz</li>
+                {/* Simple Order Process */}
+                <div className="bg-green-100 p-4 rounded-lg border-l-4 border-green-400">
+                  <div className="flex items-start gap-3">
+                    <span className="text-green-600 text-xl">💡</span>
+                    <div className="text-sm text-green-800">
+                      <p className="font-semibold mb-2">Sadə Sifariş Prosesi:</p>
+                      <ol className="list-decimal list-inside space-y-1">
+                        <li>Düyməyə basın və WhatsApp-a yönləndirilin</li>
+                        <li>WhatsApp-da çatdırılma məlumatlarınızı yazın</li>
+                        <li>Satış nümayəndəsi sizinlə əlaqə saxlayacaq</li>
+                        <li>Sifarişiniz təsdiqlənəcək və çatdırılacaq</li>
                       </ol>
                     </div>
                   </div>
@@ -176,7 +208,7 @@ Təşəkkürlər! 🚀`
               ) : (
                 <>
                   <Phone className="h-4 w-4 mr-2" />
-                  Sifarişi Təsdiqlə
+                  WhatsApp ilə Sifariş Et
                 </>
               )}
             </Button>

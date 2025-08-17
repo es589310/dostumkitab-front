@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Star, ShoppingCart } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
-import { useAuth } from "@/contexts/auth-context"
 import Link from "next/link"
 
 export default function DiscountsPage() {
@@ -15,7 +14,6 @@ export default function DiscountsPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const { addItem } = useCart()
-  const { isAuthenticated } = useAuth()
 
   useEffect(() => {
     setLoading(true)
@@ -23,10 +21,10 @@ export default function DiscountsPage() {
 
     const fetchDiscountBooks = async () => {
       try {
-        // İndirimli kitapları getir (discount_percentage > 0 olanlar)
+        // Get discounted books (those with discount_percentage > 0)
         const res = await api.getBooks({})
         if (res && Array.isArray(res.results)) {
-          // Sadece indirimli kitapları filtrele
+          // Filter only discounted books
           const discountBooks = res.results.filter(book => book.discount_percentage > 0)
           setBooks(discountBooks)
         } else {
@@ -44,17 +42,12 @@ export default function DiscountsPage() {
   }, [])
 
   const handleAddToCart = async (book: Book) => {
-    if (!isAuthenticated) {
-      alert("Səbətə əlavə etmək üçün giriş etməlisiniz!")
-      return
-    }
-
     try {
       await addItem(book.id)
-      // Bildiriş silindi - cart avtomatik yenilənir
+      // Notification deleted - cart updates automatically
     } catch (error: any) {
       console.error("Səbətə əlavə edərkən xəta:", error)
-      // Xəta halında da bildiriş göstərilmir
+      // Notification is not shown in case of an error
     }
   }
 
@@ -121,7 +114,7 @@ export default function DiscountsPage() {
             
             <div className="px-4 pb-4">
               <Button 
-                className="w-full" 
+                className={`w-full ${book.stock_quantity === 0 ? '' : 'bg-green-600 hover:bg-green-700'}`}
                 onClick={(e) => {
                   e.preventDefault()
                   handleAddToCart(book)

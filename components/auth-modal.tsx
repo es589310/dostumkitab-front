@@ -38,7 +38,7 @@ export function AuthModal({ isOpen, onClose, mode, onModeChange }: AuthModalProp
           return
         }
         await register({
-          username: formData.email, // Email-i username kimi istifadə edirik
+          username: formData.email, 
           email: formData.email,
           first_name: formData.name.split(" ")[0] || "",
           last_name: formData.name.split(" ").slice(1).join(" ") || "",

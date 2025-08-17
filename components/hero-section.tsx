@@ -10,16 +10,16 @@ export function HeroSection() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    console.log("HeroSection: Banner API çağırışı başladı")
+    console.log("HeroSection: Banner API call started")
     console.log("HeroSection: API URL:", `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api"}/books/banners/`)
     
     api.getBanners()
       .then((response: any) => {
-        console.log("HeroSection: API cavabı:", response)
+        console.log("HeroSection: API response:", response)
         console.log("HeroSection: Response type:", typeof response)
         console.log("HeroSection: Response keys:", Object.keys(response || {}))
         
-        // API cavabının strukturunu yoxla
+        // Check API response structure
         let bannerList = []
         if (response && typeof response === 'object') {
           if (Array.isArray(response)) {
@@ -33,31 +33,31 @@ export function HeroSection() {
           }
         }
         
-        console.log("HeroSection: İşlənmiş bannerlər:", bannerList)
+        console.log("HeroSection: Processed banners:", bannerList)
         
         if (bannerList.length > 0) {
-          console.log("HeroSection: Bannerlər tapıldı:", bannerList.length)
+          console.log("HeroSection: Banners found:", bannerList.length)
           setBanners(bannerList)
         } else {
-          console.log("HeroSection: Banner tapılmadı")
+          console.log("HeroSection: No banners found")
         }
         setLoading(false)
       })
       .catch((err) => {
-        console.error("HeroSection: API xətası:", err)
+        console.error("HeroSection: API error:", err)
         console.error("HeroSection: Error details:", err.message, err.stack)
         setError(err.message)
         setLoading(false)
       })
   }, [])
 
-  // Avtomatik karusel
+  // Auto carousel
   useEffect(() => {
     if (banners.length <= 1) return
 
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % banners.length)
-    }, 5000) // 5 saniyədə bir dəyişir
+    }, 5000) // Changes every 5 seconds
 
     return () => clearInterval(interval)
   }, [banners.length])
@@ -79,7 +79,7 @@ export function HeroSection() {
       <div className="relative w-full h-[400px] flex items-center justify-center bg-gray-100">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Banner yüklənir...</p>
+          <p className="mt-4 text-gray-600">Loading banner...</p>
         </div>
       </div>
     )
@@ -89,7 +89,7 @@ export function HeroSection() {
     return (
       <div className="relative w-full h-[400px] flex items-center justify-center bg-gray-100">
         <div className="text-center text-red-600">
-          <p>Xəta: {error}</p>
+          <p>Error: {error}</p>
         </div>
       </div>
     )
@@ -99,7 +99,7 @@ export function HeroSection() {
     return (
       <div className="relative w-full h-[400px] flex items-center justify-center bg-gray-100">
         <div className="text-center text-gray-600">
-          <p>Banner tapılmadı</p>
+          <p>No banners found</p>
         </div>
       </div>
     )
@@ -127,7 +127,7 @@ export function HeroSection() {
             {/* Overlay */}
             <div className="absolute inset-0 bg-black bg-opacity-40"></div>
             
-            {/* Məzmun */}
+            {/* Content */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center text-white z-10">
                 <h1 className="text-4xl font-bold mb-4">{banner.title}</h1>
@@ -148,10 +148,10 @@ export function HeroSection() {
         ))}
       </div>
 
-      {/* Naviqasiya düymələri */}
+      {/* Navigation buttons */}
       {banners.length > 1 && (
         <>
-          {/* Sol düymə */}
+          {/* Left button */}
           <button
             onClick={goToPrevious}
             className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-2 rounded-full transition-all duration-300"
@@ -161,7 +161,7 @@ export function HeroSection() {
             </svg>
           </button>
 
-          {/* Sağ düymə */}
+          {/* Right button */}
           <button
             onClick={goToNext}
             className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-2 rounded-full transition-all duration-300"
@@ -173,7 +173,7 @@ export function HeroSection() {
         </>
       )}
 
-      {/* Dots indikatoru */}
+      {/* Dots indicator */}
       {banners.length > 1 && (
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
           {banners.map((_, index) => (
@@ -190,7 +190,7 @@ export function HeroSection() {
         </div>
       )}
 
-      {/* Dekorativ dairələr */}
+      {/* Decorative circles */}
       <div className="absolute top-20 left-20 w-32 h-32 border-2 border-white rounded-full opacity-20"></div>
       <div className="absolute bottom-20 right-20 w-24 h-24 border-2 border-white rounded-full opacity-20"></div>
       <div className="absolute top-1/2 right-10 w-16 h-16 border-2 border-white rounded-full opacity-20"></div>

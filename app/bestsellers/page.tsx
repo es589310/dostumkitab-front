@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Star, ShoppingCart } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
-import { useAuth } from "@/contexts/auth-context"
 import Link from "next/link"
 
 export default function BestsellersPage() {
@@ -15,7 +14,6 @@ export default function BestsellersPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const { addItem } = useCart()
-  const { isAuthenticated } = useAuth()
 
   useEffect(() => {
     setLoading(true)
@@ -43,11 +41,6 @@ export default function BestsellersPage() {
   }, [])
 
   const handleAddToCart = async (book: Book) => {
-    if (!isAuthenticated) {
-      alert("Səbətə əlavə etmək üçün giriş etməlisiniz!")
-      return
-    }
-
     try {
       await addItem(book.id)
       // Bildiriş silindi - cart avtomatik yenilənir
@@ -120,7 +113,7 @@ export default function BestsellersPage() {
             
             <div className="px-4 pb-4">
               <Button 
-                className="w-full" 
+                className={`w-full ${book.stock_quantity === 0 ? '' : 'bg-green-600 hover:bg-green-700'}`}
                 onClick={(e) => {
                   e.preventDefault()
                   handleAddToCart(book)

@@ -57,7 +57,7 @@ export function NavigationBar({ onCategorySelect }: NavigationBarProps) {
   }, [])
 
   const handleCategoryClick = (categoryId: string) => {
-    setIsDropdownOpen(false) // Dropdown-u bağla
+    setIsDropdownOpen(false) // Close dropdown
     router.push(`/category/${categoryId}`)
   }
 
@@ -65,9 +65,9 @@ export function NavigationBar({ onCategorySelect }: NavigationBarProps) {
     <div className="bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <nav className="flex items-center justify-between py-3">
-          {/* Sol tərəf - Kateqoriyalar */}
+          {/* Left side - Categories */}
           <div className="flex items-center space-x-4 md:space-x-8 overflow-x-auto">
-          {/* Kateqoriyalar Dropdown */}
+                      {/* Categories Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <button 
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -108,7 +108,7 @@ export function NavigationBar({ onCategorySelect }: NavigationBarProps) {
             )}
           </div>
 
-          {/* Ən Çox Satılan */}
+          {/* Bestsellers */}
           <Link 
             href="/bestsellers" 
             className="text-gray-700 hover:text-blue-600 transition-colors px-4 md:px-6 py-2 md:py-3 rounded-md hover:bg-gray-100 text-sm md:text-base font-medium whitespace-nowrap"
@@ -116,7 +116,7 @@ export function NavigationBar({ onCategorySelect }: NavigationBarProps) {
             Ən Çox Satılan
           </Link>
 
-          {/* Yeni Kitablar */}
+          {/* New Books */}
           <Link 
             href="/new-books" 
             className="text-gray-700 hover:text-blue-600 transition-colors px-4 md:px-6 py-2 md:py-3 rounded-md hover:bg-gray-100 text-sm md:text-base font-medium whitespace-nowrap"
@@ -124,7 +124,7 @@ export function NavigationBar({ onCategorySelect }: NavigationBarProps) {
             Yeni Kitablar
           </Link>
 
-          {/* Endirimlər */}
+          {/* Discounts */}
           <Link 
             href="/discounts" 
             className="text-gray-700 hover:text-blue-600 transition-colors px-4 md:px-6 py-2 md:py-3 rounded-md hover:bg-gray-100 text-sm md:text-base font-medium whitespace-nowrap"
@@ -133,7 +133,7 @@ export function NavigationBar({ onCategorySelect }: NavigationBarProps) {
           </Link>
           </div>
 
-          {/* Sağ tərəf - Sosial Media İkonları */}
+          {/* Right side - Social Media Icons */}
           <div className="hidden md:flex">
             <SocialMediaIcons variant="navbar" />
           </div>

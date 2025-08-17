@@ -8,7 +8,7 @@ export default function DebugPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Logo Debug Sayfası</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">Logo Debug Səyfəsi</h1>
         
         {loading && (
           <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-4">

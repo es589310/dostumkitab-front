@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
-import api, { Book, Category, BookListResponse } from "@/lib/api"
+import api, { Book, Category, BookListResponse, CategoriesResponse } from "@/lib/api"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -19,15 +19,15 @@ function SearchContent() {
   const [error, setError] = useState("")
   const { addItem } = useCart()
 
-  // Kategorileri yükle
+  // Load categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const data = await api.getCategories()
         if (Array.isArray(data)) {
           setCategories(data)
-        } else if (data && typeof data === "object" && "results" in data && Array.isArray(data.results)) {
-          setCategories(data.results)
+        } else if (data && typeof data === "object" && "results" in data && Array.isArray((data as CategoriesResponse).results)) {
+          setCategories((data as CategoriesResponse).results)
         }
       } catch (error) {
         console.error("Failed to fetch categories:", error)
@@ -53,9 +53,9 @@ function SearchContent() {
           console.log("ElasticSearch: Starting SMART search for:", query)
           
           const searchTerm = query.toLowerCase().trim()
-          const searchWords = searchTerm.split(' ').filter(word => word.length > 2) // Min 3 hərf
+          const searchWords = searchTerm.split(' ').filter(word => word.length > 2) // Min 3 letters
           
-          // Tək söz axtarışı və çox qısa sözlər üçün xüsusi qaydalar
+          // Special rules for single word search and very short words
           const isSingleShortWord = searchWords.length === 1 && searchTerm.length <= 3
           const isSingleWord = searchWords.length === 1
           
@@ -66,13 +66,13 @@ function SearchContent() {
             const title = book.title?.toLowerCase() || ''
             const description = book.description?.toLowerCase() || ''
             
-            // Authors array-den bütün adları birləşdirək 
+            // Join all author names from authors array
             const authorsNames = book.authors?.map((author: any) => author.name?.toLowerCase()).join(' ') || ''
             
-            // Publisher object-den adı alaq
+            // Get name from publisher object
             const publisherName = book.publisher?.name?.toLowerCase() || ''
             
-            // Category adı 
+            // Category name
             const categoryName = book.category?.name?.toLowerCase() || ''
             
             let score = 0
@@ -83,7 +83,7 @@ function SearchContent() {
             console.log(`- Publisher: "${publisherName}"`)
             console.log(`- Category: "${categoryName}"`)
 
-            // TAM UYĞUNLUQ - ən yüksək bal
+            // EXACT MATCH - highest score
             if (title.includes(searchTerm)) {
               score += 100
               reasons.push(`title contains "${searchTerm}"`)
@@ -105,7 +105,7 @@ function SearchContent() {
               reasons.push(`description contains "${searchTerm}"`)
             }
 
-            // PARÇALİ UYĞUNLUQ - hər söz üçün
+            // PARTIAL MATCH - for each word
             searchWords.forEach(word => {
               if (title.includes(word)) {
                 score += 30
@@ -129,16 +129,14 @@ function SearchContent() {
               }
             })
 
-            // ADVANCED FUZZY MATCH - Yalnız həqiqətən yaxın uyğunluqlar üçün
+            // ADVANCED FUZZY MATCH - Only for truly close matches
             const advancedFuzzyMatch = (text: string, term: string) => {
               if (text.length === 0 || term.length < 4) return { match: false, score: 0 }
               
-              // 1. Dəqiq substring uyğunluğu - ən yaxşı
               if (text.includes(term)) {
                 return { match: true, score: 50 }
               }
               
-              // 2. Sözün başlanğıcı uyğun gəlirsə 
               const words = text.split(' ')
               for (const word of words) {
                 if (word.startsWith(term) && word.length <= term.length + 3) {
@@ -146,7 +144,6 @@ function SearchContent() {
                 }
               }
               
-              // 3. Levenshtein distance - çox yaxın sözlər
               const levenshteinDistance = (a: string, b: string) => {
                 const matrix = Array(b.length + 1).fill(null).map(() => Array(a.length + 1).fill(null))
                 for (let i = 0; i <= a.length; i++) matrix[0][i] = i
@@ -164,12 +161,12 @@ function SearchContent() {
                 return matrix[b.length][a.length]
               }
               
-              // Sözlər arasında yaxın uyğunluq axtarımı
+              // Search for close matches between words
               for (const word of words) {
                 if (word.length >= term.length - 1 && word.length <= term.length + 2) {
                   const distance = levenshteinDistance(word, term)
                   const similarity = 1 - (distance / Math.max(word.length, term.length))
-                  if (similarity >= 0.7) { // 70% oxşarlıq tələb edir
+                  if (similarity >= 0.7) { // Requires 70% similarity
                     return { match: true, score: Math.floor(similarity * 20) }
                   }
                 }
@@ -178,7 +175,7 @@ function SearchContent() {
               return { match: false, score: 0 }
             }
 
-            // Fuzzy matching YALNIZ uzun sözlər üçün və yalnız yaxın uyğunluqlar
+            // Fuzzy matching ONLY for long words and only close matches
             if (searchTerm.length >= 4) {
               const authorFuzzy = advancedFuzzyMatch(authorsNames, searchTerm)
               if (authorFuzzy.match) {
@@ -199,7 +196,7 @@ function SearchContent() {
             return { score, reasons }
           }
 
-          // 1. BÜTün KİTABLARI GÖTÜR və RELEVANCE HESABLA
+          // 1. GET ALL BOOKS and CALCULATE RELEVANCE
           try {
             const allBooksData = await api.getBooks()
             if (allBooksData?.results) {
@@ -210,8 +207,8 @@ function SearchContent() {
                   const relevance = calculateRelevance(book, searchTerm, searchWords)
                   return { ...book, relevanceScore: relevance.score, relevanceReasons: relevance.reasons }
                 })
-                .filter(book => book.relevanceScore >= 15) // Min 15 bal (çox zəif uyğunluqları çıxarır)
-                .sort((a, b) => b.relevanceScore - a.relevanceScore) // Ən yüksək skordan aşağıya
+                .filter(book => book.relevanceScore >= 15) // Min 15 points (removes very weak matches)
+                                  .sort((a, b) => b.relevanceScore - a.relevanceScore) // From highest score to lowest
 
               console.log("ElasticSearch: Books with relevance scores:")
               scoredBooks.slice(0, 10).forEach(book => {
@@ -223,7 +220,7 @@ function SearchContent() {
           } catch (e) {
             console.log("ElasticSearch: Smart search failed, falling back to API:", e)
             
-            // Fallback - köhnə metod
+            // Fallback - old method
             try {
               const fallbackData = await api.getBooks({ search: query })
               if (fallbackData?.results) {
@@ -234,7 +231,6 @@ function SearchContent() {
             }
           }
 
-          // 2. KATEQORİYA ƏLAVƏ BONUSU
           const matchingCategories = categories.filter(category => 
             category.name.toLowerCase().includes(searchTerm) ||
             searchWords.some(word => category.name.toLowerCase().includes(word))
@@ -251,7 +247,7 @@ function SearchContent() {
                     .filter(book => !allBooks.some(existing => existing.id === book.id))
                     .map(book => ({ 
                       ...book, 
-                      relevanceScore: 40, // Kateqoriya bonus skoru
+                      relevanceScore: 40, // Category bonus score
                       relevanceReasons: [`in category "${category.name}"`],
                       categoryMatch: true 
                     }))
@@ -265,19 +261,19 @@ function SearchContent() {
             }
           }
 
-          // 3. SON SIRALAMA və FİLTRLƏMƏ
+          // 3. FINAL SORTING and FILTERING
           allBooks = allBooks
-            .sort((a, b) => b.relevanceScore - a.relevanceScore)
-            .slice(0, 50) // Max 50 nəticə
+            .sort((a, b) => (b as any).relevanceScore - (a as any).relevanceScore)
+            .slice(0, 50) // Max 50 results
 
           console.log("ElasticSearch: Final results:")
           console.log("- Total relevant books:", allBooks.length)
-          console.log("- Highest score:", allBooks[0]?.relevanceScore || 0)
-          console.log("- Lowest score:", allBooks[allBooks.length - 1]?.relevanceScore || 0)
+          console.log("- Highest score:", (allBooks[0] as any)?.relevanceScore || 0)
+          console.log("- Lowest score:", (allBooks[allBooks.length - 1] as any)?.relevanceScore || 0)
           
           setBooks(allBooks)
-        } else {
-          // Query yoxdursa bütün kitabları gətir
+                  } else {
+            // If no query, fetch all books
           const data = await api.getBooks()
           if (data?.results) {
             setBooks(data.results)
@@ -300,10 +296,10 @@ function SearchContent() {
   const handleAddToCart = async (book: Book) => {
     try {
       await addItem(book.id)
-      // Bildiriş silindi - cart avtomatik yenilənir
+      // Notification removed - cart automatically refreshes
     } catch (error: any) {
       console.error("Səbətə əlavə edərkən xəta:", error)
-      // Xəta halında da bildiriş göstərilmir
+      // No notification shown in case of error either
     }
   }
 
@@ -420,7 +416,7 @@ function SearchContent() {
               
               <div className="px-4 pb-4">
                 <Button 
-                  className="w-full" 
+                  className={`w-full ${book.stock_quantity === 0 ? '' : 'bg-green-600 hover:bg-green-700'}`}
                   onClick={(e) => {
                     e.preventDefault()
                     handleAddToCart(book)

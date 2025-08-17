@@ -7,10 +7,12 @@ import { AuthProvider } from '@/contexts/auth-context'
 import { CartProvider } from '@/contexts/cart-context'
 import { HeaderWrapper } from '@/components/header-wrapper'
 import { NavigationBar } from '@/components/navigation-bar'
+import { ThemeProvider } from '@/components/theme-provider'
+import { Toaster } from '@/components/ui/toaster'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: 'Dostum Kitab - Online Kitab Mağazası',
+  description: 'Azərbaycan dilində kitablar, dərsliklər və ədəbiyyat',
   generator: 'v0.dev',
 }
 
@@ -20,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="az" suppressHydrationWarning>
       <head>
         <style>{`
 html {
@@ -31,18 +33,21 @@ html {
         `}</style>
       </head>
       <body>
-        <AuthProvider>
-          <CartProvider>
-            <div className="min-h-screen bg-gray-50 flex flex-col">
-              <HeaderWrapper />
-              <NavigationBar />
-              <main className="flex-1">
-                {children}
-              </main>
-              <Footer key="main-footer" />
-            </div>
-          </CartProvider>
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <CartProvider>
+              <div className="min-h-screen bg-gray-50 flex flex-col">
+                <HeaderWrapper />
+                <NavigationBar />
+                <main className="flex-1">
+                  {children}
+                </main>
+                <Footer key="main-footer" />
+                <Toaster />
+              </div>
+            </CartProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

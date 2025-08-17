@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Header } from "@/components/header"
 import { AuthModal } from "@/components/auth-modal"
 import { CartProvider } from "@/contexts/cart-context"
 import { AuthProvider } from "@/contexts/auth-context"

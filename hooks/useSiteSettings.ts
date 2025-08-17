@@ -10,6 +10,7 @@ interface SiteSettings {
   phone: string
   email: string
   address: string
+  copyright_year?: number
 }
 
 export function useSiteSettings() {
@@ -30,7 +31,7 @@ export function useSiteSettings() {
           const settingsData = await settingsResponse.json()
           console.log('Site settings data received:', settingsData)
           
-          // Site settings məlumatlarını formatla
+          // Format site settings data
           const combinedData = {
             site_name: settingsData.site_name || "Fəzilət Kitab",
             site_description: settingsData.site_description || "Azərbaycanda ən böyük onlayn kitab mağazası. Minlərlə kitab, ən yaxşı qiymətlər və sürətli çatdırılma xidməti.",
@@ -40,13 +41,14 @@ export function useSiteSettings() {
             footer_logo_imagekit_url: settingsData.footer_logo_imagekit_url || "",
             phone: settingsData.phone || "+994 12 345 67 89",
             email: settingsData.email || "info@faziletkitab.az",
-            address: settingsData.address || "Bakı, Azərbaycan"
+            address: settingsData.address || "Bakı, Azərbaycan",
+            copyright_year: settingsData.copyright_year || new Date().getFullYear()
           }
           console.log('Combined data:', combinedData)
           setSettings(combinedData)
         } else {
           console.log('Settings response not ok:', settingsResponse.status, settingsResponse.statusText)
-          // Settings yüklənə bilməsə, default məlumatları istifadə et
+          // If settings cannot be loaded, use default data
           const defaultData = {
             site_name: "Fəzilət Kitab",
             site_description: "Azərbaycanda ən böyük onlayn kitab mağazası. Minlərlə kitab, ən yaxşı qiymətlər və sürətli çatdırılma xidməti.",
@@ -56,7 +58,8 @@ export function useSiteSettings() {
             footer_logo_imagekit_url: "",
             phone: "+994 12 345 67 89",
             email: "info@faziletkitab.az",
-            address: "Bakı, Azərbaycan"
+            address: "Bakı, Azərbaycan",
+            copyright_year: new Date().getFullYear()
           }
           setSettings(defaultData)
         }
@@ -66,7 +69,7 @@ export function useSiteSettings() {
         setError(err instanceof Error ? err.message : 'Xəta baş verdi')
         console.error('Site settings error:', err)
         
-        // Xəta baş verdikdə də default məlumatları istifadə et
+        // Use default data even when error occurs
         const defaultData = {
           site_name: "Fəzilət Kitab",
           site_description: "Azərbaycanda ən böyük onlayn kitab mağazası. Minlərlə kitab, ən yaxşı qiymətlər və sürətli çatdırılma xidməti.",
@@ -76,7 +79,8 @@ export function useSiteSettings() {
           footer_logo_imagekit_url: "",
           phone: "+994 12 345 67 89",
           email: "info@faziletkitab.az",
-          address: "Bakı, Azərbaycan"
+          address: "Bakı, Azərbaycan",
+          copyright_year: new Date().getFullYear()
         }
         setSettings(defaultData)
       } finally {

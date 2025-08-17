@@ -5,9 +5,13 @@ import { ChevronDown } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
+// Modern React 19+ type definitions with proper constraints
+type ComponentRef<T extends React.ElementType<any, keyof React.JSX.IntrinsicElements>> = React.ComponentRef<T>
+type ComponentPropsWithoutRef<T extends React.ElementType<any, keyof React.JSX.IntrinsicElements>> = React.ComponentPropsWithoutRef<T>
+
 const NavigationMenu = React.forwardRef<
-  React.ElementRef<typeof NavigationMenuPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Root>
+  ComponentRef<typeof NavigationMenuPrimitive.Root>,
+  ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Root>
 >(({ className, children, ...props }, ref) => (
   <NavigationMenuPrimitive.Root
     ref={ref}
@@ -24,8 +28,8 @@ const NavigationMenu = React.forwardRef<
 NavigationMenu.displayName = NavigationMenuPrimitive.Root.displayName
 
 const NavigationMenuList = React.forwardRef<
-  React.ElementRef<typeof NavigationMenuPrimitive.List>,
-  React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.List>
+  ComponentRef<typeof NavigationMenuPrimitive.List>,
+  ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.List>
 >(({ className, ...props }, ref) => (
   <NavigationMenuPrimitive.List
     ref={ref}
@@ -45,8 +49,8 @@ const navigationMenuTriggerStyle = cva(
 )
 
 const NavigationMenuTrigger = React.forwardRef<
-  React.ElementRef<typeof NavigationMenuPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Trigger>
+  ComponentRef<typeof NavigationMenuPrimitive.Trigger>,
+  ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Trigger>
 >(({ className, children, ...props }, ref) => (
   <NavigationMenuPrimitive.Trigger
     ref={ref}
@@ -63,8 +67,8 @@ const NavigationMenuTrigger = React.forwardRef<
 NavigationMenuTrigger.displayName = NavigationMenuPrimitive.Trigger.displayName
 
 const NavigationMenuContent = React.forwardRef<
-  React.ElementRef<typeof NavigationMenuPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Content>
+  ComponentRef<typeof NavigationMenuPrimitive.Content>,
+  ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Content>
 >(({ className, ...props }, ref) => (
   <NavigationMenuPrimitive.Content
     ref={ref}
@@ -80,8 +84,8 @@ NavigationMenuContent.displayName = NavigationMenuPrimitive.Content.displayName
 const NavigationMenuLink = NavigationMenuPrimitive.Link
 
 const NavigationMenuViewport = React.forwardRef<
-  React.ElementRef<typeof NavigationMenuPrimitive.Viewport>,
-  React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Viewport>
+  ComponentRef<typeof NavigationMenuPrimitive.Viewport>,
+  ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Viewport>
 >(({ className, ...props }, ref) => (
   <div className={cn("absolute left-0 top-full flex justify-center")}>
     <NavigationMenuPrimitive.Viewport
@@ -98,8 +102,8 @@ NavigationMenuViewport.displayName =
   NavigationMenuPrimitive.Viewport.displayName
 
 const NavigationMenuIndicator = React.forwardRef<
-  React.ElementRef<typeof NavigationMenuPrimitive.Indicator>,
-  React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Indicator>
+  ComponentRef<typeof NavigationMenuPrimitive.Indicator>,
+  ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Indicator>
 >(({ className, ...props }, ref) => (
   <NavigationMenuPrimitive.Indicator
     ref={ref}

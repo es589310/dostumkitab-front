@@ -2,13 +2,12 @@
 
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
-import api, { type Book, type Category } from "@/lib/api"
+import api, { type Book, type Category, type CategoriesResponse, type BookListResponse } from "@/lib/api"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Star, ShoppingCart } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
-import { useAuth } from "@/contexts/auth-context"
 import Link from "next/link"
 
 export default function CategoryPage() {
@@ -19,7 +18,6 @@ export default function CategoryPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const { addItem } = useCart()
-  const { isAuthenticated } = useAuth()
 
   useEffect(() => {
     if (!categoryId) return
@@ -29,23 +27,23 @@ export default function CategoryPage() {
 
     const fetchCategoryBooks = async () => {
       try {
-        // Kategori bilgilerini al
+        // Kategori məlumatlarını al
         const categoriesData = await api.getCategories()
         let categories: Category[] = []
         
         if (Array.isArray(categoriesData)) {
           categories = categoriesData
-        } else if (categoriesData && typeof categoriesData === "object" && "results" in categoriesData && Array.isArray(categoriesData.results)) {
-          categories = categoriesData.results
+        } else if (categoriesData && typeof categoriesData === "object" && "results" in categoriesData && Array.isArray((categoriesData as CategoriesResponse).results)) {
+          categories = (categoriesData as CategoriesResponse).results
         }
 
         const currentCategory = categories.find(cat => cat.id.toString() === categoryId)
         setCategory(currentCategory || null)
 
-        // Kategorideki kitapları al
+        // Kategoridəki kitabları alır
         const res = await api.getBooks({ category: categoryId })
-        if (res && Array.isArray(res.results)) {
-          setBooks(res.results)
+        if (res && Array.isArray((res as BookListResponse).results)) {
+          setBooks((res as BookListResponse).results)
         } else {
           setBooks([])
         }
@@ -61,17 +59,10 @@ export default function CategoryPage() {
   }, [categoryId])
 
   const handleAddToCart = async (book: Book) => {
-    if (!isAuthenticated) {
-      alert("Səbətə əlavə etmək üçün giriş etməlisiniz!")
-      return
-    }
-
     try {
       await addItem(book.id)
-      // Bildiriş silindi - cart avtomatik yenilənir
     } catch (error: any) {
       console.error("Səbətə əlavə edərkən xəta:", error)
-      // Xəta halında da bildiriş göstərilmir
     }
   }
 
@@ -140,7 +131,7 @@ export default function CategoryPage() {
             
             <div className="px-4 pb-4">
               <Button 
-                className="w-full" 
+                className={`w-full ${book.stock_quantity === 0 ? '' : 'bg-green-600 hover:bg-green-700'}`}
                 onClick={(e) => {
                   e.preventDefault()
                   handleAddToCart(book)

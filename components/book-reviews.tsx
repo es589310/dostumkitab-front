@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Star } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import api from "@/lib/api"
+import { useToast } from "@/hooks/use-toast"
 
 interface BookReview {
   id: number
@@ -30,6 +31,7 @@ export function BookReviews({ bookId, bookSlug }: BookReviewsProps) {
   const [showReviewForm, setShowReviewForm] = useState(false)
   const [loading, setLoading] = useState(true)
   const { isAuthenticated, user } = useAuth()
+  const { toast } = useToast()
 
   useEffect(() => {
     fetchReviews()
@@ -42,7 +44,7 @@ export function BookReviews({ bookId, bookSlug }: BookReviewsProps) {
       const data = await api.getBookReviews(bookId)
       console.log("Reviews data received:", data)
       
-      // API response strukturunu yoxla
+      // Check API response structure
       let reviewsData = data
       if (data && typeof data === 'object' && 'results' in data) {
         reviewsData = data.results
@@ -63,12 +65,20 @@ export function BookReviews({ bookId, bookSlug }: BookReviewsProps) {
 
   const handleSubmitReview = async () => {
     if (userRating === 0) {
-      alert("Zəhmət olmasa reytinq seçin!")
+      toast({
+        title: "⚠️ Reytinq Seçilməyib",
+        description: "Zəhmət olmasa reytinq seçin!",
+        variant: "destructive",
+      })
       return
     }
 
     if (!userComment.trim()) {
-      alert("Zəhmət olmasa rəy yazın!")
+      toast({
+        title: "⚠️ Rəy Yazılmayıb",
+        description: "Zəhmət olmasa rəy yazın!",
+        variant: "destructive",
+      })
       return
     }
 
@@ -76,25 +86,33 @@ export function BookReviews({ bookId, bookSlug }: BookReviewsProps) {
       setIsSubmitting(true)
       console.log("Submitting review:", { bookId, userRating, userComment })
       
-      // Rəyi gönder
+      // Submit the review
       const newReview = await api.createBookReview(bookId, {
         rating: userRating,
         comment: userComment
       })
       console.log("New review created:", newReview)
       
-      // Yeni rəyi hemen listeye ekle
+      // Add new review to list immediately
       if (newReview && typeof newReview === 'object') {
         setReviews(prevReviews => [newReview, ...prevReviews])
-        alert("Rəyiniz uğurla əlavə edildi!")
+        toast({
+          title: "🎉 Rəy Uğurla Əlavə Edildi!",
+          description: "Rəyiniz kitab üçün uğurla əlavə edildi.",
+          variant: "success",
+        })
       } else {
         console.warn("Unexpected review response:", newReview)
-        // Rəyləri yeniden yükle
+        // Reload reviews
         await fetchReviews()
-        alert("Rəyiniz əlavə edildi!")
+        toast({
+          title: "✅ Rəy Əlavə Edildi",
+          description: "Rəyiniz uğurla əlavə edildi.",
+          variant: "success",
+        })
       }
       
-      // Form'u təmizlə
+      // Clear the form
       setUserRating(0)
       setUserComment("")
       setShowReviewForm(false)
@@ -102,20 +120,20 @@ export function BookReviews({ bookId, bookSlug }: BookReviewsProps) {
     } catch (error: any) {
       console.error("Failed to submit review:", error)
       
-      // Error mesajını daha detaylı göster
       let errorMessage = "Rəy əlavə edilərkən xəta baş verdi!"
-      
       if (error.message) {
-        if (error.message.includes("duplicate")) {
-          errorMessage = "Bu kitab üçün artıq rəy yazmısınız!"
-        } else if (error.message.includes("JSON")) {
-          errorMessage = "Server xətası baş verdi. Zəhmət olmasa yenidən cəhd edin."
-        } else {
-          errorMessage = error.message
-        }
+        errorMessage = error.message
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message
+      } else if (error.response?.data?.error) {
+        errorMessage = error.response.data.error
       }
       
-      alert(errorMessage)
+      toast({
+        title: "❌ Xəta Baş Verdi",
+        description: errorMessage,
+        variant: "destructive",
+      })
     } finally {
       setIsSubmitting(false)
     }
@@ -149,7 +167,7 @@ export function BookReviews({ bookId, bookSlug }: BookReviewsProps) {
         </Button>
       </div>
 
-      {/* Rəy yazma formu */}
+      {/* Review writing form */}
       {showReviewForm && (
         <Card className="mb-6">
           <CardHeader>
@@ -193,7 +211,7 @@ export function BookReviews({ bookId, bookSlug }: BookReviewsProps) {
         </Card>
       )}
 
-      {/* Mövcud rəylər */}
+      {/* Existing reviews */}
       {loading ? (
         <div className="text-center py-8">Yüklənir...</div>
       ) : reviews.length === 0 ? (
