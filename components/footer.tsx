@@ -182,8 +182,35 @@ export const Footer = memo(function Footer() {
           {/* Social Media */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Sosial Media</h3>
-            <SocialMediaIcons variant="footer" />
-            <p className="text-sm text-gray-400 mt-4">
+            {settings?.social_media_links && settings.social_media_links.length > 0 ? (
+              <div className="flex space-x-4 mb-4">
+                {settings.social_media_links
+                  .filter(link => link.is_active && !link.is_hidden)
+                  .sort((a, b) => a.order - b.order)
+                  .map((link, index) => (
+                    <a
+                      key={index}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-gray-400 hover:text-white transition-colors duration-300"
+                      title={link.platform}
+                    >
+                      <div 
+                        className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-800 hover:bg-blue-600 transition-colors duration-300"
+                        dangerouslySetInnerHTML={{
+                          __html: `<i class="${link.icon_class} text-lg"></i>`
+                        }}
+                      />
+                    </a>
+                  ))}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-400 mb-4">
+                Bizi sosial mediada izləyin və yeniliklərdən xəbərdar olun
+              </p>
+            )}
+            <p className="text-sm text-gray-400">
               Bizi sosial mediada izləyin və yeniliklərdən xəbərdar olun
             </p>
           </div>

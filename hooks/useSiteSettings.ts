@@ -12,6 +12,14 @@ interface SiteSettings {
   address: string
   working_hours?: string
   copyright_year?: number
+  social_media_links?: Array<{
+    platform: string
+    url: string
+    icon_class: string
+    is_active: boolean
+    is_hidden: boolean
+    order: number
+  }>
 }
 
 export function useSiteSettings() {
@@ -27,16 +35,18 @@ export function useSiteSettings() {
         // Environment variable-dan API URL-ni al
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api'
         
-        console.log('Fetching site settings and logo data...')
+        console.log('Fetching site settings, logo and social media data...')
         
-        // Paralel olaraq həm site settings həm də logo məlumatlarını al
-        const [settingsResponse, logoResponse] = await Promise.all([
+        // Paralel olaraq bütün məlumatları al
+        const [settingsResponse, logoResponse, socialMediaResponse] = await Promise.all([
           fetch(`${apiUrl}/settings/site-settings/`),
-          fetch(`${apiUrl}/settings/logo/`)
+          fetch(`${apiUrl}/settings/logo/`),
+          fetch(`${apiUrl}/contact/social-links/`)
         ])
         
         let settingsData: any = {}
         let logoData: any = {}
+        let socialMediaData: any = { links: [] }
         
         if (settingsResponse.ok) {
           settingsData = await settingsResponse.json()
@@ -46,6 +56,11 @@ export function useSiteSettings() {
         if (logoResponse.ok) {
           logoData = await logoResponse.json()
           console.log('Logo data received:', logoData)
+        }
+        
+        if (socialMediaResponse.ok) {
+          socialMediaData = await socialMediaResponse.json()
+          console.log('Social media data received:', socialMediaData)
         }
         
         // Bütün məlumatları birləşdir
@@ -60,7 +75,8 @@ export function useSiteSettings() {
           email: settingsData.email || "info@faziletkitab.az",
           address: settingsData.address || "Bakı, Azərbaycan",
           working_hours: settingsData.working_hours || "Bazar ertəsi - Cümə: 09:00-18:00",
-          copyright_year: settingsData.copyright_year || new Date().getFullYear()
+          copyright_year: settingsData.copyright_year || new Date().getFullYear(),
+          social_media_links: socialMediaData.links || []
         }
         
         console.log('Combined data:', combinedData)
@@ -83,7 +99,8 @@ export function useSiteSettings() {
           email: "info@faziletkitab.az",
           address: "Bakı, Azərbaycan",
           working_hours: "Bazar ertəsi - Cümə: 09:00-18:00",
-          copyright_year: new Date().getFullYear()
+          copyright_year: new Date().getFullYear(),
+          social_media_links: []
         }
         setSettings(defaultData)
       } finally {
