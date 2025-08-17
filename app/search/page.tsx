@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import api, { Book, Category, BookListResponse, CategoriesResponse } from "@/lib/api"
 import { Card, CardContent } from "@/components/ui/card"
@@ -10,13 +10,21 @@ import { Star, ShoppingCart, Search } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import Link from "next/link"
 
-export default function SearchPage() {
+function SearchContent() {
   const [books, setBooks] = useState<Book[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [query, setQuery] = useState("")
   const { addItem } = useCart()
+
+  const searchParams = useSearchParams()
+  
+  // Get query from URL using useSearchParams
+  useEffect(() => {
+    const searchQuery = searchParams.get("query") || ""
+    setQuery(searchQuery)
+  }, [searchParams])
 
   // Load categories
   useEffect(() => {
@@ -34,14 +42,6 @@ export default function SearchPage() {
     }
     fetchCategories()
   }, [])
-
-  const searchParams = useSearchParams()
-  
-  // Get query from URL using useSearchParams
-  useEffect(() => {
-    const searchQuery = searchParams.get("query") || ""
-    setQuery(searchQuery)
-  }, [searchParams])
 
   // Fetch books when query changes
   useEffect(() => {
@@ -298,5 +298,20 @@ export default function SearchPage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Yüklənir...</p>
+        </div>
+      </div>
+    }>
+      <SearchContent />
+    </Suspense>
   )
 } 
