@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import api, { Book, Category, BookListResponse, CategoriesResponse } from "@/lib/api"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -34,14 +35,13 @@ export default function SearchPage() {
     fetchCategories()
   }, [])
 
-  // Get query from URL on client side
+  const searchParams = useSearchParams()
+  
+  // Get query from URL using useSearchParams
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search)
-      const searchQuery = urlParams.get("query") || ""
-      setQuery(searchQuery)
-    }
-  }, [])
+    const searchQuery = searchParams.get("query") || ""
+    setQuery(searchQuery)
+  }, [searchParams])
 
   // Fetch books when query changes
   useEffect(() => {
