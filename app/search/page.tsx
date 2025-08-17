@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import api, { Book, Category, BookListResponse, CategoriesResponse } from "@/lib/api"
 import { Card, CardContent } from "@/components/ui/card"
@@ -10,7 +10,7 @@ import { Star, ShoppingCart, Search } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import Link from "next/link"
 
-export default function SearchPage() {
+function SearchContent() {
   const [books, setBooks] = useState<Book[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(false)
@@ -299,5 +299,13 @@ export default function SearchPage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SearchContent />
+    </Suspense>
   )
 } 
