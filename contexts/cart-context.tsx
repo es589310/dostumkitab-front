@@ -1,6 +1,7 @@
 "use client"
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { useToast } from '@/hooks/use-toast'
 import api from '@/lib/api'
 import { type Book } from '@/lib/api'
 
@@ -38,6 +39,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<Cart | null>(null)
   const [loading, setLoading] = useState(true)
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
+  const { toast } = useToast()
 
   // Cart-i yüklə
   const loadCart = async () => {
@@ -70,8 +72,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
         // Cart state-ini dərhal yenilə
         setCart(response.cart)
         
-        // Success notification göstər
-        showNotification('Kitab səbətə əlavə edildi!', 'success')
+        // Success toast notification göstər
+        toast({
+          title: "Səbətə əlavə edildi! 🛒",
+          description: "Kitab uğurla səbətinizə əlavə edildi.",
+          variant: "success",
+          duration: 3000,
+        })
         
         // State yenilənməsini təmin et
         console.log('Cart state set, total items:', response.cart.total_items)
@@ -87,13 +94,24 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (error.message && error.message.includes('Stokda yalnız')) {
         // Stok xətası - cart-i yenidən yükləmə
         await loadCart()
-        showNotification(error.message, 'error')
+        toast({
+          title: "Xəta! ⚠️",
+          description: error.message,
+          variant: "destructive",
+          duration: 5000,
+        })
         // Stok hatası durumunda hata fırlatma, sadece notification göster
         return
       }
       
       // Xəta halında da cart-i yenidən yüklə
       await loadCart()
+      toast({
+        title: "Xəta! ❌",
+        description: "Kitab səbətə əlavə edilərkən xəta baş verdi.",
+        variant: "destructive",
+        duration: 5000,
+      })
       throw error
     }
   }
@@ -107,7 +125,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
       await loadCart()
       
       // Success notification göstər
-      showNotification('Səbət yeniləndi!', 'success')
+      toast({
+        title: "Səbət yeniləndi! 🛒",
+        description: "Səbət uğurla yeniləndi.",
+        variant: "success",
+        duration: 3000,
+      })
     } catch (error: any) {
       console.error('Item yenilənərkən xəta:', error)
       
@@ -115,12 +138,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (error.message && error.message.includes('Stokda yalnız')) {
         // Stok xətası - cart-i yenidən yükləmə və notification göstər
         await loadCart()
-        showNotification(error.message, 'error')
+        toast({
+          title: "Xəta! ⚠️",
+          description: error.message,
+          variant: "destructive",
+          duration: 5000,
+        })
         // Stok hatası durumunda hata fırlatma, sadece notification göster
         return
       }
       
       // Digər xətaları yenidən fırlat
+      toast({
+        title: "Xəta! ❌",
+        description: "Səbət yenilənərkən xəta baş verdi.",
+        variant: "destructive",
+        duration: 5000,
+      })
       throw error
     }
   }
@@ -134,17 +168,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
       await loadCart()
     } catch (error: any) {
       console.error('Item silinərkən xəta:', error)
+      toast({
+        title: "Xəta! ❌",
+        description: "Səbətdən kitab silinərkən xəta baş verdi.",
+        variant: "destructive",
+        duration: 5000,
+      })
       throw error
     }
-  }
-
-  // Notification göstər
-  const showNotification = (message: string, type: 'success' | 'error' = 'success') => {
-    setNotification({ message, type })
-    // 5 saniyə sonra notification-i gizlət
-    setTimeout(() => {
-      setNotification(null)
-    }, 5000)
   }
 
   // Səbəti təmizlə
@@ -152,10 +183,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
     try {
       await api.clearCart()
       setCart(null)
+      toast({
+        title: "Səbət təmizləndi! 🛒",
+        description: "Səbət uğurla təmizləndi.",
+        variant: "success",
+        duration: 3000,
+      })
     } catch (error) {
       console.error('Səbət təmizlənərkən xəta:', error)
       // Xəta halında da state-i təmizlə
       setCart(null)
+      toast({
+        title: "Xəta! ❌",
+        description: "Səbət təmizlənərkən xəta baş verdi.",
+        variant: "destructive",
+        duration: 5000,
+      })
     }
   }
 
