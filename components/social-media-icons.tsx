@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Send } from 'lucide-react';
+import { useSiteSettings } from '@/hooks/useSiteSettings';
 
 interface SocialMediaLink {
   platform: string;
@@ -66,29 +67,9 @@ interface SocialMediaIconsProps {
 }
 
 export default function SocialMediaIcons({ variant = 'footer', className = '' }: SocialMediaIconsProps) {
-  const [socialLinks, setSocialLinks] = useState<SocialMediaLink[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchSocialLinks = async () => {
-      try {
-        const response = await fetch('http://127.0.0.1:8000/api/contact/social-links/');
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success) {
-            setSocialLinks(data.links);
-          }
-        }
-      } catch (error) {
-        console.error('Error loading social media links:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSocialLinks();
-  }, []);
-
+  const { settings, loading } = useSiteSettings();
+  
+  // Loading state
   if (loading) {
     return (
       <div className={`flex items-center space-x-2 ${className}`}>
@@ -99,7 +80,17 @@ export default function SocialMediaIcons({ variant = 'footer', className = '' }:
     );
   }
 
-  if (socialLinks.length === 0) {
+  // Check if social media links exist
+  if (!settings?.social_media_links || settings.social_media_links.length === 0) {
+    return null;
+  }
+
+  // Filter active and non-hidden links, sort by order
+  const activeLinks = settings.social_media_links
+    .filter(link => link.is_active && !link.is_hidden)
+    .sort((a, b) => a.order - b.order);
+
+  if (activeLinks.length === 0) {
     return null;
   }
 
@@ -113,7 +104,7 @@ export default function SocialMediaIcons({ variant = 'footer', className = '' }:
 
   return (
     <div className={`${baseClasses} ${className}`}>
-      {socialLinks.map((link) => {
+      {activeLinks.map((link) => {
         const IconComponent = platformIcons[link.platform];
         if (!IconComponent) return null;
 
