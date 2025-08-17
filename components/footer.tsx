@@ -38,7 +38,9 @@ export const Footer = memo(function Footer() {
                       console.log('ImageKit footer logo failed to load, using local logo')
                       const target = e.target as HTMLImageElement
                       if (settings?.footer_logo) {
-                        target.src = `http://127.0.0.1:8000${settings.footer_logo}`
+                        // Production üçün backend API URL istifadə edirik
+                        const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://127.0.0.1:8000'
+                        target.src = `${backendUrl}${settings.footer_logo}`
                       } else {
                         target.style.display = 'none'
                         target.nextElementSibling?.classList.remove('hidden')
@@ -46,10 +48,11 @@ export const Footer = memo(function Footer() {
                     }}
                   />
                 ) : settings?.footer_logo ? (
-                  <img
-                    src={`http://127.0.0.1:8000${settings.footer_logo}`}
-                    alt={settings.site_name || "Fəzilət Kitab"}
-                    className="h-[39px] w-[250px] object-contain"
+                  <img 
+                    // Production üçün backend API URL istifadə edirik
+                    src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://127.0.0.1:8000'}${settings.footer_logo}`}
+                    alt={settings.site_name || "KitabSat Logo"} 
+                    className="h-[39px] w-[250px] object-contain" 
                   />
                 ) : (
                   <div className="h-[39px] w-[250px] bg-gray-700 rounded flex items-center justify-center">

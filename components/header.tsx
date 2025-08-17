@@ -95,7 +95,9 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
                       console.log('ImageKit logo failed to load, using local logo')
                       const target = e.target as HTMLImageElement
                       if (settings?.navbar_logo) {
-                        target.src = `http://127.0.0.1:8000${settings.navbar_logo}`
+                        // Production üçün backend API URL istifadə edirik
+                        const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://127.0.0.1:8000'
+                        target.src = `${backendUrl}${settings.navbar_logo}`
                       } else {
                         target.style.display = 'none'
                         target.nextElementSibling?.classList.remove('hidden')
@@ -104,7 +106,8 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
                   />
                 ) : settings?.navbar_logo ? (
                   <img 
-                    src={`http://127.0.0.1:8000${settings.navbar_logo}`}
+                    // Production üçün backend API URL istifadə edirik
+                    src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://127.0.0.1:8000'}${settings.navbar_logo}`}
                     alt={settings.site_name || "KitabSat Logo"} 
                     className="h-[39px] w-[250px] object-contain" 
                   />
