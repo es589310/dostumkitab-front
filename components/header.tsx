@@ -85,11 +85,21 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
             <div className="flex items-center space-x-2">
               <button 
                 onClick={() => {
-                  // Saytı yenilə (refresh)
-                  window.location.reload()
+                  // Əgər ana səhifədə deyilsə, ana səhifəyə yönləndir və refresh et
+                  if (window.location.pathname !== '/') {
+                    // Ana səhifəyə yönləndir
+                    router.push('/')
+                    // Qısa gecikmədən sonra refresh et
+                    setTimeout(() => {
+                      window.location.reload()
+                    }, 100)
+                  } else {
+                    // Ana səhifədədirsə sadəcə refresh et
+                    window.location.reload()
+                  }
                 }}
                 className="hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
-                title="Saytı yenilə"
+                title="Ana səhifəyə qayıt və saytı yenilə"
               >
                 {settingsLoading ? (
                   <div className="h-[39px] w-[250px] bg-gray-200 animate-pulse rounded"></div>
