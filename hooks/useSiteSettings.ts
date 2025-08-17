@@ -26,53 +26,47 @@ export function useSiteSettings() {
         
         // Environment variable-dan API URL-ni al
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api'
-        const settingsUrl = `${apiUrl}/settings/site-settings/`
         
-        console.log('Fetching site settings from:', settingsUrl)
+        console.log('Fetching site settings and logo data...')
         
-        // Tam site settings məlumatlarını al
-        const settingsResponse = await fetch(settingsUrl)
+        // Paralel olaraq həm site settings həm də logo məlumatlarını al
+        const [settingsResponse, logoResponse] = await Promise.all([
+          fetch(`${apiUrl}/settings/site-settings/`),
+          fetch(`${apiUrl}/settings/logo/`)
+        ])
+        
+        let settingsData: any = {}
+        let logoData: any = {}
         
         if (settingsResponse.ok) {
-          const settingsData = await settingsResponse.json()
+          settingsData = await settingsResponse.json()
           console.log('Site settings data received:', settingsData)
-          
-          // Format site settings data
-          const combinedData = {
-            site_name: settingsData.site_name || "Fəzilət Kitab",
-            site_description: settingsData.site_description || "Azərbaycanda ən böyük onlayn kitab mağazası. Minlərlə kitab, ən yaxşı qiymətlər və sürətli çatdırılma xidməti.",
-            navbar_logo: settingsData.navbar_logo || "",
-            navbar_logo_imagekit_url: settingsData.navbar_logo_imagekit_url || "",
-            footer_logo: settingsData.footer_logo || "",
-            footer_logo_imagekit_url: settingsData.footer_logo_imagekit_url || "",
-            phone: settingsData.phone || "+994 12 345 67 89",
-            email: settingsData.email || "info@faziletkitab.az",
-            address: settingsData.address || "Bakı, Azərbaycan",
-            working_hours: settingsData.working_hours || "Buxar 09:00 - 18:00, Şənbə 09:00 - 18:00, Yaxşı 09:00 - 18:00",
-            copyright_year: settingsData.copyright_year || new Date().getFullYear()
-          }
-          console.log('Combined data:', combinedData)
-          setSettings(combinedData)
-        } else {
-          console.log('Settings response not ok:', settingsResponse.status, settingsResponse.statusText)
-          // If settings cannot be loaded, use default data
-          const defaultData = {
-            site_name: "Fəzilət Kitab",
-            site_description: "Azərbaycanda ən böyük onlayn kitab mağazası. Minlərlə kitab, ən yaxşı qiymətlər və sürətli çatdırılma xidməti.",
-            navbar_logo: "",
-            navbar_logo_imagekit_url: "",
-            footer_logo: "",
-            footer_logo_imagekit_url: "",
-            phone: "+994 12 345 67 89",
-            email: "info@faziletkitab.az",
-            address: "Bakı, Azərbaycan",
-            working_hours: "Buxar 09:00 - 18:00, Şənbə 09:00 - 18:00, Yaxşı 09:00 - 18:00",
-            copyright_year: new Date().getFullYear()
-          }
-          setSettings(defaultData)
         }
         
+        if (logoResponse.ok) {
+          logoData = await logoResponse.json()
+          console.log('Logo data received:', logoData)
+        }
+        
+        // Bütün məlumatları birləşdir
+        const combinedData = {
+          site_name: settingsData.site_name || logoData.site_name || "Fəzilət Kitab",
+          site_description: settingsData.site_description || "Azərbaycanda ən böyük onlayn kitab mağazası. Minlərlə kitab, ən yaxşı qiymətlər və sürətli çatdırılma xidməti.",
+          navbar_logo: logoData.navbar_logo || "",
+          navbar_logo_imagekit_url: logoData.navbar_logo_imagekit_url || "",
+          footer_logo: logoData.footer_logo || "",
+          footer_logo_imagekit_url: logoData.footer_logo_imagekit_url || "",
+          phone: settingsData.phone || "+994 12 345 67 89",
+          email: settingsData.email || "info@faziletkitab.az",
+          address: settingsData.address || "Bakı, Azərbaycan",
+          working_hours: settingsData.working_hours || "Bazar ertəsi - Cümə: 09:00-18:00",
+          copyright_year: settingsData.copyright_year || new Date().getFullYear()
+        }
+        
+        console.log('Combined data:', combinedData)
+        setSettings(combinedData)
         setError(null)
+        
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Xəta baş verdi')
         console.error('Site settings error:', err)
@@ -88,7 +82,7 @@ export function useSiteSettings() {
           phone: "+994 12 345 67 89",
           email: "info@faziletkitab.az",
           address: "Bakı, Azərbaycan",
-          working_hours: "Buxar 09:00 - 18:00, Şənbə 09:00 - 18:00, Yaxşı 09:00 - 18:00",
+          working_hours: "Bazar ertəsi - Cümə: 09:00-18:00",
           copyright_year: new Date().getFullYear()
         }
         setSettings(defaultData)
