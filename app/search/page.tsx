@@ -10,78 +10,39 @@ import { Star, ShoppingCart, Search } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import Link from "next/link"
 
-function SearchContent() {
+// Separate component for search logic that uses useSearchParams
+function SearchLogic({ onBooksUpdate, onLoadingChange, onErrorChange }: {
+  onBooksUpdate: (books: Book[]) => void
+  onLoadingChange: (loading: boolean) => void
+  onErrorChange: (error: string) => void
+}) {
   const searchParams = useSearchParams()
   const query = searchParams.get("query") || ""
-  const [books, setBooks] = useState<Book[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
-  const { addItem } = useCart()
-
-  // Load categories
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const data = await api.getCategories()
-        if (Array.isArray(data)) {
-          setCategories(data)
-        } else if (data && typeof data === "object" && "results" in data && Array.isArray((data as CategoriesResponse).results)) {
-          setCategories((data as CategoriesResponse).results)
-        }
-      } catch (error) {
-        console.error("Failed to fetch categories:", error)
-      }
-    }
-    fetchCategories()
-  }, [])
 
   useEffect(() => {
-    setLoading(true)
-    setError("")
+    onLoadingChange(true)
+    onErrorChange("")
 
     const fetchBooks = async () => {
       try {
         let allBooks: Book[] = []
-        let searchResults = {
-          exact: [],
-          partial: [],
-          related: []
-        }
         
         if (query.trim()) {
           console.log("ElasticSearch: Starting SMART search for:", query)
           
           const searchTerm = query.toLowerCase().trim()
-          const searchWords = searchTerm.split(' ').filter(word => word.length > 2) // Min 3 letters
+          const searchWords = searchTerm.split(' ').filter(word => word.length > 2)
           
-          // Special rules for single word search and very short words
-          const isSingleShortWord = searchWords.length === 1 && searchTerm.length <= 3
-          const isSingleWord = searchWords.length === 1
-          
-          console.log("ElasticSearch: Search words:", searchWords)
-
           // SMART RELEVANCE FUNCTION
           const calculateRelevance = (book: any, searchTerm: string, searchWords: string[]) => {
             const title = book.title?.toLowerCase() || ''
             const description = book.description?.toLowerCase() || ''
-            
-            // Join all author names from authors array
             const authorsNames = book.authors?.map((author: any) => author.name?.toLowerCase()).join(' ') || ''
-            
-            // Get name from publisher object
             const publisherName = book.publisher?.name?.toLowerCase() || ''
-            
-            // Category name
             const categoryName = book.category?.name?.toLowerCase() || ''
             
             let score = 0
             let reasons = []
-
-            console.log(`ElasticSearch: Analyzing "${book.title}"`)
-            console.log(`- Authors: "${authorsNames}"`)
-            console.log(`- Publisher: "${publisherName}"`)
-            console.log(`- Category: "${categoryName}"`)
 
             // EXACT MATCH - highest score
             if (title.includes(searchTerm)) {
@@ -107,120 +68,31 @@ function SearchContent() {
 
             // PARTIAL MATCH - for each word
             searchWords.forEach(word => {
-              if (title.includes(word)) {
-                score += 30
-                reasons.push(`title contains word "${word}"`)
-              }
-              if (authorsNames.includes(word)) {
-                score += 25
-                reasons.push(`author contains word "${word}"`)
-              }
-              if (publisherName.includes(word)) {
-                score += 20
-                reasons.push(`publisher contains word "${word}"`)
-              }
-              if (categoryName.includes(word)) {
-                score += 18
-                reasons.push(`category contains word "${word}"`)
-              }
-              if (description.includes(word)) {
-                score += 15
-                reasons.push(`description contains word "${word}"`)
-              }
+              if (title.includes(word)) score += 30
+              if (authorsNames.includes(word)) score += 25
+              if (publisherName.includes(word)) score += 20
+              if (categoryName.includes(word)) score += 18
+              if (description.includes(word)) score += 15
             })
 
-            // ADVANCED FUZZY MATCH - Only for truly close matches
-            const advancedFuzzyMatch = (text: string, term: string) => {
-              if (text.length === 0 || term.length < 4) return { match: false, score: 0 }
-              
-              if (text.includes(term)) {
-                return { match: true, score: 50 }
-              }
-              
-              const words = text.split(' ')
-              for (const word of words) {
-                if (word.startsWith(term) && word.length <= term.length + 3) {
-                  return { match: true, score: 30 }
-                }
-              }
-              
-              const levenshteinDistance = (a: string, b: string) => {
-                const matrix = Array(b.length + 1).fill(null).map(() => Array(a.length + 1).fill(null))
-                for (let i = 0; i <= a.length; i++) matrix[0][i] = i
-                for (let j = 0; j <= b.length; j++) matrix[j][0] = j
-                for (let j = 1; j <= b.length; j++) {
-                  for (let i = 1; i <= a.length; i++) {
-                    const indicator = a[i - 1] === b[j - 1] ? 0 : 1
-                    matrix[j][i] = Math.min(
-                      matrix[j][i - 1] + 1,
-                      matrix[j - 1][i] + 1,
-                      matrix[j - 1][i - 1] + indicator
-                    )
-                  }
-                }
-                return matrix[b.length][a.length]
-              }
-              
-              // Search for close matches between words
-              for (const word of words) {
-                if (word.length >= term.length - 1 && word.length <= term.length + 2) {
-                  const distance = levenshteinDistance(word, term)
-                  const similarity = 1 - (distance / Math.max(word.length, term.length))
-                  if (similarity >= 0.7) { // Requires 70% similarity
-                    return { match: true, score: Math.floor(similarity * 20) }
-                  }
-                }
-              }
-              
-              return { match: false, score: 0 }
-            }
-
-            // Fuzzy matching ONLY for long words and only close matches
-            if (searchTerm.length >= 4) {
-              const authorFuzzy = advancedFuzzyMatch(authorsNames, searchTerm)
-              if (authorFuzzy.match) {
-                score += authorFuzzy.score
-                reasons.push(`advanced fuzzy author match for "${searchTerm}" (score: ${authorFuzzy.score})`)
-              }
-              
-              const publisherFuzzy = advancedFuzzyMatch(publisherName, searchTerm)
-              if (publisherFuzzy.match) {
-                score += publisherFuzzy.score
-                reasons.push(`advanced fuzzy publisher match for "${searchTerm}" (score: ${publisherFuzzy.score})`)
-              }
-            }
-
-            console.log(`- Final score: ${score}`)
-            console.log(`- Reasons: ${reasons.join(', ')}`)
-            
             return { score, reasons }
           }
 
-          // 1. GET ALL BOOKS and CALCULATE RELEVANCE
           try {
             const allBooksData = await api.getBooks()
             if (allBooksData?.results) {
-              console.log("ElasticSearch: Analyzing", allBooksData.results.length, "books for relevance")
-              
               const scoredBooks = allBooksData.results
                 .map(book => {
                   const relevance = calculateRelevance(book, searchTerm, searchWords)
                   return { ...book, relevanceScore: relevance.score, relevanceReasons: relevance.reasons }
                 })
-                .filter(book => book.relevanceScore >= 15) // Min 15 points (removes very weak matches)
-                                  .sort((a, b) => b.relevanceScore - a.relevanceScore) // From highest score to lowest
-
-              console.log("ElasticSearch: Books with relevance scores:")
-              scoredBooks.slice(0, 10).forEach(book => {
-                console.log(`- ${book.title}: Score ${book.relevanceScore} (${book.relevanceReasons.join(', ')})`)
-              })
+                .filter(book => book.relevanceScore >= 15)
+                .sort((a, b) => b.relevanceScore - a.relevanceScore)
 
               allBooks = scoredBooks
             }
           } catch (e) {
             console.log("ElasticSearch: Smart search failed, falling back to API:", e)
-            
-            // Fallback - old method
             try {
               const fallbackData = await api.getBooks({ search: query })
               if (fallbackData?.results) {
@@ -231,77 +103,73 @@ function SearchContent() {
             }
           }
 
-          const matchingCategories = categories.filter(category => 
-            category.name.toLowerCase().includes(searchTerm) ||
-            searchWords.some(word => category.name.toLowerCase().includes(word))
-          )
-          
-          if (matchingCategories.length > 0) {
-            console.log("ElasticSearch: Found matching categories:", matchingCategories.map(c => c.name))
-            
-            for (const category of matchingCategories) {
-              try {
-                const categoryData = await api.getBooks({ category: category.id.toString() })
-                if (categoryData?.results) {
-                  const categoryBooks = categoryData.results
-                    .filter(book => !allBooks.some(existing => existing.id === book.id))
-                    .map(book => ({ 
-                      ...book, 
-                      relevanceScore: 40, // Category bonus score
-                      relevanceReasons: [`in category "${category.name}"`],
-                      categoryMatch: true 
-                    }))
-                  
-                  allBooks.push(...categoryBooks)
-                  console.log(`ElasticSearch: Added ${categoryBooks.length} books from category "${category.name}"`)
-                }
-              } catch (e) {
-                console.log(`ElasticSearch: Category ${category.name} search failed:`, e)
-              }
-            }
-          }
-
-          // 3. FINAL SORTING and FILTERING
-          allBooks = allBooks
-            .sort((a, b) => (b as any).relevanceScore - (a as any).relevanceScore)
-            .slice(0, 50) // Max 50 results
-
-          console.log("ElasticSearch: Final results:")
-          console.log("- Total relevant books:", allBooks.length)
-          console.log("- Highest score:", (allBooks[0] as any)?.relevanceScore || 0)
-          console.log("- Lowest score:", (allBooks[allBooks.length - 1] as any)?.relevanceScore || 0)
-          
-          setBooks(allBooks)
-                  } else {
-            // If no query, fetch all books
+          allBooks = allBooks.slice(0, 50) // Max 50 results
+        } else {
+          // If no query, fetch all books
           const data = await api.getBooks()
           if (data?.results) {
-            setBooks(data.results)
-          } else {
-            setBooks([])
+            allBooks = data.results
           }
         }
+        
+        onBooksUpdate(allBooks)
       } catch (error) {
         console.error("ElasticSearch: Global error:", error)
-        setError("Axtarış xətası baş verdi")
-        setBooks([])
+        onErrorChange("Axtarış xətası baş verdi")
+        onBooksUpdate([])
       } finally {
-        setLoading(false)
+        onLoadingChange(false)
       }
     }
 
     fetchBooks()
-  }, [query, categories])
+  }, [query, onBooksUpdate, onLoadingChange, onErrorChange])
+
+  return null // This component only handles the search logic
+}
+
+function SearchContent() {
+  const [books, setBooks] = useState<Book[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+  const { addItem } = useCart()
+
+  // Load categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await api.getCategories()
+        if (Array.isArray(data)) {
+          setCategories(data)
+        } else if (data && typeof data === "object" && "results" in data && Array.isArray((data as CategoriesResponse).results)) {
+          setCategories((data as CategoriesResponse).results)
+        }
+      } catch (error) {
+        console.error("Failed to fetch categories:", error)
+      }
+    }
+    fetchCategories()
+  }, [])
 
   const handleAddToCart = async (book: Book) => {
     try {
       await addItem(book.id)
-      // Notification removed - cart automatically refreshes
     } catch (error: any) {
       console.error("Səbətə əlavə edərkən xəta:", error)
-      // No notification shown in case of error either
     }
   }
+
+  // Get query from URL for display purposes
+  const getQueryFromURL = () => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      return urlParams.get("query") || ""
+    }
+    return ""
+  }
+
+  const query = getQueryFromURL()
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -431,6 +299,13 @@ function SearchContent() {
           ))}
         </div>
       )}
+
+      {/* Search Logic Component */}
+      <SearchLogic 
+        onBooksUpdate={setBooks}
+        onLoadingChange={setLoading}
+        onErrorChange={setError}
+      />
     </div>
   )
 }
