@@ -87,9 +87,9 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
                 {settingsLoading ? (
                   <div className="h-[39px] w-[250px] bg-gray-200 animate-pulse rounded"></div>
                 ) : settings?.navbar_logo_imagekit_url ? (
-                  <img 
-                    src={settings.navbar_logo_imagekit_url} 
-                    alt={settings.site_name || "KitabSat Logo"} 
+                  <img
+                    src={settings.navbar_logo_imagekit_url}
+                    alt={settings.site_name || "KitabSat Logo"}
                     className="h-[39px] w-[250px] object-contain"
                     onError={(e) => {
                       console.log('ImageKit logo failed to load, using local logo')

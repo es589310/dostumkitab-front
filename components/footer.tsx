@@ -32,7 +32,7 @@ export const Footer = memo(function Footer() {
                 ) : settings?.footer_logo_imagekit_url ? (
                   <img
                     src={settings.footer_logo_imagekit_url}
-                    alt={settings.site_name || "Fəzilət Kitab"}
+                    alt={settings.site_name || "KitabSat Logo"}
                     className="h-[39px] w-[250px] object-contain"
                     onError={(e) => {
                       console.log('ImageKit footer logo failed to load, using local logo')
