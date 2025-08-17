@@ -29,35 +29,22 @@ export const Footer = memo(function Footer() {
               <Link href="/" className="hover:opacity-80 transition-opacity">
                 {settingsLoading ? (
                   <div className="h-[39px] w-[250px] bg-gray-700 animate-pulse rounded"></div>
-                ) : settings?.footer_logo_imagekit_url ? (
+                ) : settings?.footer_logo ? (
                   <img
-                    src={settings.footer_logo_imagekit_url}
+                    src={settings.footer_logo}
                     alt={settings.site_name || "KitabSat Logo"}
                     className="h-[39px] w-[250px] object-contain"
                     onError={(e) => {
-                      console.log('ImageKit footer logo failed to load, using local logo')
+                      console.log('Footer logo failed to load, using default')
                       const target = e.target as HTMLImageElement
-                      if (settings?.footer_logo) {
-                        // Production üçün backend API URL istifadə edirik
-                        const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://127.0.0.1:8000'
-                        target.src = `${backendUrl}${settings.footer_logo}`
-                      } else {
-                        target.style.display = 'none'
-                        target.nextElementSibling?.classList.remove('hidden')
-                      }
+                      target.style.display = 'none'
+                      target.nextElementSibling?.classList.remove('hidden')
                     }}
-                  />
-                ) : settings?.footer_logo ? (
-                  <img 
-                    // Production üçün backend API URL istifadə edirik
-                    src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://127.0.0.1:8000'}${settings.footer_logo}`}
-                    alt={settings.site_name || "KitabSat Logo"} 
-                    className="h-[39px] w-[250px] object-contain" 
                   />
                 ) : (
                   <div className="h-[39px] w-[250px] bg-gray-700 rounded flex items-center justify-center">
                     <span className="text-white font-bold text-lg">
-                      {settings?.site_name || "Logo Yoxdur"}
+                      {settings?.site_name || "dostumkitab.az"}
                     </span>
                   </div>
                 )}

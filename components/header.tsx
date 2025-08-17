@@ -86,30 +86,17 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
               <Link href="/">
                 {settingsLoading ? (
                   <div className="h-[39px] w-[250px] bg-gray-200 animate-pulse rounded"></div>
-                ) : settings?.navbar_logo_imagekit_url ? (
+                ) : settings?.navbar_logo ? (
                   <img
-                    src={settings.navbar_logo_imagekit_url}
+                    src={settings.navbar_logo}
                     alt={settings.site_name || "KitabSat Logo"}
                     className="h-[39px] w-[250px] object-contain"
                     onError={(e) => {
-                      console.log('ImageKit logo failed to load, using local logo')
+                      console.log('Logo failed to load, using default')
                       const target = e.target as HTMLImageElement
-                      if (settings?.navbar_logo) {
-                        // Production üçün backend API URL istifadə edirik
-                        const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://127.0.0.1:8000'
-                        target.src = `${backendUrl}${settings.navbar_logo}`
-                      } else {
-                        target.style.display = 'none'
-                        target.nextElementSibling?.classList.remove('hidden')
-                      }
+                      target.style.display = 'none'
+                      target.nextElementSibling?.classList.remove('hidden')
                     }}
-                  />
-                ) : settings?.navbar_logo ? (
-                  <img 
-                    // Production üçün backend API URL istifadə edirik
-                    src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://127.0.0.1:8000'}${settings.navbar_logo}`}
-                    alt={settings.site_name || "KitabSat Logo"} 
-                    className="h-[39px] w-[250px] object-contain" 
                   />
                 ) : (
                   <div className="h-[39px] w-[250px] bg-gray-200 rounded flex items-center justify-center">
