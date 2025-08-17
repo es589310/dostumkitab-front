@@ -51,13 +51,18 @@ export function AuthModal({ isOpen, onClose, mode, onModeChange }: AuthModalProp
           password: formData.password,
           password_confirm: formData.confirmPassword,
         })
+        
+        // Qeydiyyat uğurlu - modal bağlanır
+        onClose()
       } else {
         await login({
           username: formData.email,
           password: formData.password,
         })
+        
+        // Giriş uğurlu - modal bağlanır
+        onClose()
       }
-      onClose()
     } catch (error: any) {
       console.error("Auth error:", error)
       

@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import { useToast } from "@/hooks/use-toast"
 import api, { type User, type LoginData, type RegisterData } from "@/lib/api"
 
 interface AuthContextType {
@@ -17,6 +18,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const { toast } = useToast()
 
   useEffect(() => {
     checkAuthStatus()
@@ -41,6 +43,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const response = await api.login(credentials)
       setUser(response.user)
+      
+      // Giriş uğurlu toast notification
+      toast({
+        title: "Giriş uğurlu! 🎉",
+        description: `${response.user.first_name || response.user.username}, xoş gəlmisiniz!`,
+        variant: "success",
+        duration: 4000,
+      })
     } catch (error) {
       console.error("Login failed:", error)
       throw error
@@ -51,6 +61,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const response = await api.register(userData)
       setUser(response.user)
+      
+      // Qeydiyyat uğurlu toast notification
+      toast({
+        title: "Qeydiyyat uğurlu! 🚀",
+        description: `${response.user.first_name || response.user.username}, dostumkitab.az-a xoş gəlmisiniz!`,
+        variant: "success",
+        duration: 5000,
+      })
     } catch (error) {
       console.error("Registration failed:", error)
       throw error
@@ -60,6 +78,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     api.logout()
     setUser(null)
+    
+    // Çıxış uğurlu toast notification
+    toast({
+      title: "Çıxış edildi! 👋",
+      description: "Təhlükəsiz şəkildə çıxış etdiniz. Təkrar görüşə qədər!",
+      variant: "default",
+      duration: 3000,
+    })
   }
 
   const isAuthenticated = user !== null
