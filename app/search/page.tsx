@@ -10,18 +10,64 @@ import { Star, ShoppingCart, Search } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import Link from "next/link"
 
-// Separate component for search logic that uses useSearchParams
-function SearchLogic({ onBooksUpdate, onLoadingChange, onErrorChange }: {
-  onBooksUpdate: (books: Book[]) => void
-  onLoadingChange: (loading: boolean) => void
-  onErrorChange: (error: string) => void
-}) {
+// Component that uses useSearchParams - must be wrapped in Suspense
+function SearchParamsHandler({ onQueryChange }: { onQueryChange: (query: string) => void }) {
   const searchParams = useSearchParams()
   const query = searchParams.get("query") || ""
-
+  
   useEffect(() => {
-    onLoadingChange(true)
-    onErrorChange("")
+    onQueryChange(query)
+  }, [query, onQueryChange])
+  
+  return null
+}
+
+function SearchContent() {
+  const [books, setBooks] = useState<Book[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+  const [query, setQuery] = useState("")
+  const { addItem } = useCart()
+
+  // Load categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await api.getCategories()
+        if (Array.isArray(data)) {
+          setCategories(data)
+        } else if (data && typeof data === "object" && "results" in data && Array.isArray((data as CategoriesResponse).results)) {
+          setCategories((data as CategoriesResponse).results)
+        }
+      } catch (error) {
+        console.error("Failed to fetch categories:", error)
+      }
+    }
+    fetchCategories()
+  }, [])
+
+  // Fetch books when query changes
+  useEffect(() => {
+    if (!query) {
+      // If no query, fetch all books
+      const fetchAllBooks = async () => {
+        try {
+          const data = await api.getBooks()
+          if (data?.results) {
+            setBooks(data.results)
+          }
+        } catch (error) {
+          console.error("Failed to fetch all books:", error)
+          setBooks([])
+        }
+      }
+      fetchAllBooks()
+      return
+    }
+
+    setLoading(true)
+    setError("")
 
     const fetchBooks = async () => {
       try {
@@ -104,53 +150,20 @@ function SearchLogic({ onBooksUpdate, onLoadingChange, onErrorChange }: {
           }
 
           allBooks = allBooks.slice(0, 50) // Max 50 results
-        } else {
-          // If no query, fetch all books
-          const data = await api.getBooks()
-          if (data?.results) {
-            allBooks = data.results
-          }
         }
         
-        onBooksUpdate(allBooks)
+        setBooks(allBooks)
       } catch (error) {
         console.error("ElasticSearch: Global error:", error)
-        onErrorChange("Axtarış xətası baş verdi")
-        onBooksUpdate([])
+        setError("Axtarış xətası baş verdi")
+        setBooks([])
       } finally {
-        onLoadingChange(false)
+        setLoading(false)
       }
     }
 
     fetchBooks()
-  }, [query, onBooksUpdate, onLoadingChange, onErrorChange])
-
-  return null // This component only handles the search logic
-}
-
-function SearchContent() {
-  const [books, setBooks] = useState<Book[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
-  const { addItem } = useCart()
-
-  // Load categories
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const data = await api.getCategories()
-        if (Array.isArray(data)) {
-          setCategories(data)
-        } else if (data && typeof data === "object" && "results" in data && Array.isArray((data as CategoriesResponse).results)) {
-          setCategories((data as CategoriesResponse).results)
-        }
-      } catch (error) {
-        console.error("Failed to fetch categories:", error)
-      }
-    }
-    fetchCategories()
-  }, [])
+  }, [query])
 
   const handleAddToCart = async (book: Book) => {
     try {
@@ -159,17 +172,6 @@ function SearchContent() {
       console.error("Səbətə əlavə edərkən xəta:", error)
     }
   }
-
-  // Get query from URL for display purposes
-  const getQueryFromURL = () => {
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search)
-      return urlParams.get("query") || ""
-    }
-    return ""
-  }
-
-  const query = getQueryFromURL()
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -300,12 +302,10 @@ function SearchContent() {
         </div>
       )}
 
-      {/* Search Logic Component */}
-      <SearchLogic 
-        onBooksUpdate={setBooks}
-        onLoadingChange={setLoading}
-        onErrorChange={setError}
-      />
+      {/* Search Params Handler - wrapped in Suspense */}
+      <Suspense fallback={null}>
+        <SearchParamsHandler onQueryChange={setQuery} />
+      </Suspense>
     </div>
   )
 }
