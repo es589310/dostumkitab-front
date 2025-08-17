@@ -95,12 +95,12 @@ export default function SocialMediaIcons({ variant = 'footer', className = '' }:
   }
 
   const baseClasses = variant === 'navbar' 
-    ? 'flex items-center space-x-3' 
-    : 'flex items-center space-x-4';
+    ? 'flex items-center space-x-2 sm:space-x-3' 
+    : 'flex items-center space-x-3 sm:space-x-4';
 
   const iconClasses = variant === 'navbar'
-    ? 'w-5 h-5 text-gray-600 hover:text-blue-600 transition-colors duration-200'
-    : 'w-6 h-6 text-gray-400 hover:text-white transition-colors duration-200';
+    ? 'w-4 h-4 sm:w-5 sm:h-5 text-gray-600 hover:text-blue-600 transition-colors duration-200'
+    : 'w-5 h-5 sm:w-6 sm:h-6 text-gray-400 hover:text-white transition-colors duration-200';
 
   return (
     <div className={`${baseClasses} ${className}`}>

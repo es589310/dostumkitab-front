@@ -66,13 +66,13 @@ export function NavigationBar({ onCategorySelect }: NavigationBarProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <nav className="flex items-center justify-between py-3">
           {/* Left side - Categories */}
-          <div className="flex items-center space-x-4 md:space-x-8 overflow-x-auto">
+          <div className="flex items-center space-x-2 sm:space-x-4 md:space-x-6 lg:space-x-8 overflow-x-auto">
                       {/* Categories Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <button 
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               onMouseEnter={() => setIsDropdownOpen(true)}
-              className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 transition-colors px-4 md:px-6 py-2 md:py-3 rounded-md hover:bg-gray-100 text-sm md:text-base font-medium whitespace-nowrap"
+              className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 transition-colors px-2 sm:px-4 md:px-6 py-2 md:py-3 rounded-md hover:bg-gray-100 text-xs sm:text-sm md:text-base font-medium whitespace-nowrap"
             >
               <span>Kateqoriyalar</span>
               <ChevronDown className={`h-4 w-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
@@ -111,7 +111,7 @@ export function NavigationBar({ onCategorySelect }: NavigationBarProps) {
           {/* Bestsellers */}
           <Link 
             href="/bestsellers" 
-            className="text-gray-700 hover:text-blue-600 transition-colors px-4 md:px-6 py-2 md:py-3 rounded-md hover:bg-gray-100 text-sm md:text-base font-medium whitespace-nowrap"
+            className="text-gray-700 hover:text-blue-600 transition-colors px-2 sm:px-4 md:px-6 py-2 md:py-3 rounded-md hover:bg-gray-100 text-xs sm:text-sm md:text-base font-medium whitespace-nowrap"
           >
             Ən Çox Satılan
           </Link>
@@ -119,7 +119,7 @@ export function NavigationBar({ onCategorySelect }: NavigationBarProps) {
           {/* New Books */}
           <Link 
             href="/new-books" 
-            className="text-gray-700 hover:text-blue-600 transition-colors px-4 md:px-6 py-2 md:py-3 rounded-md hover:bg-gray-100 text-sm md:text-base font-medium whitespace-nowrap"
+            className="text-gray-700 hover:text-blue-600 transition-colors px-2 sm:px-4 md:px-6 py-2 md:py-3 rounded-md hover:bg-gray-100 text-xs sm:text-sm md:text-base font-medium whitespace-nowrap"
           >
             Yeni Kitablar
           </Link>
@@ -127,14 +127,14 @@ export function NavigationBar({ onCategorySelect }: NavigationBarProps) {
           {/* Discounts */}
           <Link 
             href="/discounts" 
-            className="text-gray-700 hover:text-blue-600 transition-colors px-4 md:px-6 py-2 md:py-3 rounded-md hover:bg-gray-100 text-sm md:text-base font-medium whitespace-nowrap"
+            className="text-gray-700 hover:text-blue-600 transition-colors px-2 sm:px-4 md:px-6 py-2 md:py-3 rounded-md hover:bg-gray-100 text-xs sm:text-sm md:text-base font-medium whitespace-nowrap"
           >
             Endirimlər
           </Link>
           </div>
 
           {/* Right side - Social Media Icons */}
-          <div className="hidden md:flex">
+          <div className="flex items-center space-x-3">
             <SocialMediaIcons variant="navbar" />
           </div>
         </nav>
