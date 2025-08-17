@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { X } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
+import { useToast } from "@/hooks/use-toast"
 
 interface AuthModalProps {
   isOpen: boolean
@@ -24,6 +25,7 @@ export function AuthModal({ isOpen, onClose, mode, onModeChange }: AuthModalProp
   })
   const [isLoading, setIsLoading] = useState(false)
   const { login, register } = useAuth()
+  const { toast } = useToast()
 
   if (!isOpen) return null
 
@@ -34,7 +36,11 @@ export function AuthModal({ isOpen, onClose, mode, onModeChange }: AuthModalProp
     try {
       if (mode === "register") {
         if (formData.password !== formData.confirmPassword) {
-          alert("Şifrələr uyğun gəlmir!")
+          toast({
+            title: "Şifrələr uyğun gəlmir!",
+            description: "Şifrələr uyğun gəlmir!",
+            variant: "destructive",
+          })
           return
         }
         await register({
@@ -54,7 +60,23 @@ export function AuthModal({ isOpen, onClose, mode, onModeChange }: AuthModalProp
       onClose()
     } catch (error: any) {
       console.error("Auth error:", error)
-      alert(error.message || "Xəta baş verdi!")
+      
+      // Şifrə xətalarını xüsusi format et
+      let errorTitle = "Xəta baş verdi!"
+      let errorDescription = error.message || "Xəta baş verdi!"
+      
+      if (error.message && error.message.includes("Şifrə tələbləri qarşılanmır:")) {
+        errorTitle = "Şifrə Tələbləri ⚠️"
+        // Şifrə xətalarını bullet points ilə göstər
+        errorDescription = error.message.replace(/\n/g, '\n');
+      }
+      
+      toast({
+        title: errorTitle,
+        description: errorDescription,
+        variant: "destructive",
+        duration: 8000, // Şifrə xətaları üçün daha uzun müddət
+      })
     } finally {
       setIsLoading(false)
     }

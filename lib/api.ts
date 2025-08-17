@@ -95,6 +95,22 @@ class ApiClient {
           throw new Error(errorData.error);
         }
         
+        // Şifrə xətalarını daha səliqəli göstər
+        if (response.status === 400 && errorData.password) {
+          const passwordErrors = errorData.password;
+          let errorMessage = "Şifrə tələbləri qarşılanmır:\n";
+          
+          if (Array.isArray(passwordErrors)) {
+            passwordErrors.forEach((error: string, index: number) => {
+              errorMessage += `• ${error}\n`;
+            });
+          } else {
+            errorMessage += `• ${passwordErrors}`;
+          }
+          
+          throw new Error(errorMessage.trim());
+        }
+        
         // Digər xətalar üçün console.error
         console.error('API: Response not ok:', response.status, errorData);
         throw new Error(`HTTP error! status: ${response.status}, message: ${JSON.stringify(errorData)}`);
