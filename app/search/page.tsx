@@ -1,7 +1,6 @@
 "use client"
 
-import { useEffect, useState, Suspense } from "react"
-import { useSearchParams } from "next/navigation"
+import { useEffect, useState } from "react"
 import api, { Book, Category, BookListResponse, CategoriesResponse } from "@/lib/api"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -10,21 +9,13 @@ import { Star, ShoppingCart, Search } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import Link from "next/link"
 
-function SearchContent() {
+export default function SearchPage() {
   const [books, setBooks] = useState<Book[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [query, setQuery] = useState("")
   const { addItem } = useCart()
-
-  const searchParams = useSearchParams()
-  
-  // Get query from URL using useSearchParams
-  useEffect(() => {
-    const searchQuery = searchParams.get("query") || ""
-    setQuery(searchQuery)
-  }, [searchParams])
 
   // Load categories
   useEffect(() => {
@@ -41,6 +32,15 @@ function SearchContent() {
       }
     }
     fetchCategories()
+  }, [])
+
+  // Get query from URL on client side (without useSearchParams)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      const searchQuery = urlParams.get("query") || ""
+      setQuery(searchQuery)
+    }
   }, [])
 
   // Fetch books when query changes
@@ -298,20 +298,5 @@ function SearchContent() {
         </div>
       )}
     </div>
-  )
-}
-
-export default function SearchPage() {
-  return (
-    <Suspense fallback={
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Yüklənir...</p>
-        </div>
-      </div>
-    }>
-      <SearchContent />
-    </Suspense>
   )
 } 
