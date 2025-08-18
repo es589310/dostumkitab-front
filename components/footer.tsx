@@ -168,7 +168,7 @@ export const Footer = memo(function Footer() {
               </li>
               <li>
                 <Link href="#" className="hover:text-white transition-colors">
-                  FAQ
+                  TVS
                 </Link>
               </li>
               <li>
