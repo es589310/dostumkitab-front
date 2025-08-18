@@ -47,11 +47,11 @@ html {
             <CartProvider>
               <div className="min-h-screen bg-gray-50 flex flex-col">
                 {/* Responsive Header - Mobile & Tablet Only */}
-                <div className="lg:hidden">
+                <div className="block lg:hidden">
                   <ResponsiveHeader />
                 </div>
                 
-                {/* Original Header - Desktop Only */}
+                {/* Original Header - Always Visible on Desktop */}
                 <div className="hidden lg:block">
                   <HeaderWrapper />
                   <NavigationBar />
