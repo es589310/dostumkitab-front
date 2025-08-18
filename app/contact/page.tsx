@@ -213,6 +213,30 @@ export default function ContactPage() {
                       </div>
                     </div>
                   )}
+
+                  {settings?.whatsapp_number && (
+                    <div className="flex items-start space-x-4">
+                      <div className="flex-shrink-0">
+                        <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path d="M3 21l1.9-1.9a8.5 8.5 0 1 0-2.8-2.8L3 21z"/>
+                          <path d="M10 8a6 6 0 0 1 6 6"/>
+                          <path d="M14 8a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-4z"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">WhatsApp</h3>
+                        <a 
+                          href={`https://wa.me/${settings.whatsapp_number.replace(/\s/g, '')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gray-600 hover:text-blue-600 transition-colors"
+                          title="WhatsApp-da yazın"
+                        >
+                          {settings.whatsapp_number}
+                        </a>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
