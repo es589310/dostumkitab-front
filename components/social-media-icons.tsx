@@ -69,31 +69,7 @@ interface SocialMediaIconsProps {
 export default function SocialMediaIcons({ variant = 'footer', className = '' }: SocialMediaIconsProps) {
   const { settings, loading } = useSiteSettings();
   
-  // Loading state
-  if (loading) {
-    return (
-      <div className={`flex items-center space-x-2 ${className}`}>
-        <div className="w-6 h-6 bg-gray-200 rounded-full animate-pulse"></div>
-        <div className="w-6 h-6 bg-gray-200 rounded-full animate-pulse"></div>
-        <div className="w-6 h-6 bg-gray-200 rounded-full animate-pulse"></div>
-      </div>
-    );
-  }
-
-  // Check if social media links exist
-  if (!settings?.social_media_links || settings.social_media_links.length === 0) {
-    return null;
-  }
-
-  // Filter active and non-hidden links, sort by order
-  const activeLinks = settings.social_media_links
-    .filter(link => link.is_active && !link.is_hidden)
-    .sort((a, b) => a.order - b.order);
-
-  if (activeLinks.length === 0) {
-    return null;
-  }
-
+  // Define base classes and icon classes early
   const baseClasses = variant === 'navbar' 
     ? 'flex items-center space-x-2 sm:space-x-3' 
     : 'flex items-center space-x-3 sm:space-x-4';
@@ -101,6 +77,119 @@ export default function SocialMediaIcons({ variant = 'footer', className = '' }:
   const iconClasses = variant === 'navbar'
     ? 'w-4 h-4 sm:w-5 sm:h-5 text-gray-600 hover:text-blue-600 transition-colors duration-200'
     : 'w-5 h-5 sm:w-6 sm:h-6 text-gray-400 hover:text-white transition-colors duration-200';
+  
+  // Default social media links for when loading or no data
+  const defaultLinks = [
+    {
+      platform: 'instagram',
+      url: 'https://www.instagram.com/mymentoraz',
+      icon_class: 'fab fa-instagram',
+      is_active: true,
+      is_hidden: false,
+      order: 1
+    },
+    {
+      platform: 'facebook',
+      url: 'https://www.facebook.com/lifeatbankofbaku',
+      icon_class: 'fab fa-facebook',
+      is_active: true,
+      is_hidden: false,
+      order: 2
+    }
+  ];
+  
+  // Use settings or default values
+  const currentSettings = settings || { social_media_links: defaultLinks };
+  
+  // Loading state - show default icons instead of loading animation
+  if (loading) {
+    return (
+      <div className={`${baseClasses} ${className}`}>
+        {defaultLinks.map((link) => {
+          const IconComponent = platformIcons[link.platform];
+          if (!IconComponent) return null;
+
+          return (
+            <a
+              key={link.platform}
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group"
+              aria-label={`${platformNames[link.platform]} səhifəsinə keç`}
+              title={platformNames[link.platform]}
+            >
+              <IconComponent 
+                className={`${iconClasses} group-hover:scale-110 transition-transform duration-200`} 
+              />
+            </a>
+          );
+        })}
+      </div>
+    );
+  }
+
+  // Check if social media links exist
+  if (!currentSettings?.social_media_links || currentSettings.social_media_links.length === 0) {
+    // Return default links if no data
+    return (
+      <div className={`${baseClasses} ${className}`}>
+        {defaultLinks.map((link) => {
+          const IconComponent = platformIcons[link.platform];
+          if (!IconComponent) return null;
+
+          return (
+            <a
+              key={link.platform}
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group"
+              aria-label={`${platformNames[link.platform]} səhifəsinə keç`}
+              title={platformNames[link.platform]}
+            >
+              <IconComponent 
+                className={`${iconClasses} group-hover:scale-110 transition-transform duration-200`} 
+              />
+            </a>
+          );
+        })}
+      </div>
+    );
+  }
+
+  // Filter active and non-hidden links, sort by order
+  const activeLinks = currentSettings.social_media_links
+    .filter(link => link.is_active && !link.is_hidden)
+    .sort((a, b) => a.order - b.order);
+
+  if (activeLinks.length === 0) {
+    // Return default links if no active links
+    return (
+      <div className={`${baseClasses} ${className}`}>
+        {defaultLinks.map((link) => {
+          const IconComponent = platformIcons[link.platform];
+          if (!IconComponent) return null;
+
+          return (
+            <a
+              key={link.platform}
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group"
+              aria-label={`${platformNames[link.platform]} səhifəsinə keç`}
+              title={platformNames[link.platform]}
+            >
+              <IconComponent 
+                className={`${iconClasses} group-hover:scale-110 transition-transform duration-200`} 
+              />
+            </a>
+          );
+        })}
+      </div>
+    );
+  }
 
   return (
     <div className={`${baseClasses} ${className}`}>

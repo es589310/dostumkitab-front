@@ -26,6 +26,18 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
   const [isCartOpen, setIsCartOpenLocal] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
 
+  // Default settings for when loading or no data
+  const defaultSettings = {
+    site_name: "dostumkitab.az",
+    navbar_logo_imagekit_url: "",
+    navbar_logo: "",
+    footer_logo_imagekit_url: "",
+    footer_logo: ""
+  }
+
+  // Use settings or default values
+  const currentSettings = settings || defaultSettings
+
   // Track cart count updates
   useEffect(() => {
     console.log('Header: Cart total items updated:', totalItems)
@@ -33,14 +45,14 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
 
   // Track site settings data
   useEffect(() => {
-    console.log('Header: Site settings updated:', settings)
-    if (settings) {
-      console.log('Header: Navbar logo URL:', settings.navbar_logo_imagekit_url)
-      console.log('Header: Footer logo URL:', settings.footer_logo_imagekit_url)
-      console.log('Header: Navbar logo file:', settings.navbar_logo)
-      console.log('Header: Footer logo file:', settings.footer_logo)
+    console.log('Header: Site settings updated:', currentSettings)
+    if (currentSettings) {
+      console.log('Header: Navbar logo URL:', currentSettings.navbar_logo_imagekit_url)
+      console.log('Header: Footer logo URL:', currentSettings.footer_logo_imagekit_url)
+      console.log('Header: Navbar logo file:', currentSettings.navbar_logo)
+      console.log('Header: Footer logo file:', currentSettings.footer_logo)
     }
-  }, [settings])
+  }, [currentSettings])
 
   // Click outside handler for user menu
   useEffect(() => {
@@ -103,10 +115,10 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
               >
                 {settingsLoading ? (
                   <div className="h-8 w-24 sm:h-10 sm:w-32 md:h-12 md:w-40 lg:h-[39px] lg:w-[250px] bg-gray-200 animate-pulse rounded"></div>
-                ) : settings?.navbar_logo_imagekit_url ? (
+                ) : currentSettings.navbar_logo_imagekit_url ? (
                   <img
-                    src={settings.navbar_logo_imagekit_url}
-                    alt={settings.site_name || "KitabSat Logo"}
+                    src={currentSettings.navbar_logo_imagekit_url}
+                    alt={currentSettings.site_name || "KitabSat Logo"}
                     className="h-8 w-24 sm:h-10 sm:w-32 md:h-12 md:w-40 lg:h-[39px] lg:w-[250px] object-contain"
                     onError={(e) => {
                       console.log('Navbar logo failed to load, using default')
@@ -115,10 +127,10 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
                       target.nextElementSibling?.classList.remove('hidden')
                     }}
                   />
-                ) : settings?.navbar_logo ? (
+                ) : currentSettings.navbar_logo ? (
                   <img
-                    src={settings.navbar_logo}
-                    alt={settings.site_name || "KitabSat Logo"}
+                    src={currentSettings.navbar_logo}
+                    alt={currentSettings.site_name || "KitabSat Logo"}
                     className="h-8 w-24 sm:h-10 sm:w-32 md:h-12 md:w-40 lg:h-[39px] lg:w-[250px] object-contain"
                     onError={(e) => {
                       console.log('Logo failed to load, using default')
@@ -130,7 +142,7 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
                 ) : (
                   <div className="h-8 w-24 sm:h-10 sm:w-32 md:h-12 md:w-40 lg:h-[39px] lg:w-[250px] bg-gray-200 rounded flex items-center justify-center">
                     <span className="text-gray-600 font-bold text-xs sm:text-sm md:text-base lg:text-lg px-2 text-center">
-                      {settings?.site_name || "dostumkitab.az"}
+                      {currentSettings.site_name || "dostumkitab.az"}
                     </span>
                   </div>
                 )}
