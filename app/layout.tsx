@@ -31,6 +31,10 @@ export const metadata: Metadata = {
     title: 'Dostum Kitab - Azərbaycanın Ən Böyük Onlayn Kitab Mağazası',
     description: 'Azərbaycanda ən böyük onlayn kitab mağazası. Minlərlə kitab, ən yaxşı qiymətlər və sürətli çatdırılma xidməti.',
   },
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+  },
   viewport: 'width=device-width, initial-scale=1',
   themeColor: '#1f2937',
 }
