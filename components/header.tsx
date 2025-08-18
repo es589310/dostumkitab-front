@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/auth-context'
 import { useCart } from '@/contexts/cart-context'
 import { useSiteSettings } from '@/hooks/useSiteSettings'
 import { CartSidebar } from "./cart-sidebar"
+import { AuthModal } from './auth-modal'
 
 interface HeaderProps {
   onAuthClick: (mode: "login" | "register") => void
@@ -266,6 +267,52 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
       </header>
 
       <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpenLocal(false)} />
+    </>
+  )
+}
+
+// HeaderWrapper component that includes AuthModal
+export function HeaderWrapper() {
+  const [authMode, setAuthMode] = useState<"login" | "register" | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState("")
+
+  const handleAuthClick = (mode: "login" | "register") => {
+    setAuthMode(mode)
+  }
+
+  const handleSearch = (term: string) => {
+    setSearchQuery(term)
+  }
+
+  const handleCategorySelect = (categoryId: string) => {
+    setSelectedCategory(categoryId)
+  }
+
+  const handleCloseAuth = () => {
+    setAuthMode(null)
+  }
+
+  const handleModeChange = (mode: "login" | "register") => {
+    setAuthMode(mode)
+  }
+
+  return (
+    <>
+      <Header 
+        onAuthClick={handleAuthClick}
+        onSearch={handleSearch}
+        onCategorySelect={handleCategorySelect}
+      />
+      
+      {authMode && (
+        <AuthModal 
+          isOpen={true}
+          mode={authMode} 
+          onClose={handleCloseAuth}
+          onModeChange={handleModeChange}
+        />
+      )}
     </>
   )
 }
