@@ -46,7 +46,7 @@ html {
           <AuthProvider>
             <CartProvider>
               <div className="min-h-screen bg-gray-50 flex flex-col">
-                {/* Responsive Header - Mobile & Tablet */}
+                {/* Responsive Header - Mobile & Tablet Only */}
                 <div className="lg:hidden">
                   <ResponsiveHeader />
                 </div>
