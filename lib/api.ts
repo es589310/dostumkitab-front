@@ -111,6 +111,17 @@ class ApiClient {
           throw new Error(errorMessage.trim());
         }
         
+        // 429 xətası üçün xüsusi mesaj (Rate Limiting)
+        if (response.status === 429) {
+          let errorMessage = "Çox tez-tez istək göndərirsiniz. ";
+          if (errorData.detail) {
+            errorMessage += errorData.detail;
+          } else {
+            errorMessage += "Zəhmət olmasa bir az gözləyin və yenidən cəhd edin.";
+          }
+          throw new Error(errorMessage);
+        }
+        
         // Digər xətalar üçün console.error
         console.error('API: Response not ok:', response.status, errorData);
         throw new Error(`HTTP error! status: ${response.status}, message: ${JSON.stringify(errorData)}`);

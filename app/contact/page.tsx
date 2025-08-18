@@ -87,10 +87,19 @@ export default function ContactPage() {
       }
     } catch (error: any) {
       console.error('Contact form error:', error)
-      setSubmitMessage({ 
-        type: 'error', 
-        text: error.message || 'Mesaj göndərilərkən xəta baş verdi' 
-      })
+      
+      // 429 xətası üçün xüsusi mesaj
+      if (error.message && error.message.includes('429')) {
+        setSubmitMessage({ 
+          type: 'error', 
+          text: 'Çox tez-tez mesaj göndərirsiniz. Zəhmət olmasa bir az gözləyin və yenidən cəhd edin.' 
+        })
+      } else {
+        setSubmitMessage({ 
+          type: 'error', 
+          text: error.message || 'Mesaj göndərilərkən xəta baş verdi' 
+        })
+      }
     } finally {
       setIsSubmitting(false)
     }
