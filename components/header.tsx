@@ -169,8 +169,7 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
                     }}
                     id="live-search-btn"
                   >
-                    <span className="hidden sm:inline">AXTAR</span>
-                    <span className="sm:hidden">A</span>
+                    AXTAR
                   </button>
                 </div>
               </form>

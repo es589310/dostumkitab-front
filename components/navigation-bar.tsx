@@ -73,7 +73,7 @@ export function NavigationBar({ onCategorySelect }: NavigationBarProps) {
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
         <nav className="flex items-center justify-between py-2 sm:py-3">
           {/* Left side - Categories */}
-          <div className="hidden lg:flex items-center space-x-2 sm:space-x-4 md:space-x-6 lg:space-x-8 overflow-x-auto">
+          <div className="flex items-center space-x-2 sm:space-x-4 md:space-x-6 lg:space-x-8 overflow-x-auto">
                       {/* Categories Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <button 
