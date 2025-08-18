@@ -112,6 +112,24 @@ export const Footer = memo(function Footer() {
                   {settings?.email || "info@faziletkitab.az"}
                 </a>
               </div>
+              {settings?.whatsapp_number && (
+                <div className="flex items-center text-sm text-gray-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 mr-2">
+                    <path d="M3 21l1.9-1.9a8.5 8.5 0 1 0-2.8-2.8L3 21z"/>
+                    <path d="M10 8a6 6 0 0 1 6 6"/>
+                    <path d="M14 8a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-4z"/>
+                  </svg>
+                  <a 
+                    href={`https://wa.me/${settings.whatsapp_number.replace(/\s/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-white transition-colors"
+                    title="WhatsApp-da yazın"
+                  >
+                    {settings.whatsapp_number}
+                  </a>
+                </div>
+              )}
             </div>
           </div>
 

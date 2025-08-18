@@ -12,6 +12,7 @@ interface SiteSettings {
   address: string
   working_hours?: string
   copyright_year?: number
+  whatsapp_number?: string
   social_media_links?: Array<{
     platform: string
     url: string
@@ -76,6 +77,7 @@ export function useSiteSettings() {
           address: settingsData.address || "Bakı, Azərbaycan",
           working_hours: settingsData.working_hours || "Bazar ertəsi - Cümə: 09:00-18:00",
           copyright_year: settingsData.copyright_year || new Date().getFullYear(),
+          whatsapp_number: settingsData.whatsapp_number || "+994 12 345 67 89",
           social_media_links: socialMediaData.links || []
         }
         
@@ -100,6 +102,7 @@ export function useSiteSettings() {
           address: "Bakı, Azərbaycan",
           working_hours: "Bazar ertəsi - Cümə: 09:00-18:00",
           copyright_year: new Date().getFullYear(),
+          whatsapp_number: "+994 12 345 67 89",
           social_media_links: []
         }
         setSettings(defaultData)
