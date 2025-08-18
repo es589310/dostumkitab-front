@@ -7,6 +7,7 @@ import { AuthProvider } from '@/contexts/auth-context'
 import { CartProvider } from '@/contexts/cart-context'
 import { HeaderWrapper } from '@/components/header-wrapper'
 import { NavigationBar } from '@/components/navigation-bar'
+import { ResponsiveHeader } from '@/components/responsive-header'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/toaster'
 
@@ -45,8 +46,17 @@ html {
           <AuthProvider>
             <CartProvider>
               <div className="min-h-screen bg-gray-50 flex flex-col">
-                <HeaderWrapper />
-                <NavigationBar />
+                {/* Responsive Header - Mobile & Tablet */}
+                <div className="lg:hidden">
+                  <ResponsiveHeader />
+                </div>
+                
+                {/* Original Header - Desktop Only */}
+                <div className="hidden lg:block">
+                  <HeaderWrapper />
+                  <NavigationBar />
+                </div>
+                
                 <main className="flex-1">
                   {children}
                 </main>
