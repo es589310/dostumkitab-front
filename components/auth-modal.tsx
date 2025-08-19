@@ -117,10 +117,14 @@ export function AuthModal({ isOpen, onClose, mode, onModeChange }: AuthModalProp
                   name="name"
                   type="text"
                   required
+                  maxLength={20}
                   value={formData.name}
                   onChange={handleInputChange}
-                  placeholder="Adınızı daxil edin"
+                  placeholder="Adınızı daxil edin (max 20 simvol)"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  {formData.name.length}/20 simvol
+                </p>
               </div>
             )}
 
