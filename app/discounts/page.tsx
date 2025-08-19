@@ -68,7 +68,7 @@ export default function DiscountsPage() {
                   <img
                     src={book.cover_imagekit_url || book.cover_image || "/placeholder.svg?height=300&width=200"}
                     alt={book.title}
-                    className="w-full h-64 object-cover rounded-lg"
+                    className="w-full h-64 object-contain bg-gray-100 rounded-lg"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.src = "/placeholder.svg?height=300&width=200";

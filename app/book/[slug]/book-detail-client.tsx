@@ -87,7 +87,7 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
             <img
               src={book.cover_imagekit_url || book.cover_image || "/placeholder.svg?height=600&width=400"}
               alt={book.title}
-              className="w-full h-[500px] object-contain rounded-lg shadow-lg bg-gray-50"
+              className="w-full h-[500px] object-contain bg-gray-100 rounded-lg shadow-lg"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.src = "/placeholder.svg?height=600&width=400";

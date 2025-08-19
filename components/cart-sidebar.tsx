@@ -84,7 +84,7 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                     <img
                       src={getMediaUrl(item.book.cover_imagekit_url || item.book.cover_image)}
                       alt={item.book.title}
-                      className="h-20 w-16 object-cover rounded"
+                      className="h-20 w-16 object-contain bg-gray-100 rounded"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.src = "/placeholder.svg";
