@@ -148,7 +148,10 @@ export default function ContactPage() {
                   <div>
                     <h3 className="text-lg font-medium text-gray-900">Ünvan</h3>
                     <a 
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.address)}`}
+                      href={settings.coordinates 
+                        ? `https://www.google.com/maps?q=${settings.coordinates}` 
+                        : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.address)}`
+                      }
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
