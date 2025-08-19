@@ -155,13 +155,18 @@ export default function ContactPage() {
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
-                      title="Google Maps-də aç"
+                      title={settings.coordinates ? "Google Maps-də dəqiq konumu aç" : "Google Maps-də ünvanı axtar"}
                     >
                       {settings.address}
                       <svg className="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                       </svg>
                     </a>
+                    {settings.coordinates && (
+                      <p className="text-sm text-gray-500 mt-1">
+                        Koordinatlar: {settings.coordinates}
+                      </p>
+                    )}
                   </div>
                 </div>
               )}
