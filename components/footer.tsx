@@ -124,8 +124,7 @@ export const Footer = memo(function Footer() {
               <li><a className="hover:text-white transition-colors" href="/contact">Əlaqə</a></li>
               <li><a className="hover:text-white transition-colors" href="#">Çatdırılma</a></li>
               <li><a className="hover:text-white transition-colors" href="#">Qaytarma</a></li>
-              <li><a className="hover:text-white transition-colors" href="#">TVS</a></li>
-              <li><a className="hover:text-white transition-colors" href="#">Dəstək</a></li>
+              <li><a className="hover:text-white transition-colors" href="#">Tez-tez verilən suallar</a></li>
             </ul>
           </div>
           

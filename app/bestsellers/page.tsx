@@ -74,8 +74,6 @@ export default function BestsellersPage() {
                     }}
                   />
                   <div className="absolute top-2 left-2 flex flex-col gap-1">
-                    {book.is_featured && <Badge variant="destructive">Seçilmiş</Badge>}
-                    {book.is_bestseller && <Badge variant="secondary">Ən Çox Satılan</Badge>}
                     {book.is_new && <Badge className="bg-green-500">Yeni</Badge>}
                   </div>
                   {book.discount_percentage > 0 && (
