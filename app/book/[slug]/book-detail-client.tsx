@@ -85,9 +85,13 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
         <div className="space-y-4">
           <div className="relative">
             <img
-              src={book.cover_image || "/placeholder.svg?height=600&width=400"}
+              src={book.cover_imagekit_url || book.cover_image || "/placeholder.svg?height=600&width=400"}
               alt={book.title}
               className="w-full h-[500px] object-contain rounded-lg shadow-lg bg-gray-50"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = "/placeholder.svg?height=600&width=400";
+              }}
             />
             <div className="absolute top-4 left-4 flex flex-col gap-2">
               {book.is_featured && <Badge variant="destructive">Seçilmiş</Badge>}

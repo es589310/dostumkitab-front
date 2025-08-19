@@ -82,14 +82,13 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                 {items.map((item) => (
                   <div key={`${item.id}-${item.book.id}-${item.quantity}`} className="flex items-center space-x-3 border-b pb-4">
                     <img
-                      src={getMediaUrl(item.book.cover_image)}
+                      src={getMediaUrl(item.book.cover_imagekit_url || item.book.cover_image)}
                       alt={item.book.title}
                       className="h-20 w-16 object-cover rounded"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.src = "/placeholder.svg";
                       }}
-                      loading="lazy"
                     />
                     <div className="flex-1">
                       <h3 className="font-medium text-sm line-clamp-2">{item.book.title}</h3>

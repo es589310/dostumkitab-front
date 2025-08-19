@@ -65,9 +65,13 @@ export default function NewBooksPage() {
               <CardContent className="p-4">
                 <div className="relative mb-4">
                   <img
-                    src={book.cover_image || "/placeholder.svg?height=300&width=200"}
+                    src={book.cover_imagekit_url || book.cover_image || "/placeholder.svg?height=300&width=200"}
                     alt={book.title}
                     className="w-full h-64 object-cover rounded-lg"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = "/placeholder.svg?height=300&width=200";
+                    }}
                   />
                   <div className="absolute top-2 left-2 flex flex-col gap-1">
                     {book.is_featured && <Badge variant="destructive">Seçilmiş</Badge>}

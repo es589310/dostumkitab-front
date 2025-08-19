@@ -330,6 +330,7 @@ export interface Book {
   price: number;
   original_price?: number;
   cover_image?: string;
+  cover_imagekit_url?: string;
   stock_quantity: number;
   average_rating: number;
   reviews_count: number;

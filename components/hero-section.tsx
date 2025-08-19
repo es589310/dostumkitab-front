@@ -3,8 +3,18 @@
 import { useEffect, useState } from "react"
 import api from "@/lib/api"
 
+interface Banner {
+  id: number;
+  title: string;
+  subtitle?: string;
+  image?: string;
+  imagekit_url?: string;
+  link?: string;
+  is_active: boolean;
+}
+
 export function HeroSection() {
-  const [banners, setBanners] = useState<any[]>([])
+  const [banners, setBanners] = useState<Banner[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -114,15 +124,22 @@ export function HeroSection() {
       >
         {banners.map((banner, index) => (
           <div key={index} className="w-full h-full flex-shrink-0 relative">
-            {banner.image ? (
+            {banner.imagekit_url || banner.image ? (
               <img 
-                src={banner.image} 
+                src={banner.imagekit_url || banner.image} 
                 alt={banner.title} 
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const fallback = target.nextElementSibling as HTMLElement;
+                  if (fallback) fallback.style.display = 'block';
+                }}
               />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600"></div>
-            )}
+            ) : null}
+            
+            {/* Fallback gradient background */}
+            <div className={`w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 ${banner.imagekit_url || banner.image ? 'hidden' : ''}`}></div>
             
             {/* Overlay */}
             <div className="absolute inset-0 bg-black bg-opacity-40"></div>
