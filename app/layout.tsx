@@ -11,7 +11,7 @@ import { Toaster } from '@/components/ui/toaster'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Dostum Kitab - Azərbaycanın Ən Böyük Onlayn Kitab Mağazası',
+  title: 'Dostum Kitab - dostumkitab.az',
   description: 'Azərbaycanda ən böyük onlayn kitab mağazası. Minlərlə kitab, ən yaxşı qiymətlər və sürətli çatdırılma xidməti.',
   keywords: 'kitab, kitab mağazası, online kitab, Azərbaycan, dostum kitab',
   authors: [{ name: 'Dostum Kitab' }],
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   publisher: 'Dostum Kitab',
   robots: 'index, follow',
   openGraph: {
-    title: 'Dostum Kitab - Azərbaycanın Ən Böyük Onlayn Kitab Mağazası',
+    title: 'Dostum Kitab - dostumkitab.az',
     description: 'Azərbaycanda ən böyük onlayn kitab mağazası. Minlərlə kitab, ən yaxşı qiymətlər və sürətli çatdırılma xidməti.',
     url: 'https://dostumkitab.az',
     siteName: 'Dostum Kitab',
@@ -28,15 +28,16 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Dostum Kitab - Azərbaycanın Ən Böyük Onlayn Kitab Mağazası',
+    title: 'Dostum Kitab - dostumkitab.az',
     description: 'Azərbaycanda ən böyük onlayn kitab mağazası. Minlərlə kitab, ən yaxşı qiymətlər və sürətli çatdırılma xidməti.',
   },
   icons: {
-    icon: '/favicon.svg',
-    shortcut: '/favicon.svg',
+    icon: '/camlicalogo.png',
+    shortcut: '/camlicalogo.png',
+    apple: '/camlicalogo.png',
   },
   viewport: 'width=device-width, initial-scale=1',
-  themeColor: '#1f2937',
+  themeColor: '#66cc00',
 }
 
 export default function RootLayout({
