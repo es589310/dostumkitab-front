@@ -19,7 +19,6 @@ interface AuthModalProps {
 export function AuthModal({ isOpen, onClose, mode, onModeChange }: AuthModalProps) {
   const [formData, setFormData] = useState({
     email: "",
-    username: "",
     password: "",
     name: "",
     confirmPassword: "",
@@ -45,7 +44,7 @@ export function AuthModal({ isOpen, onClose, mode, onModeChange }: AuthModalProp
           return
         }
         await register({
-          username: formData.username, 
+          username: formData.name, 
           email: formData.email,
           first_name: formData.name.split(" ")[0] || "",
           last_name: formData.name.split(" ").slice(1).join(" ") || "",
@@ -118,28 +117,13 @@ export function AuthModal({ isOpen, onClose, mode, onModeChange }: AuthModalProp
                   name="name"
                   type="text"
                   required
+                  maxLength={20}
                   value={formData.name}
                   onChange={handleInputChange}
-                  placeholder="Adınızı və soyadınızı daxil edin"
-                />
-              </div>
-            )}
-
-            {mode === "register" && (
-              <div>
-                <Label htmlFor="username">İstifadəçi Adı</Label>
-                <Input
-                  id="username"
-                  name="username"
-                  type="text"
-                  required
-                  maxLength={20}
-                  value={formData.username}
-                  onChange={handleInputChange}
-                  placeholder="İstifadəçi adınızı daxil edin (max 20 simvol)"
+                  placeholder="Adınızı və soyadınızı daxil edin (max 20 simvol)"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  {formData.username.length}/20 simvol
+                  {formData.name.length}/20 simvol
                 </p>
               </div>
             )}
