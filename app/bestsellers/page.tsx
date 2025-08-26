@@ -13,7 +13,7 @@ export default function BestsellersPage() {
   const [books, setBooks] = useState<Book[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const { addItem } = useCart()
+  const { addItem, cart } = useCart()
 
   useEffect(() => {
     setLoading(true)
@@ -108,22 +108,52 @@ export default function BestsellersPage() {
                       <span className="text-sm text-gray-500 line-through">{book.original_price}₼</span>
                     )}
                   </div>
-                  <span className="text-xs text-gray-500">Stok: {book.stock_quantity}</span>
+                  <span className={`text-xs ${(() => {
+                    const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                    const currentQuantity = currentCartItem?.quantity || 0
+                    const availableStock = book.stock_quantity - currentQuantity
+                    return availableStock > 0 ? 'text-green-600' : 'text-red-600'
+                  })()}`}>
+                    {(() => {
+                      const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                      const currentQuantity = currentCartItem?.quantity || 0
+                      const availableStock = book.stock_quantity - currentQuantity
+                      return availableStock > 0 ? 'Stokda var' : 'Stokda bitdi'
+                    })()}
+                  </span>
                 </div>
               </CardContent>
             </Link>
             
             <div className="px-4 pb-4">
               <Button 
-                className={`w-full ${book.stock_quantity === 0 ? '' : 'bg-green-600 hover:bg-green-700'}`}
+                className={`w-full ${(() => {
+                  const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                  const currentQuantity = currentCartItem?.quantity || 0
+                  const availableStock = book.stock_quantity - currentQuantity
+                  return availableStock > 0 ? 'bg-green-600 hover:bg-green-700' : ''
+                })()}`}
                 onClick={(e) => {
                   e.preventDefault()
                   handleAddToCart(book)
                 }} 
-                disabled={book.stock_quantity === 0}
+                disabled={(() => {
+                  const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                  const currentQuantity = currentCartItem?.quantity || 0
+                  const availableStock = book.stock_quantity - currentQuantity
+                  return availableStock <= 0
+                })()}
               >
                 <ShoppingCart className="h-4 w-4 mr-2" />
-                {book.stock_quantity === 0 ? "Stokda Yoxdur" : "Səbətə At"}
+                {(() => {
+                  const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                  const currentQuantity = currentCartItem?.quantity || 0
+                  const availableStock = book.stock_quantity - currentQuantity
+                  if (availableStock <= 0) {
+                    return "Stokda Yoxdur"
+                  }
+                  return "Səbətə At"
+                })()}
               </Button>
             </div>
           </Card>

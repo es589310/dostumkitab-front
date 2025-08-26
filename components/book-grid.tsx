@@ -285,7 +285,19 @@ export function BookGrid({
                         <span className="text-sm text-gray-500 line-through">{book.original_price}₼</span>
                       )}
                     </div>
-                    <span className="text-xs text-gray-500">Stok: {book.stock_quantity}</span>
+                    <span className={`text-xs ${(() => {
+                      const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                      const currentQuantity = currentCartItem?.quantity || 0
+                      const availableStock = book.stock_quantity - currentQuantity
+                      return availableStock > 0 ? 'text-green-600' : 'text-red-600'
+                    })()}`}>
+                      {(() => {
+                        const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                        const currentQuantity = currentCartItem?.quantity || 0
+                        const availableStock = book.stock_quantity - currentQuantity
+                        return availableStock > 0 ? 'Stokda var' : 'Stokda bitdi'
+                      })()}
+                    </span>
                   </div>
                   </CardContent>
                 </Link>

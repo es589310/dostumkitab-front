@@ -18,7 +18,7 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
   const [book, setBook] = useState<Book | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const { addItem } = useCart()
+  const { addItem, cart } = useCart()
 
   useEffect(() => {
     if (!slug) return
@@ -148,17 +148,47 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
                 <span className="text-lg text-gray-500 line-through">{book.original_price}₼</span>
               )}
             </div>
-            <p className="text-sm text-gray-500">Stok: {book.stock_quantity} ədəd</p>
+            <p className={`text-sm ${(() => {
+              const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+              const currentQuantity = currentCartItem?.quantity || 0
+              const availableStock = book.stock_quantity - currentQuantity
+              return availableStock > 0 ? 'text-green-600' : 'text-red-600'
+            })()}`}>
+              {(() => {
+                const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                const currentQuantity = currentCartItem?.quantity || 0
+                const availableStock = book.stock_quantity - currentQuantity
+                return availableStock > 0 ? 'Stokda var' : 'Stokda bitdi'
+              })()}
+            </p>
           </div>
 
           {/* Add to Cart Button */}
           <Button 
             onClick={handleAddToCart} 
-            disabled={book.stock_quantity === 0}
-            className={`w-full h-12 text-lg ${book.stock_quantity === 0 ? '' : 'bg-green-600 hover:bg-green-700'}`}
+            disabled={(() => {
+              const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+              const currentQuantity = currentCartItem?.quantity || 0
+              const availableStock = book.stock_quantity - currentQuantity
+              return availableStock <= 0
+            })()}
+            className={`w-full h-12 text-lg ${(() => {
+              const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+              const currentQuantity = currentCartItem?.quantity || 0
+              const availableStock = book.stock_quantity - currentQuantity
+              return availableStock > 0 ? 'bg-green-600 hover:bg-green-700' : ''
+            })()}`}
           >
             <ShoppingCart className="h-5 w-5 mr-2" />
-            {book.stock_quantity === 0 ? "Stokda Yoxdur" : "Səbətə At"}
+            {(() => {
+              const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+              const currentQuantity = currentCartItem?.quantity || 0
+              const availableStock = book.stock_quantity - currentQuantity
+              if (availableStock <= 0) {
+                return "Stokda Yoxdur"
+              }
+              return "Səbətə At"
+            })()}
           </Button>
 
           {/* Book Details */}
