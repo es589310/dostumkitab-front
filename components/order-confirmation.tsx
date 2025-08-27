@@ -40,22 +40,22 @@ export function OrderConfirmation({ isOpen, onClose }: OrderConfirmationProps) {
   const totalPrice = getTotalPrice()
   const whatsappMessage = `Salam! Kitab sifarişi vermək istəyirəm.
 
-\u{1F4DA} Sifariş məlumatlarınız
+Sifariş məlumatlarınız:
 
 ${items.map((item) => {
   const bookUrl = `${window.location.origin}/book/${item.book.slug}`
   const authorsText = item.book.authors?.map((author) => author.name).join(", ") || "Məlumat yoxdur"
   
-  return `\u{1F4D6} ${item.book.title}
-\u{1F4CA} Miqdar: ${item.quantity} ədəd
-\u{1F4B0} Qiymət: ${item.book.price}₼
-\u{270D} Müəllif: ${authorsText}
-\u{1F517} ${bookUrl}`
+  return `Kitab: ${item.book.title}
+Miqdar: ${item.quantity} ədəd
+Qiymət: ${item.book.price}₼
+Müəllif: ${authorsText}
+Link: ${bookUrl}`
 }).join('\n\n')}
 
-\u{1F4B3} Ümumi məbləğ: ${totalPrice.toFixed(2)}₼
+Ümumi məbləğ: ${totalPrice.toFixed(2)}₼
 
-Təşəkkürlər! \u{1F44D}`
+Təşəkkürlər!`
 
   const handleConfirmOrder = async () => {
     setIsConfirming(true)
