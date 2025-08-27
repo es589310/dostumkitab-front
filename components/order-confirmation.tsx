@@ -46,16 +46,16 @@ ${items.map((item) => {
   const bookUrl = `${window.location.origin}/book/${item.book.slug}`
   const authorsText = item.book.authors?.map((author) => author.name).join(", ") || "Məlumat yoxdur"
   
-  return `Kitab: ${item.book.title}
-Miqdar: ${item.quantity} ədəd
-Qiymət: ${item.book.price}₼
-Müəllif: ${authorsText}
+  return `📖 ${item.book.title}
+📊 Miqdar: ${item.quantity} ədəd
+💰 Qiymət: ${item.book.price}₼
+✍️ Müəllif: ${authorsText}
 🔗 ${bookUrl}`
 }).join('\n\n')}
 
 💳 Ümumi məbləğ: ${totalPrice.toFixed(2)}₼
 
-Təşəkkürlər! 🚀`
+Təşəkkürlər! 👍`
 
   const handleConfirmOrder = async () => {
     setIsConfirming(true)
