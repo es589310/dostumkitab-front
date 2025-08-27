@@ -13,20 +13,33 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     
     // Production-da mütləq tam URL istifadə etməliyik
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://dostumkitab.az'
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://dostumkitabapp-backend-eu-47b73694c0c1.herokuapp.com/api'
+    
+    // API URL-i düzgün formatla - /api/books/ endpoint-i əlavə et
+    let apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://dostumkitabapp-backend-eu-47b73694c0c1.herokuapp.com/api'
+    
+    // Əgər API URL /api ilə bitmirsə, əlavə et
+    if (!apiUrl.endsWith('/api')) {
+      apiUrl = apiUrl.endsWith('/') ? `${apiUrl}api` : `${apiUrl}/api`
+    }
+    
+    const fullApiUrl = `${apiUrl}/books/${slug}/`
     
     console.log('📡 API URL:', apiUrl)
+    console.log('📡 Full API URL:', fullApiUrl)
     console.log('🏠 Site URL:', siteUrl)
     
     // Server-də API çağırışı - 60 saniyə cache əlavə edirik
-    const response = await fetch(`${apiUrl}/books/${slug}/`, {
+    const response = await fetch(fullApiUrl, {
       next: { revalidate: 60 }
     })
     
     console.log('📡 API Response Status:', response.status)
+    console.log('📡 API Response Headers:', Object.fromEntries(response.headers.entries()))
     
     if (!response.ok) {
-      throw new Error(`API Error: ${response.status} ${response.statusText}`)
+      const errorText = await response.text()
+      console.error('❌ API Error Response:', errorText)
+      throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorText}`)
     }
     
     const bookData = await response.json()
