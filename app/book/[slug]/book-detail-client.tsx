@@ -207,10 +207,12 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
                 <span className="text-gray-600">Səhifə sayı:</span>
                 <span>{book.pages}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Nəşr tarixi:</span>
-                <span>{new Date(book.publication_date).toLocaleDateString('az-AZ')}</span>
-              </div>
+              {book.publication_date && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Nəşr tarixi:</span>
+                  <span>{new Date(book.publication_date).toLocaleDateString('az-AZ')}</span>
+                </div>
+              )}
               {book.isbn && (
                 <div className="flex justify-between">
                   <span className="text-gray-600">ISBN:</span>
