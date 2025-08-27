@@ -46,18 +46,18 @@ export function getMediaUrl(path: string | null | undefined): string {
   
   // Əgər path /media/ ilə başlayırsa, backend URL'ini əlavə et
   if (path.startsWith('/media/')) {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://dostumkitabapp-backend-eu-47b73694c0c1.herokuapp.com'
     return `${backendUrl}${path}`
   }
   
   // Əgər path media/ ilə başlayırsa (səhifə ilə), backend URL'ini əlavə et
   if (path.startsWith('media/')) {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://dostumkitabapp-backend-eu-47b73694c0c1.herokuapp.com'
     return `${backendUrl}/${path}`
   }
   
   // Əgər ImageKit ID-dirsə, ImageKit URL-ini yarat
-  if (path.includes('imagekit')) {
+  if (path.includes('imagekit') || path.includes('ik.imagekit.io')) {
     const imagekitUrl = process.env.NEXT_PUBLIC_IMAGEKIT_URL || 'https://ik.imagekit.io/g51py75hl'
     return `${imagekitUrl}/books/covers/${path}`
   }

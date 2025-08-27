@@ -7,35 +7,65 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     // Next.js 15-də params Promise olduğu üçün await etmək lazımdır
     const { slug } = await params
     
-    // Server-də API çağırışı
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/api/books/${slug}/`)
+    // Server-də API çağırışı - 60 saniyə cache əlavə edirik
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/api/books/${slug}/`, {
+      next: { revalidate: 60 }
+    })
+    
     if (!response.ok) {
       throw new Error('Kitab tapılmadı')
     }
+    
     const bookData = await response.json()
     
-    const bookUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/book/${slug}`
-    const imageUrl = bookData.cover_image ? getMediaUrl(bookData.cover_image) : `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/placeholder.svg`
+    // Production-da mütləq tam URL istifadə etməliyik
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://dostumkitab.az'
+    const bookUrl = `${siteUrl}/book/${slug}`
+    
+    // Image URL-i düzgün formatla
+    let imageUrl: string
+    if (bookData.cover_image) {
+      imageUrl = getMediaUrl(bookData.cover_image)
+      // Əgər relative URL-dirsə, tam URL-ə çevir
+      if (!imageUrl.startsWith('http')) {
+        imageUrl = `${siteUrl}${imageUrl}`
+      }
+    } else {
+      imageUrl = `${siteUrl}/placeholder.svg`
+    }
+    
+    // Authors məlumatını düzgün formatla
+    const authorsText = bookData.authors && Array.isArray(bookData.authors) 
+      ? bookData.authors.map((author: any) => author.name).join(', ')
+      : bookData.authors || 'Müəllif məlumatı yoxdur'
     
     return {
       title: `${bookData.title} | Dostum Kitab`,
-      description: `${bookData.authors} - ${bookData.price}₼`,
+      description: `${authorsText} - ${bookData.price}₼`,
       openGraph: {
         title: bookData.title,
-        description: `${bookData.authors} - ${bookData.price}₼`,
-        images: [imageUrl],
+        description: `${authorsText} - ${bookData.price}₼`,
         url: bookUrl,
-        type: 'website',
         siteName: 'Dostum Kitab',
+        type: 'book',
+        images: [
+          {
+            url: imageUrl,
+            width: 800,
+            height: 600,
+            alt: bookData.title,
+          },
+        ],
       },
       twitter: {
         card: 'summary_large_image',
         title: bookData.title,
-        description: `${bookData.authors} - ${bookData.price}₼`,
+        description: `${authorsText} - ${bookData.price}₼`,
         images: [imageUrl],
       },
     }
   } catch (error) {
+    console.error('Metadata generation error:', error)
     return {
       title: 'Kitab | Dostum Kitab',
       description: 'Kitab məlumatları',
