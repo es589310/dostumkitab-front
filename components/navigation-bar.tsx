@@ -69,75 +69,76 @@ export function NavigationBar({ onCategorySelect }: NavigationBarProps) {
   }
 
   return (
-    <div className="bg-white border-b border-gray-200 shadow-sm">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <nav className="flex items-center justify-between py-3">
+    <div className="bg-white border-b border-gray-200 shadow-sm lg:mt-[100px]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Desktop Navigation */}
+        <nav className="hidden lg:flex items-center justify-between py-3">
           {/* Left side - Categories */}
-          <div className="flex items-center space-x-6 lg:space-x-8 overflow-x-auto">
-                      {/* Categories Dropdown */}
-          <div className="relative" ref={dropdownRef}>
-            <button 
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              onMouseEnter={() => setIsDropdownOpen(true)}
-              className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 transition-colors px-4 md:px-6 py-3 md:py-3 rounded-md hover:bg-gray-100 text-base md:text-base font-medium whitespace-nowrap"
-            >
-              <span>Kateqoriyalar</span>
-              <ChevronDown className={`h-4 w-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
-            </button>
-            
-            {isDropdownOpen && (
-              <div 
-                className="fixed top-40 left-8 w-80 bg-white border border-gray-200 rounded-lg shadow-2xl z-[99999]"
-                onMouseLeave={() => setIsDropdownOpen(false)}
+          <div className="flex items-center space-x-8 overflow-x-auto">
+            {/* Categories Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button 
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                onMouseEnter={() => setIsDropdownOpen(true)}
+                className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 transition-colors px-6 py-3 rounded-md hover:bg-gray-100 text-base font-medium whitespace-nowrap"
               >
-                <div className="py-2 max-h-80 overflow-y-auto">
-                  {Array.isArray(categories) && categories.length > 0 ? (
-                    categories.map((category) => (
-                      <Link
-                        key={category.id}
-                        href={`/category/${category.id}`}
-                        onClick={() => {
-                          handleCategoryClick(category.id.toString())
-                        }}
-                        className="block px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
-                      >
-                        {category.name}
-                      </Link>
-                    ))
-                  ) : (
-                    <div className="px-4 py-8 text-center">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-2"></div>
-                      <span className="text-sm text-gray-500">Kateqoriyalar yüklənir...</span>
-                    </div>
-                  )}
+                <span>Kateqoriyalar</span>
+                <ChevronDown className={`h-4 w-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {isDropdownOpen && (
+                <div 
+                  className="fixed top-40 left-8 w-80 bg-white border border-gray-200 rounded-lg shadow-2xl z-[99999]"
+                  onMouseLeave={() => setIsDropdownOpen(false)}
+                >
+                  <div className="py-2 max-h-80 overflow-y-auto">
+                    {Array.isArray(categories) && categories.length > 0 ? (
+                      categories.map((category) => (
+                        <Link
+                          key={category.id}
+                          href={`/category/${category.id}`}
+                          onClick={() => {
+                            handleCategoryClick(category.id.toString())
+                          }}
+                          className="block px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                        >
+                          {category.name}
+                        </Link>
+                      ))
+                    ) : (
+                      <div className="px-4 py-8 text-center">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                        <span className="text-sm text-gray-500">Kateqoriyalar yüklənir...</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
 
-          {/* Bestsellers */}
-          <Link 
-            href="/bestsellers" 
-            className="text-gray-700 hover:text-blue-600 transition-colors px-4 md:px-6 py-3 md:py-3 rounded-md hover:bg-gray-100 text-base md:text-base font-medium whitespace-nowrap"
-          >
-            Ən Çox Satılan
-          </Link>
+            {/* Bestsellers */}
+            <Link 
+              href="/bestsellers" 
+              className="text-gray-700 hover:text-blue-600 transition-colors px-6 py-3 rounded-md hover:bg-gray-100 text-base font-medium whitespace-nowrap"
+            >
+              Ən Çox Satılan
+            </Link>
 
-          {/* New Books */}
-          <Link 
-            href="/new-books" 
-            className="text-gray-700 hover:text-blue-600 transition-colors px-4 md:px-6 py-3 md:py-3 rounded-md hover:bg-gray-100 text-base md:text-base font-medium whitespace-nowrap"
-          >
-            Yeni Kitablar
-          </Link>
+            {/* New Books */}
+            <Link 
+              href="/new-books" 
+              className="text-gray-700 hover:text-blue-600 transition-colors px-6 py-3 rounded-md hover:bg-gray-100 text-base font-medium whitespace-nowrap"
+            >
+              Yeni Kitablar
+            </Link>
 
-          {/* Discounts */}
-          <Link 
-            href="/discounts" 
-            className="text-gray-700 hover:text-blue-600 transition-colors px-4 md:px-6 py-3 md:py-3 rounded-md hover:bg-gray-100 text-base md:text-base font-medium whitespace-nowrap"
-          >
-            Endirimlər
-          </Link>
+            {/* Discounts */}
+            <Link 
+              href="/discounts" 
+              className="text-gray-700 hover:text-blue-600 transition-colors px-6 py-3 rounded-md hover:bg-gray-100 text-base font-medium whitespace-nowrap"
+            >
+              Endirimlər
+            </Link>
           </div>
 
           {/* Right side - Social Media Icons */}
@@ -145,6 +146,94 @@ export function NavigationBar({ onCategorySelect }: NavigationBarProps) {
             <SocialMediaIcons variant="navbar" />
           </div>
         </nav>
+
+        {/* Mobile Navigation */}
+        <div className="lg:hidden">
+          <div className="flex items-center justify-between py-3">
+            {/* Mobile Categories Button */}
+            <div className="relative" ref={dropdownRef}>
+              <button 
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 transition-colors px-4 py-2 rounded-md hover:bg-gray-100 text-sm font-medium"
+              >
+                <span>Kateqoriyalar</span>
+                <ChevronDown className={`h-4 w-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {isDropdownOpen && (
+                <div className="absolute top-[60px] left-0 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-[9999]">
+                  <div className="py-2 max-h-60 overflow-y-auto">
+                    {Array.isArray(categories) && categories.length > 0 ? (
+                      categories.map((category) => (
+                        <Link
+                          key={category.id}
+                          href={`/category/${category.id}`}
+                          onClick={() => {
+                            handleCategoryClick(category.id.toString())
+                          }}
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                        >
+                          {category.name}
+                        </Link>
+                      ))
+                    ) : (
+                      <div className="px-4 py-6 text-center">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                        <span className="text-xs text-gray-500">Kateqoriyalar yüklənir...</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100 transition-colors"
+            >
+              {isMobileMenuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
+            </button>
+          </div>
+
+          {/* Mobile Menu */}
+          {isMobileMenuOpen && (
+            <div className="border-t border-gray-200 py-3 space-y-2">
+              <Link 
+                href="/bestsellers" 
+                onClick={handleLinkClick}
+                className="block px-4 py-2 text-base text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
+              >
+                Ən Çox Satılan
+              </Link>
+              <Link 
+                href="/new-books" 
+                onClick={handleLinkClick}
+                className="block px-4 py-2 text-base text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
+              >
+                Yeni Kitablar
+              </Link>
+              <Link 
+                href="/discounts" 
+                onClick={handleLinkClick}
+                className="block px-4 py-2 text-base text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
+              >
+                Endirimlər
+              </Link>
+              
+              {/* Mobile Social Media Icons */}
+              <div className="pt-2 border-t border-gray-200">
+                <div className="px-4">
+                  <SocialMediaIcons variant="navbar" />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

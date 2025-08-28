@@ -228,7 +228,7 @@ function SearchContent() {
       )}
       
       {books.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {books.map((book) => (
             <Card key={book.id} className="group hover:shadow-lg transition-shadow duration-300">
               <Link href={`/book/${book.slug}`} className="block">
@@ -255,78 +255,48 @@ function SearchContent() {
                     )}
                   </div>
 
-                  <h3 className="font-semibold text-lg mb-1 line-clamp-2">{book.title}</h3>
-                  <p className="text-gray-600 text-sm mb-2">{book.authors?.map((author: any) => author.name).join(", ")}</p>
-                  <p className="text-gray-500 text-xs mb-2">{book.category.name}</p>
+                  <h3 className="text-sm sm:text-base md:text-lg font-semibold mb-2 line-clamp-2 text-center">{book.title}</h3>
+                  <p className="text-xs sm:text-sm text-gray-600 mb-2 text-center">{book.authors?.map((author: any) => author.name).join(", ")}</p>
+                  <p className="text-xs sm:text-sm text-gray-500 mb-2 text-center">{book.category.name}</p>
 
-                  <div className="flex items-center mb-3">
-                    <div className="flex text-yellow-400">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-4 w-4 ${i < Math.floor(book.average_rating) ? "fill-current" : ""}`}
-                        />
-                      ))}
-                    </div>
-                    <span className="ml-2 text-sm text-gray-600">
-                      {book.average_rating.toFixed(1)} ({book.reviews_count})
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-center mb-4">
                     <div className="flex items-center space-x-2">
-                      <span className="text-lg font-bold text-green-600">{book.price}₼</span>
+                      <span className="text-sm sm:text-base md:text-lg font-bold text-green-600">{book.price}₼</span>
                       {book.original_price && (
-                        <span className="text-sm text-gray-500 line-through">{book.original_price}₼</span>
+                        <span className="text-xs sm:text-sm text-gray-500 line-through">{book.original_price}₼</span>
                       )}
                     </div>
-                    <span className={`text-xs ${(() => {
-                      const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
-                      const currentQuantity = currentCartItem?.quantity || 0
-                      const availableStock = book.stock_quantity - currentQuantity
-                      return availableStock > 0 ? 'text-green-600' : 'text-red-600'
-                    })()}`}>
-                      {(() => {
-                        const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
-                        const currentQuantity = currentCartItem?.quantity || 0
-                        const availableStock = book.stock_quantity - currentQuantity
-                        return availableStock > 0 ? 'Stokda var' : 'Stokda bitdi'
-                      })()}
-                    </span>
                   </div>
                 </CardContent>
               </Link>
               
               <div className="px-4 pb-4">
-                              <Button 
-                className={`w-full ${(() => {
-                  const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
-                  const currentQuantity = currentCartItem?.quantity || 0
-                  const availableStock = book.stock_quantity - currentQuantity
-                  return availableStock > 0 ? 'bg-green-600 hover:bg-green-700' : ''
-                })()}`}
-                onClick={(e) => {
-                  e.preventDefault()
-                  handleAddToCart(book)
-                }} 
-                disabled={(() => {
-                  const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
-                  const currentQuantity = currentCartItem?.quantity || 0
-                  const availableStock = book.stock_quantity - currentQuantity
-                  return availableStock <= 0
-                })()}
-              >
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                {(() => {
-                  const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
-                  const currentQuantity = currentCartItem?.quantity || 0
-                  const availableStock = book.stock_quantity - currentQuantity
-                  if (availableStock <= 0) {
-                    return "Stokda Yoxdur"
-                  }
-                  return "Səbətə At"
-                })()}
-              </Button>
+                <Button 
+                  className={`w-full ${(() => {
+                    const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                    const currentQuantity = currentCartItem?.quantity || 0
+                    const availableStock = book.stock_quantity - currentQuantity
+                    return availableStock > 0 ? 'bg-green-600 hover:bg-green-700' : ''
+                  })()}`}
+                  onClick={() => handleAddToCart(book)}
+                  disabled={(() => {
+                    const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                    const currentQuantity = currentCartItem?.quantity || 0
+                    const availableStock = book.stock_quantity - currentQuantity
+                    return availableStock <= 0
+                  })()}
+                >
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  {(() => {
+                    const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                    const currentQuantity = currentCartItem?.quantity || 0
+                    const availableStock = book.stock_quantity - currentQuantity
+                    if (availableStock <= 0) {
+                      return "Stokda Yoxdur"
+                    }
+                    return "Səbətə At"
+                  })()}
+                </Button>
               </div>
             </Card>
           ))}

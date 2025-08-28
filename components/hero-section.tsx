@@ -89,7 +89,7 @@ export function HeroSection() {
       <div className="relative w-full h-[400px] flex items-center justify-center bg-gray-100">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading banner...</p>
+          <p className="mt-4 text-gray-600">Banner yüklənir...</p>
         </div>
       </div>
     )
@@ -98,8 +98,8 @@ export function HeroSection() {
   if (error) {
     return (
       <div className="relative w-full h-[400px] flex items-center justify-center bg-gray-100">
-        <div className="text-center text-red-600">
-          <p>Error: {error}</p>
+        <div className="text-center">
+          <p className="text-gray-600">Banner yüklənərkən xəta baş verdi</p>
         </div>
       </div>
     )
@@ -107,54 +107,40 @@ export function HeroSection() {
 
   if (banners.length === 0) {
     return (
-      <div className="relative w-full h-[400px] flex items-center justify-center bg-gray-100">
-        <div className="text-center text-gray-600">
-          <p>No banners found</p>
+      <div className="relative w-full h-[300px] sm:h-[350px] md:h-[400px] flex items-center justify-center bg-gray-100">
+        <div className="text-center text-gray-600 text-sm sm:text-base">
+          <p>Banner tapılmadı</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="relative w-full h-[400px] overflow-hidden">
-      {/* Banner Slider Container */}
-      <div 
-        className="flex w-full h-full transition-transform duration-700 ease-in-out"
-        style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-      >
+    <section className="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[500px] overflow-hidden">
+      <div className="flex w-full h-full transition-transform duration-700 ease-in-out" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
         {banners.map((banner, index) => (
           <div key={index} className="w-full h-full flex-shrink-0 relative">
-            {banner.imagekit_url || banner.image ? (
-              <img 
-                src={banner.imagekit_url || banner.image} 
-                alt={banner.title} 
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  const fallback = target.nextElementSibling as HTMLElement;
-                  if (fallback) fallback.style.display = 'block';
-                }}
-              />
-            ) : null}
-            
-            {/* Fallback gradient background */}
-            <div className={`w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 ${banner.imagekit_url || banner.image ? 'hidden' : ''}`}></div>
-            
-            {/* Overlay */}
+            <img
+              alt={banner.title}
+              className="w-full h-full object-cover"
+              src={banner.imagekit_url || banner.image}
+            />
+            <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 hidden"></div>
             <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-            
-            {/* Content */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center text-white z-10">
-                <h1 className="text-4xl font-bold mb-4">{banner.title}</h1>
+            <div className="absolute inset-0 flex items-center justify-center px-4">
+              <div className="text-center text-white z-10 max-w-4xl mx-auto">
+                <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3 md:mb-4 leading-tight">
+                  {banner.title}
+                </h1>
                 {banner.subtitle && (
-                  <p className="text-xl mb-6 opacity-90">{banner.subtitle}</p>
+                  <p className="text-sm sm:text-base md:text-lg lg:text-xl mb-3 sm:mb-4 md:mb-6 opacity-90 leading-relaxed">
+                    {banner.subtitle}
+                  </p>
                 )}
                 {banner.link && (
                   <a 
                     href={banner.link} 
-                    className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition duration-300 shadow-lg"
+                    className="inline-block bg-white text-blue-600 px-4 sm:px-6 md:px-8 py-2 sm:py-3 rounded-lg font-semibold hover:bg-gray-100 transition duration-300 shadow-lg text-xs sm:text-sm md:text-base"
                   >
                     Ətraflı
                   </a>
@@ -164,53 +150,43 @@ export function HeroSection() {
           </div>
         ))}
       </div>
-
-      {/* Navigation buttons */}
-      {banners.length > 1 && (
-        <>
-          {/* Left button */}
+      
+      {/* Navigation Buttons */}
+      <button 
+        className="absolute left-2 sm:left-3 md:left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-1 sm:p-1.5 md:p-2 rounded-full transition-all duration-300"
+        onClick={() => setCurrentIndex(currentIndex === 0 ? banners.length - 1 : currentIndex - 1)}
+      >
+        <svg className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </button>
+      
+      <button 
+        className="absolute right-2 sm:right-3 md:right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-1 sm:p-1.5 md:p-2 rounded-full transition-all duration-300"
+        onClick={() => setCurrentIndex(currentIndex === banners.length - 1 ? 0 : currentIndex + 1)}
+      >
+        <svg className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+      </button>
+      
+      {/* Dots Indicator */}
+      <div className="absolute bottom-2 sm:bottom-3 md:bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-1 sm:space-x-1.5 md:space-x-2">
+        {banners.map((_, index) => (
           <button
-            onClick={goToPrevious}
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-2 rounded-full transition-all duration-300"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-
-          {/* Right button */}
-          <button
-            onClick={goToNext}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-2 rounded-full transition-all duration-300"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </>
-      )}
-
-      {/* Dots indicator */}
-      {banners.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-          {banners.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => goToSlide(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                index === currentIndex 
-                  ? 'bg-white' 
-                  : 'bg-white bg-opacity-50 hover:bg-opacity-75'
-              }`}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Decorative circles */}
-      <div className="absolute top-20 left-20 w-32 h-32 border-2 border-white rounded-full opacity-20"></div>
-      <div className="absolute bottom-20 right-20 w-24 h-24 border-2 border-white rounded-full opacity-20"></div>
-      <div className="absolute top-1/2 right-10 w-16 h-16 border-2 border-white rounded-full opacity-20"></div>
-    </div>
+            key={index}
+            className={`w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-2.5 md:h-2.5 lg:w-3 lg:h-3 rounded-full transition-all duration-300 ${
+              index === currentIndex ? 'bg-white' : 'bg-white bg-opacity-50 hover:bg-opacity-75'
+            }`}
+            onClick={() => setCurrentIndex(index)}
+          />
+        ))}
+      </div>
+      
+      {/* Decorative Circles - Hidden on mobile */}
+      <div className="hidden md:block absolute top-20 left-20 w-32 h-32 border-2 border-white rounded-full opacity-20"></div>
+      <div className="hidden md:block absolute bottom-20 right-20 w-24 h-24 border-2 border-white rounded-full opacity-20"></div>
+      <div className="hidden md:block absolute top-1/2 right-10 w-16 h-16 border-2 border-white rounded-full opacity-20"></div>
+    </section>
   )
 }

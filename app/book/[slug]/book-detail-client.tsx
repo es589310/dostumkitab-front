@@ -87,7 +87,7 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
             <img
               src={book.cover_imagekit_url || book.cover_image || "/placeholder.svg?height=600&width=400"}
               alt={book.title}
-              className="w-full h-[500px] object-contain bg-gray-100 rounded-lg shadow-lg"
+              className="w-full h-[356px] lg:h-[500px] object-contain bg-gray-100 rounded-lg shadow-lg"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.src = "/placeholder.svg?height=600&width=400";
@@ -104,23 +104,16 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
               </div>
             )}
           </div>
-          {/* Təsvir */}
-          {book.description && (
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold">Təsvir</h3>
-              <p className="text-gray-600 leading-relaxed">{book.description}</p>
-            </div>
-          )}
         </div>
 
         {/* Book Details */}
         <div className="space-y-6">
           <div>
-            <h1 className="text-3xl font-bold mb-2">{book.title}</h1>
-            <p className="text-lg text-gray-600 mb-4">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">{book.title}</h1>
+            <p className="text-sm sm:text-base md:text-lg text-gray-600 mb-4">
               {book.authors.map((author) => author.name).join(", ")}
             </p>
-            <p className="text-sm text-gray-500 mb-4">{book.category.name}</p>
+            <p className="text-xs sm:text-sm text-gray-500 mb-4">{book.category.name}</p>
           </div>
 
           {/* Rating */}
@@ -130,11 +123,11 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
-                    className={`h-5 w-5 ${i < Math.floor(book.average_rating) ? "fill-current" : ""}`}
+                    className={`h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 ${i < Math.floor(book.average_rating) ? "fill-current" : ""}`}
                   />
                 ))}
               </div>
-              <span className="text-sm text-gray-600">
+              <span className="text-xs sm:text-sm text-gray-600">
                 {book.average_rating.toFixed(1)} ({book.reviews_count} rəy)
               </span>
             </div>
@@ -143,12 +136,12 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
           {/* Price */}
           <div className="space-y-2">
             <div className="flex items-center space-x-3">
-              <span className="text-3xl font-bold text-green-600">{book.price}₼</span>
+              <span className="text-xl sm:text-2xl md:text-3xl font-bold text-green-600">{book.price}₼</span>
               {book.original_price && (
-                <span className="text-lg text-gray-500 line-through">{book.original_price}₼</span>
+                <span className="text-sm sm:text-base md:text-lg text-gray-500 line-through">{book.original_price}₼</span>
               )}
             </div>
-            <p className={`text-sm ${(() => {
+            <p className={`text-xs sm:text-sm ${(() => {
               const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
               const currentQuantity = currentCartItem?.quantity || 0
               const availableStock = book.stock_quantity - currentQuantity
@@ -172,14 +165,14 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
               const availableStock = book.stock_quantity - currentQuantity
               return availableStock <= 0
             })()}
-            className={`w-full h-12 text-lg ${(() => {
+            className={`w-full h-9 sm:h-10 md:h-12 text-sm sm:text-base md:text-lg ${(() => {
               const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
               const currentQuantity = currentCartItem?.quantity || 0
               const availableStock = book.stock_quantity - currentQuantity
               return availableStock > 0 ? 'bg-green-600 hover:bg-green-700' : ''
             })()}`}
           >
-            <ShoppingCart className="h-5 w-5 mr-2" />
+            <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 mr-2" />
             {(() => {
               const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
               const currentQuantity = currentCartItem?.quantity || 0
@@ -193,8 +186,8 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
 
           {/* Book Details */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Kitab Haqqında</h3>
-            <div className="space-y-2 text-sm">
+            <h3 className="text-base sm:text-lg font-semibold">Kitab Haqqında</h3>
+            <div className="space-y-2 text-xs sm:text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">Nəşriyyat:</span>
                 <span>{book.publisher?.name || "Məlumat yoxdur"}</span>
@@ -221,8 +214,26 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
               )}
             </div>
           </div>
+
+          {/* Təsvir - Responsive üçün "Kitab Haqqında" bölməsindən aşağıda */}
+          {book.description && (
+            <div className="space-y-2 lg:hidden">
+              <h3 className="text-base sm:text-lg font-semibold">Təsvir</h3>
+              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">{book.description}</p>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Desktop üçün Təsvir - sağ tərəfdə */}
+      {book.description && (
+        <div className="hidden lg:block mt-8">
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold">Təsvir</h3>
+            <p className="text-gray-600 leading-relaxed">{book.description}</p>
+          </div>
+        </div>
+      )}
 
       {/* Reviews Section */}
       <BookReviews bookId={book.id} bookSlug={book.slug} />

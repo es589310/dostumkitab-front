@@ -165,14 +165,16 @@ export function FeaturedBooks() {
   return (
     <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Seçilmiş Kitablar</h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
+            Seçilmiş Kitablar
+          </h2>
+          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4 sm:px-0">
             Ən populyar və yüksək reytinqli kitablarımızı kəşf edin
           </p>
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {books.map((book) => (
             <Card key={book.id} className="group hover:shadow-lg transition-shadow duration-300">
               <Link href={`/book/${book.slug}`} className="block">
@@ -199,44 +201,16 @@ export function FeaturedBooks() {
                     )}
                   </div>
 
-                  <h3 className="font-semibold text-lg mb-1 line-clamp-2">{book.title}</h3>
-                  <p className="text-gray-600 text-sm mb-2">{book.authors.map((author) => author.name).join(", ")}</p>
-                  <p className="text-gray-500 text-xs mb-2">{book.category.name}</p>
+                  <h3 className="text-sm sm:text-base md:text-lg font-semibold mb-2 line-clamp-2 text-center">{book.title}</h3>
+                  <p className="text-xs sm:text-sm text-gray-600 mb-2 text-center">{book.authors.map((author) => author.name).join(", ")}</p>
 
-                  <div className="flex items-center mb-3">
-                    <div className="flex text-yellow-400">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-4 w-4 ${i < Math.floor(book.average_rating) ? "fill-current" : ""}`}
-                        />
-                      ))}
-                    </div>
-                    <span className="ml-2 text-sm text-gray-600">
-                      {book.average_rating.toFixed(1)} ({book.reviews_count})
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-center mb-4">
                     <div className="flex items-center space-x-2">
-                      <span className="text-lg font-bold text-green-600">{book.price}₼</span>
+                      <span className="text-sm sm:text-base md:text-lg font-bold text-green-600">{book.price}₼</span>
                       {book.original_price && (
-                        <span className="text-sm text-gray-500 line-through">{book.original_price}₼</span>
+                        <span className="text-xs sm:text-sm text-gray-500 line-through">{book.original_price}₼</span>
                       )}
                     </div>
-                    <span className={`text-xs ${(() => {
-                      const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
-                      const currentQuantity = currentCartItem?.quantity || 0
-                      const availableStock = book.stock_quantity - currentQuantity
-                      return availableStock > 0 ? 'text-green-600' : 'text-red-600'
-                    })()}`}>
-                      {(() => {
-                        const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
-                        const currentQuantity = currentCartItem?.quantity || 0
-                        const availableStock = book.stock_quantity - currentQuantity
-                        return availableStock > 0 ? 'Stokda var' : 'Stokda bitdi'
-                      })()}
-                    </span>
                   </div>
                 </CardContent>
               </Link>
@@ -273,4 +247,4 @@ export function FeaturedBooks() {
       </div>
     </section>
   )
-}
+} 
