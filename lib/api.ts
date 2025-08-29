@@ -144,7 +144,7 @@ class ApiClient {
   // Books API
   async getBooks(params: Record<string, string> = {}): Promise<BookListResponse> {
     const queryString = new URLSearchParams(params).toString();
-    return this.request<BookListResponse>(`/books?${queryString}`);
+    return this.request<BookListResponse>(`/books/?${queryString}`);
   }
   
 
@@ -153,47 +153,47 @@ class ApiClient {
   }
 
   async getBestsellerBooks() {
-    return this.request<BookListResponse>('/books/bestsellers');
+    return this.request<BookListResponse>('/books/bestsellers/');
   }
 
   async getNewBooks() {
-    return this.request<BookListResponse>('/books/new');
+    return this.request<BookListResponse>('/books/new/');
   }
 
   async getBook(slug: string) {
-    return this.request<Book>(`/books/${slug}`);
+    return this.request<Book>(`/books/${slug}/`);
   }
 
   async getCategories(): Promise<CategoriesResponse | Category[]> {
-    return this.request<CategoriesResponse | Category[]>('/books/categories');
+    return this.request<CategoriesResponse | Category[]>('/books/categories/');
   }
 
   async getBookReviews(bookId: number) {
-    return this.request<any>(`/books/${bookId}/reviews`);
+    return this.request<any>(`/books/${bookId}/reviews/`);
   }
 
   async createBookReview(bookId: number, data: any) {
-    return this.request<any>(`/books/${bookId}/reviews`, {
+    return this.request<any>(`/books/${bookId}/reviews/`, {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async getBanners() {
-    return this.request<any[]>('/books/banners');
+    return this.request<any[]>('/books/banners/');
   }
 
   async getSiteSettings() {
-    return this.request<any>('/settings/site-settings');
+    return this.request<any>('/settings/site-settings/');
   }
 
   async getWhatsAppNumber() {
-    return this.request<{ whatsapp_number: string }>('/settings/whatsapp-number');
+    return this.request<{ whatsapp_number: string }>('/settings/whatsapp-number/');
   }
 
   // Auth API
   async login(credentials: { username: string; password: string }) {
-    const response = await this.request<any>('/auth/login', {
+    const response = await this.request<any>('/auth/login/', {
       method: 'POST',
       body: JSON.stringify(credentials),
     });
@@ -204,7 +204,7 @@ class ApiClient {
   }
 
   async register(userData: { username: string; email: string; password: string; first_name?: string; last_name?: string }) {
-    const response = await this.request<any>('/auth/register', {
+    const response = await this.request<any>('/auth/register/', {
       method: 'POST',
       body: JSON.stringify(userData),
     });
@@ -215,7 +215,7 @@ class ApiClient {
   }
 
   async getProfile() {
-    return this.request<any>('/auth/profile');
+    return this.request<any>('/auth/profile/');
   }
 
   logout() {
@@ -224,12 +224,12 @@ class ApiClient {
 
   // Cart API
   async getCart() {
-    return this.request<any>('/orders/cart');
+    return this.request<any>('/orders/cart/');
   }
 
   async addToCart(bookId: number, quantity: number = 1) {
     try {
-      const response = await this.request<any>('/orders/cart/add', {
+      const response = await this.request<any>('/orders/cart/add/', {
         method: 'POST',
         body: JSON.stringify({ book_id: bookId, quantity }),
       });
@@ -242,20 +242,20 @@ class ApiClient {
   }
 
   async updateCartItem(itemId: number, quantity: number) {
-    return this.request<any>(`/orders/cart/update/${itemId}`, {
+    return this.request<any>(`/orders/cart/update/${itemId}/`, {
       method: 'PUT',
       body: JSON.stringify({ quantity }),
     });
   }
 
   async removeCartItem(itemId: number) {
-    return this.request<any>(`/orders/cart/remove/${itemId}`, {
+    return this.request<any>(`/orders/cart/remove/${itemId}/`, {
       method: 'DELETE',
     });
   }
 
   async clearCart() {
-    return this.request<any>('/orders/cart/clear', {
+    return this.request<any>('/orders/cart/clear/', {
       method: 'DELETE',
     });
   }
@@ -271,7 +271,7 @@ class ApiClient {
     // Device ID-ni al
     const deviceId = this.getDeviceId();
     
-    return this.request<any>('/orders/orders/create', {
+    return this.request<any>('/orders/orders/create/', {
       method: 'POST',
       headers: {
         'X-Device-ID': deviceId
@@ -310,7 +310,7 @@ class ApiClient {
     
     console.log('Contact API - Sending data:', cleanData);
     
-    return this.request<any>('/contact/send', {
+    return this.request<any>('/contact/send/', {
       method: 'POST',
       body: JSON.stringify(cleanData),
     });
