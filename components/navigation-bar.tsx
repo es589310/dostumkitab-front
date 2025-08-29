@@ -14,9 +14,11 @@ interface NavigationBarProps {
 
 export function NavigationBar({ onCategorySelect }: NavigationBarProps) {
   const [categories, setCategories] = useState<Category[]>([])
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [isDesktopDropdownOpen, setIsDesktopDropdownOpen] = useState(false)
+  const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
+  const desktopDropdownRef = useRef<HTMLDivElement>(null)
+  const mobileDropdownRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -44,11 +46,25 @@ export function NavigationBar({ onCategorySelect }: NavigationBarProps) {
     fetchCategories()
   }, [])
 
-  // Click outside handler
+  // Click outside handler for desktop dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false)
+      if (desktopDropdownRef.current && !desktopDropdownRef.current.contains(event.target as Node)) {
+        setIsDesktopDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
+  // Click outside handler for mobile dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (mobileDropdownRef.current && !mobileDropdownRef.current.contains(event.target as Node)) {
+        setIsMobileDropdownOpen(false)
       }
     }
 
@@ -59,9 +75,27 @@ export function NavigationBar({ onCategorySelect }: NavigationBarProps) {
   }, [])
 
   const handleCategoryClick = (categoryId: string) => {
-    setIsDropdownOpen(false) // Close dropdown
-    setIsMobileMenuOpen(false) // Close mobile menu
-    router.push(`/category/${categoryId}`)
+    console.log("NavigationBar: handleCategoryClick called with categoryId:", categoryId)
+    
+    // Close all dropdowns and menus
+    setIsDesktopDropdownOpen(false)
+    setIsMobileDropdownOpen(false)
+    setIsMobileMenuOpen(false)
+    
+    // Call the callback if provided
+    if (onCategorySelect) {
+      onCategorySelect(categoryId)
+    }
+    
+    // Navigate to category page
+    try {
+      console.log("NavigationBar: Navigating to /category/" + categoryId)
+      router.push(`/category/${categoryId}`)
+    } catch (error) {
+      console.error("NavigationBar: Navigation error:", error)
+      // Fallback to window.location if router fails
+      window.location.href = `/category/${categoryId}`
+    }
   }
 
   const handleLinkClick = () => {
@@ -76,34 +110,34 @@ export function NavigationBar({ onCategorySelect }: NavigationBarProps) {
           {/* Left side - Categories */}
           <div className="flex items-center space-x-8 overflow-x-auto">
             {/* Categories Dropdown */}
-            <div className="relative" ref={dropdownRef}>
+            <div className="relative" ref={desktopDropdownRef}>
               <button 
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                onMouseEnter={() => setIsDropdownOpen(true)}
+                onClick={() => setIsDesktopDropdownOpen(!isDesktopDropdownOpen)}
+                onMouseEnter={() => setIsDesktopDropdownOpen(true)}
                 className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 transition-colors px-6 py-3 rounded-md hover:bg-gray-100 text-base font-medium whitespace-nowrap"
               >
                 <span>Kateqoriyalar</span>
-                <ChevronDown className={`h-4 w-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`h-4 w-4 transition-transform ${isDesktopDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
               
-              {isDropdownOpen && (
+              {isDesktopDropdownOpen && (
                 <div 
                   className="fixed top-40 left-8 w-80 bg-white border border-gray-200 rounded-lg shadow-2xl z-[99999]"
-                  onMouseLeave={() => setIsDropdownOpen(false)}
+                  onMouseLeave={() => setIsDesktopDropdownOpen(false)}
                 >
                   <div className="py-2 max-h-80 overflow-y-auto">
                     {Array.isArray(categories) && categories.length > 0 ? (
                       categories.map((category) => (
-                        <Link
+                        <button
                           key={category.id}
-                          href={`/category/${category.id}`}
                           onClick={() => {
+                            console.log("NavigationBar: Desktop category clicked:", category.name, "ID:", category.id)
                             handleCategoryClick(category.id.toString())
                           }}
-                          className="block px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                          className="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
                         >
                           {category.name}
-                        </Link>
+                        </button>
                       ))
                     ) : (
                       <div className="px-4 py-8 text-center">
@@ -151,30 +185,30 @@ export function NavigationBar({ onCategorySelect }: NavigationBarProps) {
         <div className="lg:hidden">
           <div className="flex items-center justify-between py-3">
             {/* Mobile Categories Button */}
-            <div className="relative" ref={dropdownRef}>
+            <div className="relative" ref={mobileDropdownRef}>
               <button 
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                onClick={() => setIsMobileDropdownOpen(!isMobileDropdownOpen)}
                 className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 transition-colors px-4 py-2 rounded-md hover:bg-gray-100 text-sm font-medium"
               >
                 <span>Kateqoriyalar</span>
-                <ChevronDown className={`h-4 w-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`h-4 w-4 transition-transform ${isMobileDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
               
-              {isDropdownOpen && (
+              {isMobileDropdownOpen && (
                 <div className="absolute top-[60px] left-0 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-[9999]">
                   <div className="py-2 max-h-60 overflow-y-auto">
                     {Array.isArray(categories) && categories.length > 0 ? (
                       categories.map((category) => (
-                        <Link
+                        <button
                           key={category.id}
-                          href={`/category/${category.id}`}
                           onClick={() => {
+                            console.log("NavigationBar: Mobile category clicked:", category.name, "ID:", category.id)
                             handleCategoryClick(category.id.toString())
                           }}
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
                         >
                           {category.name}
-                        </Link>
+                        </button>
                       ))
                     ) : (
                       <div className="px-4 py-6 text-center">
@@ -237,4 +271,4 @@ export function NavigationBar({ onCategorySelect }: NavigationBarProps) {
       </div>
     </div>
   )
-}
+} 
