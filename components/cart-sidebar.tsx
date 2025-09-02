@@ -54,13 +54,23 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
         </div>
       )}
       
-      <div className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-xl">
+      <div className="absolute right-0 top-0 h-full w-full max-w-md lg:max-w-lg bg-white shadow-2xl">
         <div className="flex h-full flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between border-b p-3 sm:p-4">
-            <h2 className="text-base sm:text-lg font-semibold">Alış-veriş səbəti</h2>
-            <Button variant="ghost" size="sm" onClick={onClose} className="min-h-[44px] min-w-[44px] p-2">
-              <X className="h-4 w-4 sm:h-5 sm:w-5" />
+          <div className="flex items-center justify-between border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 lg:p-6">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-blue-100 rounded-full">
+                <ShoppingBag className="h-5 w-5 text-blue-600" />
+              </div>
+              <h2 className="text-lg lg:text-xl font-bold text-gray-900">Alış-veriş səbəti</h2>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={onClose} 
+              className="min-h-[44px] min-w-[44px] p-2 hover:bg-gray-100 rounded-full"
+            >
+              <X className="h-5 w-5 text-gray-600" />
             </Button>
           </div>
 
