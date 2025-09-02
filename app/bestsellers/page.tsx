@@ -58,16 +58,16 @@ export default function BestsellersPage() {
       {!loading && !error && books.length === 0 && (
         <div className="text-gray-500 text-lg">Ən çox satılan kitab tapılmadı</div>
       )}
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-2 sm:gap-6 justify-items-center">
         {books.map((book) => (
-          <Card key={book.id} className="group hover:shadow-lg transition-shadow duration-300">
+          <Card key={book.id} className="group hover:shadow-lg transition-shadow duration-300 w-full max-w-[157px] h-auto sm:w-auto sm:h-auto">
             <Link href={`/book/${book.slug}`} className="block">
-              <CardContent className="p-4">
-                <div className="relative mb-4">
+              <CardContent className="p-2 sm:p-4">
+                <div className="relative mb-2 sm:mb-4">
                   <img
                     src={book.cover_imagekit_url || book.cover_image || "/placeholder.svg?height=300&width=200"}
                     alt={book.title}
-                    className="w-full h-64 object-contain bg-gray-100 rounded-lg"
+                    className="w-full h-48 sm:w-full sm:h-64 object-contain bg-gray-100 rounded-lg"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.src = "/placeholder.svg?height=300&width=200";
@@ -76,16 +76,11 @@ export default function BestsellersPage() {
                   <div className="absolute top-2 left-2 flex flex-col gap-1">
                     {book.is_new && <Badge className="bg-green-500">Yeni</Badge>}
                   </div>
-                  {book.discount_percentage > 0 && (
-                    <div className="absolute top-2 right-2">
-                      <Badge variant="destructive">-{book.discount_percentage}%</Badge>
-                    </div>
-                  )}
                 </div>
 
-                <h3 className="text-sm sm:text-base md:text-lg font-semibold mb-2 line-clamp-2 text-center">{book.title}</h3>
-                <p className="text-xs sm:text-sm text-gray-600 mb-2 text-center">{book.authors.map((author) => author.name).join(", ")}</p>
-                <p className="text-xs sm:text-sm text-gray-500 mb-2 text-center">{book.category.name}</p>
+                <h3 className="text-xs sm:text-base md:text-lg font-semibold mb-1 sm:mb-2 line-clamp-2 text-center">{book.title}</h3>
+                <p className="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-2 text-center">{book.authors.map((author) => author.name).join(", ")}</p>
+                <p className="text-xs sm:text-sm text-gray-500 mb-1 sm:mb-2 text-center">{book.category.name}</p>
 
                 <div className="flex items-center justify-center mb-4">
                   <div className="flex items-center space-x-2">
@@ -98,9 +93,9 @@ export default function BestsellersPage() {
               </CardContent>
             </Link>
             
-            <div className="px-4 pb-4">
+            <div className="px-2 pb-2 sm:px-4 sm:pb-4">
               <Button 
-                className={`w-full ${(() => {
+                className={`w-full h-8 sm:w-full ${(() => {
                   const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
                   const currentQuantity = currentCartItem?.quantity || 0
                   const availableStock = book.stock_quantity - currentQuantity

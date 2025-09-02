@@ -174,9 +174,9 @@ export function FeaturedBooks() {
           </p>
         </div>
         
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-2 sm:gap-4 justify-items-center">
           {books.map((book) => (
-            <Card key={book.id} className="group hover:shadow-lg transition-shadow duration-300 w-[190px] h-auto">
+            <Card key={book.id} className="group hover:shadow-lg transition-shadow duration-300 w-full max-w-[157px] h-auto sm:w-[190px] sm:h-auto">
               <Link href={`/book/${book.slug}`} className="block">
                 <CardContent className="p-2">
                   <div className="relative mb-2">
@@ -190,15 +190,9 @@ export function FeaturedBooks() {
                       }}
                     />
                     <div className="absolute top-1 left-1 flex flex-col gap-1">
-                      {book.is_featured && <Badge variant="destructive" className="text-xs px-1.5 py-0.5">Seçilmiş</Badge>}
                       {book.is_bestseller && <Badge variant="secondary" className="text-xs px-1.5 py-0.5">Ən Çox Satılan</Badge>}
                       {book.is_new && <Badge className="bg-green-500 text-xs px-1.5 py-0.5">Yeni</Badge>}
                     </div>
-                    {book.discount_percentage > 0 && (
-                      <div className="absolute top-1 right-1">
-                        <Badge variant="destructive" className="text-xs px-1.5 py-0.5">-{book.discount_percentage}%</Badge>
-                      </div>
-                    )}
                   </div>
 
                   <h3 className="text-xs font-semibold mb-1 line-clamp-2 text-center leading-tight">{book.title}</h3>
