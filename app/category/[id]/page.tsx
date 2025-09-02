@@ -151,9 +151,9 @@ export default function CategoryPage() {
               <div className="px-3 pb-3">
                 {/* Publisher */}
                 <div className="text-center mb-2">
-                  <Link href={`/publisher/${book.publisher?.slug || '#'}`} className="text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors">
+                  <span className="text-xs font-medium text-gray-600">
                     {book.publisher?.name || 'Nəşriyyat'}
-                  </Link>
+                  </span>
                 </div>
 
                 {/* Title */}
