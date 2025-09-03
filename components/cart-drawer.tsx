@@ -1,22 +1,14 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { X, Plus, Minus, ShoppingBag } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
-import { useState } from "react"
-import { OrderConfirmation } from "./order-confirmation"
+import { Button } from "@/components/ui/button"
+import { X, ShoppingBag, Plus, Minus } from "lucide-react"
 import { getMediaUrl } from "@/lib/utils"
 
-interface CartSidebarProps {
-  isOpen: boolean
-  onClose: () => void
-}
+export default function CartDrawer() {
+  const { shouldOpenCart, setShouldOpenCart, cart, updateItem, removeItem, getTotalPrice, loading } = useCart()
 
-export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
-  const { cart, updateItem, removeItem, getTotalPrice, loading, notification } = useCart()
-  const [isOrderConfirmationOpen, setIsOrderConfirmationOpen] = useState(false)
-
-  if (!isOpen) return null
+  if (!shouldOpenCart) return null
 
   const items = cart?.items || []
   const totalPrice = getTotalPrice()
@@ -39,20 +31,7 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
-      <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose} />
-      
-      {/* Notification */}
-      {notification && (
-        <div className={`fixed top-4 right-4 z-[60] px-6 py-3 rounded-lg shadow-lg transition-all duration-300 ${
-          notification.type === 'error' 
-            ? 'bg-red-500 text-white' 
-            : 'bg-green-500 text-white'
-        }`}>
-          <div className="flex items-center space-x-2">
-            <span className="font-medium">{notification.message}</span>
-          </div>
-        </div>
-      )}
+      <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setShouldOpenCart(false)} />
       
       <div className="absolute right-0 top-0 h-full w-full max-w-md lg:max-w-lg bg-white shadow-2xl">
         <div className="flex h-full flex-col">
@@ -67,7 +46,7 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
             <Button 
               variant="ghost" 
               size="sm" 
-              onClick={onClose} 
+              onClick={() => setShouldOpenCart(false)} 
               className="min-h-[44px] min-w-[44px] p-2 hover:bg-gray-100 rounded-full"
             >
               <X className="h-5 w-5 text-gray-600" />
@@ -153,7 +132,10 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
               <Button 
                 className="w-full min-h-[44px] text-sm sm:text-base" 
                 size="lg"
-                onClick={() => setIsOrderConfirmationOpen(true)}
+                onClick={() => {
+                  // Sifarişi tamamlama funksiyası burada olacaq
+                  console.log('Sifarişi tamamla')
+                }}
               >
                 Sifarişi Tamamla
               </Button>
@@ -161,12 +143,6 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
           )}
         </div>
       </div>
-      
-      {/* Order Confirmation Modal */}
-      <OrderConfirmation 
-        isOpen={isOrderConfirmationOpen}
-        onClose={() => setIsOrderConfirmationOpen(false)}
-      />
     </div>
   )
 }

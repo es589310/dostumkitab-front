@@ -8,7 +8,7 @@ import { ChevronDown, Search, Menu, X, User, ShoppingCart } from 'lucide-react'
 import { useAuth } from '@/contexts/auth-context'
 import { useCart } from '@/contexts/cart-context'
 import { useSiteSettings } from '@/hooks/useSiteSettings'
-import { CartSidebar } from "./cart-sidebar"
+
 import { AuthModal } from './auth-modal'
 
 interface HeaderProps {
@@ -44,6 +44,8 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
   useEffect(() => {
     console.log('Header: Cart total items updated:', totalItems)
   }, [totalItems])
+
+
 
   // Track site settings data
   useEffect(() => {
@@ -186,7 +188,7 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
               {/* Cart */}
               <div className="flex items-center">
                 <button 
-                  onClick={() => setIsCartOpenLocal(true)}
+                  onClick={() => setIsCartOpen(true)}
                   className="relative group p-3 rounded-full hover:bg-gray-100 transition-all duration-300 ease-in-out transform hover:scale-105"
                 >
                   <div className="relative">
@@ -368,7 +370,7 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
 
                 {/* Cart Button */}
                 <button 
-                  onClick={() => setIsCartOpenLocal(true)}
+                  onClick={() => setIsCartOpen(true)}
                   className="relative text-gray-700 hover:text-blue-600 transition-colors"
                 >
                   <ShoppingCart className="h-[21px] w-[22px]" />
@@ -525,7 +527,7 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
         </div>
       </header>
 
-      <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpenLocal(false)} />
+
     </>
   )
 }

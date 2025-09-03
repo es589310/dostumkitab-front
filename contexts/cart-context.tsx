@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useToast } from '@/hooks/use-toast'
 import api from '@/lib/api'
 import { type Book } from '@/lib/api'
+import CartDrawer from '@/components/cart-drawer'
 
 interface CartItem {
   id: number
@@ -30,6 +31,8 @@ interface CartContextType {
   getTotalPrice: () => number
   totalItems: number
   setIsCartOpen: (isOpen: boolean) => void
+  shouldOpenCart: boolean
+  setShouldOpenCart: (shouldOpen: boolean) => void
   notification: { message: string; type: 'success' | 'error' } | null
 }
 
@@ -39,6 +42,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<Cart | null>(null)
   const [loading, setLoading] = useState(true)
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
+  const [shouldOpenCart, setShouldOpenCart] = useState(false)
   const { toast } = useToast()
 
   // Cart-i yüklə
@@ -75,9 +79,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
         // Success toast notification göstər
         toast({
           title: "Səbətə əlavə edildi! 🛒",
-          description: "Kitab uğurla səbətinizə əlavə edildi.",
+          description: "Kitab uğurla səbətinizə əlavə edildi. Səbəti açmaq üçün buraya basın.",
           variant: "success",
-          duration: 3000,
+          duration: 5000,
+          onClick: () => {
+            console.log('Toast clicked, opening cart...')
+            setShouldOpenCart(true)
+          }
         })
         
         // State yenilənməsini təmin et
@@ -241,18 +249,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
     getTotalItems,
     getTotalPrice,
     totalItems: getTotalItems(), // Add totalItems to the context value
-    setIsCartOpen: (isOpen) => {
-      // This function is not implemented in the original file,
-      // but it's part of the new interface.
-      // For now, it's a placeholder.
-      console.log('setIsCartOpen called with:', isOpen);
-    },
+    setIsCartOpen: (isOpen) => setShouldOpenCart(isOpen),
+    shouldOpenCart,
+    setShouldOpenCart,
     notification,
   }
 
   return (
     <CartContext.Provider value={value}>
       {children}
+      <CartDrawer />
     </CartContext.Provider>
   )
 }

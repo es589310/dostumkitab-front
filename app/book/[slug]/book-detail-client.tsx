@@ -98,11 +98,6 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
               {book.is_bestseller && <Badge variant="secondary">Ən Çox Satılan</Badge>}
               {book.is_new && <Badge className="bg-green-500">Yeni</Badge>}
             </div>
-            {book.discount_percentage > 0 && (
-              <div className="absolute top-4 right-4">
-                <Badge variant="destructive">-{book.discount_percentage}%</Badge>
-              </div>
-            )}
           </div>
         </div>
 

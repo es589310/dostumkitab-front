@@ -183,10 +183,7 @@ export function HeroSection() {
         ))}
       </div>
       
-      {/* Decorative Circles - Hidden on mobile */}
-      <div className="hidden md:block absolute top-20 left-20 w-32 h-32 border-2 border-white rounded-full opacity-20"></div>
-      <div className="hidden md:block absolute bottom-20 right-20 w-24 h-24 border-2 border-white rounded-full opacity-20"></div>
-      <div className="hidden md:block absolute top-1/2 right-10 w-16 h-16 border-2 border-white rounded-full opacity-20"></div>
+
     </section>
   )
 }
