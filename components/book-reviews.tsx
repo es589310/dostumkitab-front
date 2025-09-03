@@ -187,11 +187,11 @@ export function BookReviews({ bookId, bookSlug }: BookReviewsProps) {
   return (
     <div className="mt-8">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg sm:text-xl md:text-2xl font-bold">Rəylər ({reviews.length})</h3>
+        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold">Rəylər ({reviews.length})</h3>
         <Button
           onClick={() => setShowReviewForm(!showReviewForm)}
           variant="outline"
-          className="text-xs sm:text-sm"
+          className="text-sm sm:text-base"
         >
           {showReviewForm ? "Rəy yazmağı ləğv et" : "Rəy yaz"}
         </Button>
@@ -201,33 +201,33 @@ export function BookReviews({ bookId, bookSlug }: BookReviewsProps) {
       {showReviewForm && (
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-base sm:text-lg">Rəy yazın</CardTitle>
+            <CardTitle className="text-lg sm:text-xl">Rəy yazın</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div>
-                <label className="block text-xs sm:text-sm font-medium mb-2">Reytinq</label>
+                <label className="block text-sm sm:text-base font-medium mb-2">Reytinq</label>
                 {renderStars(userRating, true, (rating) => {
                   console.log("Star clicked, rating:", rating)
                   setUserRating(rating)
                 })}
-                <p className="text-xs text-gray-500 mt-1">Seçilən reytinq: {userRating}</p>
+                <p className="text-sm text-gray-500 mt-1">Seçilən reytinq: {userRating}</p>
               </div>
               <div>
-                <label className="block text-xs sm:text-sm font-medium mb-2">Rəyiniz</label>
+                <label className="block text-sm sm:text-base font-medium mb-2">Rəyiniz</label>
                 <Textarea
                   value={userComment}
                   onChange={(e) => setUserComment(e.target.value)}
                   placeholder="Kitab haqqında fikirlərinizi yazın..."
                   rows={4}
-                  className="text-xs sm:text-sm"
+                  className="text-sm sm:text-base"
                 />
               </div>
               <div className="flex gap-2">
                 <Button
                   onClick={handleSubmitReview}
                   disabled={isSubmitting || userRating === 0 || !userComment.trim()}
-                  className="text-xs sm:text-sm"
+                  className="text-sm sm:text-base"
                 >
                   {isSubmitting ? "Göndərilir..." : "Rəy göndər"}
                 </Button>
@@ -238,7 +238,7 @@ export function BookReviews({ bookId, bookSlug }: BookReviewsProps) {
                     setUserComment("")
                     setShowReviewForm(false)
                   }}
-                  className="text-xs sm:text-sm"
+                  className="text-sm sm:text-base"
                 >
                   Ləğv et
                 </Button>
@@ -250,9 +250,9 @@ export function BookReviews({ bookId, bookSlug }: BookReviewsProps) {
 
       {/* Existing reviews */}
       {loading ? (
-        <div className="text-center py-8 text-sm sm:text-base">Yüklənir...</div>
+        <div className="text-center py-8 text-base sm:text-lg">Yüklənir...</div>
       ) : reviews.length === 0 ? (
-        <div className="text-center py-8 text-gray-500 text-xs sm:text-sm">
+        <div className="text-center py-8 text-gray-500 text-sm sm:text-base">
           Bu kitab üçün hələ rəy yazılmayıb. İlk rəyi siz yazın!
         </div>
       ) : (
@@ -262,18 +262,18 @@ export function BookReviews({ bookId, bookSlug }: BookReviewsProps) {
               <CardContent className="pt-6">
                 <div className="flex items-start justify-between mb-3">
                   <div>
-                    <h4 className="font-semibold text-sm sm:text-base">
+                    <h4 className="font-semibold text-base sm:text-lg">
                       {review.user_name || `İstifadəçi ${review.user}`}
                     </h4>
                     <div className="flex items-center gap-2 mt-1">
                       {renderStars(review.rating)}
-                      <span className="text-xs sm:text-sm text-gray-500">
+                      <span className="text-sm sm:text-base text-gray-500">
                         {new Date(review.created_at).toLocaleDateString('az-AZ')}
                       </span>
                     </div>
                   </div>
                 </div>
-                <p className="text-gray-700 text-xs sm:text-sm">{review.comment}</p>
+                <p className="text-gray-700 text-sm sm:text-base">{review.comment}</p>
               </CardContent>
             </Card>
           ))}

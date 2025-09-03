@@ -181,30 +181,30 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
 
           {/* Book Details */}
           <div className="space-y-4">
-            <h3 className="text-base sm:text-lg font-semibold">Kitab Haqqında</h3>
-            <div className="space-y-2 text-xs sm:text-sm">
+            <h3 className="text-lg sm:text-xl font-semibold">Kitab Haqqında</h3>
+            <div className="space-y-3 text-sm sm:text-base">
               <div className="flex justify-between">
-                <span className="text-gray-600">Nəşriyyat:</span>
-                <span>{book.publisher?.name || "Məlumat yoxdur"}</span>
+                <span className="text-gray-600 font-medium">Nəşriyyat:</span>
+                <span className="font-medium">{book.publisher?.name || "Məlumat yoxdur"}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Dil:</span>
-                <span>{getLanguageName(book.language)}</span>
+                <span className="text-gray-600 font-medium">Dil:</span>
+                <span className="font-medium">{getLanguageName(book.language)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Səhifə sayı:</span>
-                <span>{book.pages}</span>
+                <span className="text-gray-600 font-medium">Səhifə sayı:</span>
+                <span className="font-medium">{book.pages}</span>
               </div>
               {book.publication_date && (
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Nəşr tarixi:</span>
-                  <span>{new Date(book.publication_date).toLocaleDateString('az-AZ')}</span>
+                  <span className="text-gray-600 font-medium">Nəşr tarixi:</span>
+                  <span className="font-medium">{new Date(book.publication_date).toLocaleDateString('az-AZ')}</span>
                 </div>
               )}
               {book.isbn && (
                 <div className="flex justify-between">
-                  <span className="text-gray-600">ISBN:</span>
-                  <span>{book.isbn}</span>
+                  <span className="text-gray-600 font-medium">ISBN:</span>
+                  <span className="font-medium">{book.isbn}</span>
                 </div>
               )}
             </div>
@@ -212,9 +212,9 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
 
           {/* Təsvir - Responsive üçün "Kitab Haqqında" bölməsindən aşağıda */}
           {book.description && (
-            <div className="space-y-2 lg:hidden">
-              <h3 className="text-base sm:text-lg font-semibold">Təsvir</h3>
-              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">{book.description}</p>
+            <div className="space-y-3 lg:hidden">
+              <h3 className="text-lg sm:text-xl font-semibold">Təsvir</h3>
+              <p className="text-sm sm:text-base text-gray-600 leading-relaxed">{book.description}</p>
             </div>
           )}
         </div>
@@ -223,9 +223,9 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
       {/* Desktop üçün Təsvir - sağ tərəfdə */}
       {book.description && (
         <div className="hidden lg:block mt-8">
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold">Təsvir</h3>
-            <p className="text-gray-600 leading-relaxed">{book.description}</p>
+          <div className="space-y-3">
+            <h3 className="text-xl font-semibold">Təsvir</h3>
+            <p className="text-base text-gray-600 leading-relaxed">{book.description}</p>
           </div>
         </div>
       )}
