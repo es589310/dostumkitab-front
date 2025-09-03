@@ -98,8 +98,8 @@ export default function CategoriesPage() {
         <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-6">
           <Library className="h-8 w-8 text-blue-600" />
         </div>
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Kitab Kateqoriyaları</h1>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">Kitab Kateqoriyaları</h1>
+        <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
           Maraqlandığınız sahədəki kitabları kəşf edin. Hər kateqoriyada minlərlə keyfiyyətli kitab
         </p>
       </div>
@@ -113,7 +113,7 @@ export default function CategoriesPage() {
           <p className="text-gray-600">Hal-hazırda heç bir kateqoriya mövcud deyil.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {categories.map((category) => {
             const IconComponent = getCategoryIcon(category.name)
             const colorClass = getCategoryColor(category.name)
@@ -124,18 +124,18 @@ export default function CategoriesPage() {
                 className={`group cursor-pointer transition-all duration-300 transform hover:scale-105 hover:shadow-xl border-2 ${colorClass}`}
                 onClick={() => handleCategoryClick(category.id.toString())}
               >
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="text-center">
-                    <div className="inline-flex items-center justify-center w-12 h-12 bg-white rounded-full mb-4 shadow-sm">
-                      <IconComponent className="h-6 w-6 text-blue-600" />
+                    <div className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full mb-3 sm:mb-4 shadow-sm">
+                      <IconComponent className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
                     </div>
                     
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
                       {category.name}
                     </h3>
                     
                     {category.description && (
-                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                      <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4 line-clamp-2">
                         {category.description}
                       </p>
                     )}
@@ -151,7 +151,7 @@ export default function CategoriesPage() {
                         </Badge>
                       )}
                       
-                      <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-blue-600 transition-colors" />
+                      <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400 group-hover:text-blue-600 transition-colors" />
                     </div>
                   </div>
                 </CardContent>

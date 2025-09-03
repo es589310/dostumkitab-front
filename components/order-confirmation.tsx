@@ -40,21 +40,22 @@ export function OrderConfirmation({ isOpen, onClose }: OrderConfirmationProps) {
   const totalPrice = getTotalPrice()
   const whatsappMessage = `Salam! Kitab sifarişi vermək istəyirəm.
 
-Sifariş məlumatları:
+Sifariş məlumatlarınız:
+
 ${items.map((item) => {
   const bookUrl = `${window.location.origin}/book/${item.book.slug}`
-  return `📚 ${item.book.title} (${item.quantity} ədəd)
-💰 Qiymət: ${item.book.price}₼
-✍️ Müəllif: ${item.book.authors?.map((author) => author.name).join(", ") || "Məlumat yoxdur"}
-🔗 Məhsul linki: ${bookUrl}`
+  const authorsText = item.book.authors?.map((author) => author.name).join(", ") || "Məlumat yoxdur"
+  
+  return `Kitab: ${item.book.title}
+Miqdar: ${item.quantity} ədəd
+Qiymət: ${item.book.price}₼
+Müəllif: ${authorsText}
+Link: ${bookUrl}`
 }).join('\n\n')}
 
-💳 Ümumi məbləğ: ${totalPrice.toFixed(2)}₼
-🛒 Sifariş linki: ${window.location.origin}/cart
+Ümumi məbləğ: ${totalPrice.toFixed(2)}₼
 
-📱 Məhsul linklərini WhatsApp-da açdığınızda şəkillər avtomatik görünəcək!
-
-Təşəkkürlər! 🚀`
+Təşəkkürlər!`
 
   const handleConfirmOrder = async () => {
     setIsConfirming(true)
@@ -74,7 +75,13 @@ Təşəkkürlər! 🚀`
       
       // Prepare WhatsApp number in correct format
       const cleanWhatsAppNumber = whatsappNumber.replace(/[^0-9]/g, '')
-      const whatsappUrl = `https://wa.me/${cleanWhatsAppNumber}?text=${encodeURIComponent(whatsappMessage)}`
+      
+      // Emoji-ləri düzgün UTF-8 formatında kodla
+      const encodedMessage = encodeURIComponent(whatsappMessage)
+      const whatsappUrl = `https://wa.me/${cleanWhatsAppNumber}?text=${encodedMessage}`
+      
+      console.log('📱 WhatsApp Message:', whatsappMessage)
+      console.log('🔗 WhatsApp URL:', whatsappUrl)
       
       // Redirect to WhatsApp after order is successfully created
       window.open(whatsappUrl, '_blank')

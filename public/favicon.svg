@@ -1,13 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <!-- Sol tərəf - Yaşıl düzbucaqlı -->
-  <rect x="2" y="6" width="8" height="20" fill="#22C55E" rx="2"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Sol tərəf - Yaşıl -->
+  <rect x="0" y="0" width="16" height="32" rx="8" fill="#66cc00"/>
   
-  <!-- Orta - Ağ xətt -->
-  <rect x="14" y="8" width="4" height="16" fill="white" rx="1"/>
+  <!-- Sağ tərəf - Mavi -->
+  <rect x="16" y="0" width="16" height="32" rx="8" fill="#0066cc"/>
   
-  <!-- Sağ tərəf - Göy düzbucaqlı -->
-  <rect x="22" y="6" width="8" height="20" fill="#3B82F6" rx="2"/>
-  
-  <!-- Orta xətt üçün əlavə detallar -->
-  <rect x="15" y="10" width="2" height="12" fill="#E5E7EB" rx="0.5"/>
+  <!-- Ortada ağ S-əyri -->
+  <path d="M 8 8 Q 16 4 24 8 Q 16 12 8 16 Q 16 20 24 24 Q 16 28 8 24" 
+        stroke="white" 
+        stroke-width="2" 
+        fill="none" 
+        stroke-linecap="round"/>
 </svg> 

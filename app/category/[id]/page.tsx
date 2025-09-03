@@ -6,7 +6,7 @@ import api, { type Book, type Category, type CategoriesResponse, type BookListRe
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Star, ShoppingCart } from "lucide-react"
+import { Star, ShoppingCart, Loader2 } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import Link from "next/link"
 
@@ -15,18 +15,21 @@ export default function CategoryPage() {
   const categoryId = params.id as string
   const [books, setBooks] = useState<Book[]>([])
   const [category, setCategory] = useState<Category | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
-  const { addItem } = useCart()
+  const { addItem, cart } = useCart()
 
   useEffect(() => {
     if (!categoryId) return
 
+    console.log("CategoryPage: Loading category with ID:", categoryId)
     setLoading(true)
     setError("")
+    setBooks([])
 
     const fetchCategoryBooks = async () => {
       try {
+        console.log("CategoryPage: Fetching category data...")
         // Kategori məlumatlarını al
         const categoriesData = await api.getCategories()
         let categories: Category[] = []
@@ -38,16 +41,21 @@ export default function CategoryPage() {
         }
 
         const currentCategory = categories.find(cat => cat.id.toString() === categoryId)
+        console.log("CategoryPage: Found category:", currentCategory)
         setCategory(currentCategory || null)
 
         // Kategoridəki kitabları alır
+        console.log("CategoryPage: Fetching books for category:", categoryId)
         const res = await api.getBooks({ category: categoryId })
         if (res && Array.isArray((res as BookListResponse).results)) {
           setBooks((res as BookListResponse).results)
+          console.log("CategoryPage: Loaded", (res as BookListResponse).results.length, "books")
         } else {
           setBooks([])
+          console.log("CategoryPage: No books found or invalid response")
         }
       } catch (error) {
+        console.error("CategoryPage: Error fetching data:", error)
         setError("Xəta baş verdi")
         setBooks([])
       } finally {
@@ -66,85 +74,152 @@ export default function CategoryPage() {
     }
   }
 
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className="text-lg text-gray-600">Kateqoriya yüklənir...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="text-center">
+          <div className="text-red-500 text-lg mb-4">{error}</div>
+          <Button onClick={() => window.location.reload()}>
+            Yenidən cəhd edin
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-2xl font-bold mb-6">
+      <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6">
         {category ? `${category.name} Kitabları` : "Kateqoriya"}
       </h1>
-      {loading && <div>Yüklənir...</div>}
-      {error && <div className="text-red-500">{error}</div>}
+      
       {!loading && !error && books.length === 0 && (
-        <div className="text-gray-500 text-lg">Bu kateqoriyada kitab tapılmadı</div>
+        <div className="text-center py-12">
+          <div className="text-gray-500 text-lg mb-4">Bu kateqoriyada kitab tapılmadı</div>
+          <Link href="/" className="text-blue-600 hover:text-blue-800 underline">
+            Ana səhifəyə qayıt
+          </Link>
+        </div>
       )}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {books.map((book) => (
-          <Card key={book.id} className="group hover:shadow-lg transition-shadow duration-300">
-            <Link href={`/book/${book.slug}`} className="block">
-              <CardContent className="p-4">
-                <div className="relative mb-4">
-                  <img
-                    src={book.cover_image || "/placeholder.svg?height=300&width=200"}
-                    alt={book.title}
-                    className="w-full h-64 object-cover rounded-lg"
-                  />
-                  <div className="absolute top-2 left-2 flex flex-col gap-1">
-                    {book.is_featured && <Badge variant="destructive">Seçilmiş</Badge>}
-                    {book.is_bestseller && <Badge variant="secondary">Ən Çox Satılan</Badge>}
-                    {book.is_new && <Badge className="bg-green-500">Yeni</Badge>}
-                  </div>
-                  {book.discount_percentage > 0 && (
-                    <div className="absolute top-2 right-2">
-                      <Badge variant="destructive">-{book.discount_percentage}%</Badge>
+      
+      {books.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+          {books.map((book) => (
+            <div key={book.id} className="group bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden">
+              {/* Image Container */}
+              <div className="relative p-3 pb-2">
+                <Link href={`/book/${book.slug}`} className="block">
+                  <div className="relative overflow-hidden rounded-lg bg-gray-50">
+                    <img
+                      src={book.cover_imagekit_url || book.cover_image || "/placeholder.svg?height=300&width=200"}
+                      alt={book.title}
+                      className="w-full h-48 sm:h-52 lg:h-56 object-contain transition-transform duration-300 group-hover:scale-105"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = "/placeholder.svg?height=300&width=200";
+                      }}
+                    />
+                    {/* Status Badges */}
+                    <div className="absolute top-2 right-2 flex flex-col gap-1">
+                      {book.is_bestseller && (
+                        <Badge className="bg-blue-500 text-white text-xs px-2 py-1 shadow-sm">
+                          Ən Çox Satılan
+                        </Badge>
+                      )}
+                      {book.is_new && (
+                        <Badge className="bg-green-500 text-white text-xs px-2 py-1 shadow-sm">
+                          Yeni
+                        </Badge>
+                      )}
                     </div>
-                  )}
-                </div>
-
-                <h3 className="font-semibold text-lg mb-1 line-clamp-2">{book.title}</h3>
-                <p className="text-gray-600 text-sm mb-2">{book.authors.map((author) => author.name).join(", ")}</p>
-                <p className="text-gray-500 text-xs mb-2">{book.category.name}</p>
-
-                <div className="flex items-center mb-3">
-                  <div className="flex text-yellow-400">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`h-4 w-4 ${i < Math.floor(book.average_rating) ? "fill-current" : ""}`}
-                      />
-                    ))}
                   </div>
-                  <span className="ml-2 text-sm text-gray-600">
-                    {book.average_rating.toFixed(1)} ({book.reviews_count})
+                </Link>
+              </div>
+
+              {/* Content */}
+              <div className="px-3 pb-3">
+                {/* Publisher */}
+                <div className="text-center mb-2">
+                  <span className="text-xs font-medium text-gray-600">
+                    {book.publisher?.name || 'Nəşriyyat'}
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-lg font-bold text-green-600">{book.price}₼</span>
-                    {book.original_price && (
-                      <span className="text-sm text-gray-500 line-through">{book.original_price}₼</span>
-                    )}
-                  </div>
-                  <span className="text-xs text-gray-500">Stok: {book.stock_quantity}</span>
+                {/* Title */}
+                <div className="text-center mb-2">
+                  <Link href={`/book/${book.slug}`} className="block">
+                    <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 leading-tight hover:text-blue-600 transition-colors">
+                      {book.title}
+                    </h3>
+                  </Link>
                 </div>
-              </CardContent>
-            </Link>
-            
-            <div className="px-4 pb-4">
-              <Button 
-                className={`w-full ${book.stock_quantity === 0 ? '' : 'bg-green-600 hover:bg-green-700'}`}
-                onClick={(e) => {
-                  e.preventDefault()
-                  handleAddToCart(book)
-                }} 
-                disabled={book.stock_quantity === 0}
-              >
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                {book.stock_quantity === 0 ? "Stokda Yoxdur" : "Səbətə At"}
-              </Button>
+
+                {/* Author */}
+                <div className="text-center mb-3">
+                  <p className="text-xs text-gray-600 line-clamp-1">
+                    {book.authors.map((author) => author.name).join(", ")}
+                  </p>
+                </div>
+
+                {/* Price */}
+                <div className="text-center mb-3">
+                  <div className="flex items-center justify-center space-x-2">
+                    {book.original_price && book.original_price > book.price && (
+                      <span className="text-xs text-gray-500 line-through">
+                        {book.original_price}₼
+                      </span>
+                    )}
+                    <span className="text-lg font-bold text-green-600">
+                      {book.price}₼
+                    </span>
+                  </div>
+                </div>
+
+                {/* Add to Cart Button */}
+                <Button 
+                  className={`w-full h-10 text-sm font-medium transition-all duration-200 ${
+                    (() => {
+                      const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                      const currentQuantity = currentCartItem?.quantity || 0
+                      const availableStock = book.stock_quantity - currentQuantity
+                      return availableStock > 0 ? 'bg-green-600 hover:bg-green-700 hover:shadow-md' : 'bg-gray-400 cursor-not-allowed'
+                    })()
+                  }`}
+                  onClick={() => handleAddToCart(book)}
+                  disabled={(() => {
+                    const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                    const currentQuantity = currentCartItem?.quantity || 0
+                    const availableStock = book.stock_quantity - currentQuantity
+                    return availableStock <= 0
+                  })()}
+                >
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  {(() => {
+                    const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                    const currentQuantity = currentCartItem?.quantity || 0
+                    const availableStock = book.stock_quantity - currentQuantity
+                    if (availableStock <= 0) {
+                      return "Stokda Yoxdur"
+                    }
+                    return "Səbətə At"
+                  })()}
+                </Button>
+              </div>
             </div>
-          </Card>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 } 

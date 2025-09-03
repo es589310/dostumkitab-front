@@ -33,10 +33,6 @@ export function BookReviews({ bookId, bookSlug }: BookReviewsProps) {
   const { isAuthenticated, user } = useAuth()
   const { toast } = useToast()
 
-  useEffect(() => {
-    fetchReviews()
-  }, [bookId])
-
   const fetchReviews = async () => {
     try {
       setLoading(true)
@@ -55,13 +51,28 @@ export function BookReviews({ bookId, bookSlug }: BookReviewsProps) {
       }
       
       setReviews(reviewsData)
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to fetch reviews:", error)
-      setReviews([])
+      
+      // Rate limiting xətası üçün xüsusi mesaj
+      if (error.message && error.message.includes("Çox tez-tez istək göndərirsiniz")) {
+        console.warn("Rate limiting detected, will retry later")
+        // Rate limiting zamanı boş array göstər
+        setReviews([])
+      } else {
+        setReviews([])
+      }
     } finally {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    // Yalnız komponent mount olduqda bir dəfə işləyir
+    if (bookId) {
+      fetchReviews()
+    }
+  }, []) // Boş dependency array - yalnız mount olduqda
 
   const handleSubmitReview = async () => {
     if (userRating === 0) {
@@ -95,27 +106,40 @@ export function BookReviews({ bookId, bookSlug }: BookReviewsProps) {
       
       // Add new review to list immediately
       if (newReview && typeof newReview === 'object') {
-        setReviews(prevReviews => [newReview, ...prevReviews])
+        // Manual state update - API çağırışı olmadan
+        const reviewToAdd = {
+          id: newReview.id || Date.now(),
+          user_name: user?.first_name || user?.username || 'Siz',
+          user: user?.id,
+          rating: userRating,
+          comment: userComment,
+          created_at: new Date().toISOString()
+        }
+        
+        setReviews(prevReviews => [reviewToAdd, ...prevReviews])
         toast({
           title: "🎉 Rəy Uğurla Əlavə Edildi!",
           description: "Rəyiniz kitab üçün uğurla əlavə edildi.",
           variant: "success",
         })
+        
+        // Clear the form
+        setUserRating(0)
+        setUserComment("")
+        setShowReviewForm(false)
       } else {
         console.warn("Unexpected review response:", newReview)
-        // Reload reviews
-        await fetchReviews()
         toast({
           title: "✅ Rəy Əlavə Edildi",
           description: "Rəyiniz uğurla əlavə edildi.",
           variant: "success",
         })
+        
+        // Clear the form
+        setUserRating(0)
+        setUserComment("")
+        setShowReviewForm(false)
       }
-      
-      // Clear the form
-      setUserRating(0)
-      setUserComment("")
-      setShowReviewForm(false)
       
     } catch (error: any) {
       console.error("Failed to submit review:", error)
@@ -127,6 +151,11 @@ export function BookReviews({ bookId, bookSlug }: BookReviewsProps) {
         errorMessage = error.response.data.message
       } else if (error.response?.data?.error) {
         errorMessage = error.response.data.error
+      }
+      
+      // Rate limiting xətası üçün xüsusi mesaj
+      if (error.message && error.message.includes("Çox tez-tez istək göndərirsiniz")) {
+        errorMessage = "Çox tez-tez istək göndərirsiniz. Zəhmət olmasa bir az gözləyin və yenidən cəhd edin."
       }
       
       toast({
@@ -145,7 +174,7 @@ export function BookReviews({ bookId, bookSlug }: BookReviewsProps) {
         {[...Array(5)].map((_, i) => (
           <Star
             key={i}
-            className={`h-5 w-5 cursor-pointer ${
+            className={`h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 cursor-pointer ${
               i < rating ? "fill-current" : ""
             } ${interactive ? "hover:scale-110 transition-transform" : ""}`}
             onClick={() => interactive && onStarClick?.(i + 1)}
@@ -158,10 +187,11 @@ export function BookReviews({ bookId, bookSlug }: BookReviewsProps) {
   return (
     <div className="mt-8">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-2xl font-bold">Rəylər ({reviews.length})</h3>
+        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold">Rəylər ({reviews.length})</h3>
         <Button
           onClick={() => setShowReviewForm(!showReviewForm)}
           variant="outline"
+          className="text-sm sm:text-base"
         >
           {showReviewForm ? "Rəy yazmağı ləğv et" : "Rəy yaz"}
         </Button>
@@ -171,27 +201,33 @@ export function BookReviews({ bookId, bookSlug }: BookReviewsProps) {
       {showReviewForm && (
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle>Rəy yazın</CardTitle>
+            <CardTitle className="text-lg sm:text-xl">Rəy yazın</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Reytinq</label>
-                {renderStars(userRating, true, setUserRating)}
+                <label className="block text-sm sm:text-base font-medium mb-2">Reytinq</label>
+                {renderStars(userRating, true, (rating) => {
+                  console.log("Star clicked, rating:", rating)
+                  setUserRating(rating)
+                })}
+                <p className="text-sm text-gray-500 mt-1">Seçilən reytinq: {userRating}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Rəyiniz</label>
+                <label className="block text-sm sm:text-base font-medium mb-2">Rəyiniz</label>
                 <Textarea
                   value={userComment}
                   onChange={(e) => setUserComment(e.target.value)}
                   placeholder="Kitab haqqında fikirlərinizi yazın..."
                   rows={4}
+                  className="text-sm sm:text-base"
                 />
               </div>
               <div className="flex gap-2">
                 <Button
                   onClick={handleSubmitReview}
                   disabled={isSubmitting || userRating === 0 || !userComment.trim()}
+                  className="text-sm sm:text-base"
                 >
                   {isSubmitting ? "Göndərilir..." : "Rəy göndər"}
                 </Button>
@@ -202,6 +238,7 @@ export function BookReviews({ bookId, bookSlug }: BookReviewsProps) {
                     setUserComment("")
                     setShowReviewForm(false)
                   }}
+                  className="text-sm sm:text-base"
                 >
                   Ləğv et
                 </Button>
@@ -213,9 +250,9 @@ export function BookReviews({ bookId, bookSlug }: BookReviewsProps) {
 
       {/* Existing reviews */}
       {loading ? (
-        <div className="text-center py-8">Yüklənir...</div>
+        <div className="text-center py-8 text-base sm:text-lg">Yüklənir...</div>
       ) : reviews.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-gray-500 text-sm sm:text-base">
           Bu kitab üçün hələ rəy yazılmayıb. İlk rəyi siz yazın!
         </div>
       ) : (
@@ -225,18 +262,18 @@ export function BookReviews({ bookId, bookSlug }: BookReviewsProps) {
               <CardContent className="pt-6">
                 <div className="flex items-start justify-between mb-3">
                   <div>
-                    <h4 className="font-semibold">
+                    <h4 className="font-semibold text-base sm:text-lg">
                       {review.user_name || `İstifadəçi ${review.user}`}
                     </h4>
                     <div className="flex items-center gap-2 mt-1">
                       {renderStars(review.rating)}
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm sm:text-base text-gray-500">
                         {new Date(review.created_at).toLocaleDateString('az-AZ')}
                       </span>
                     </div>
                   </div>
                 </div>
-                <p className="text-gray-700">{review.comment}</p>
+                <p className="text-gray-700 text-sm sm:text-base">{review.comment}</p>
               </CardContent>
             </Card>
           ))}

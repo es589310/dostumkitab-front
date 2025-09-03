@@ -10,6 +10,7 @@ interface SiteSettings {
   phone: string
   email: string
   address: string
+  coordinates?: string
   working_hours?: string
   copyright_year?: number
   whatsapp_number?: string
@@ -75,6 +76,7 @@ export function useSiteSettings() {
           phone: settingsData.phone || "+994 12 345 67 89",
           email: settingsData.email || "info@faziletkitab.az",
           address: settingsData.address || "Bakı, Azərbaycan",
+          coordinates: settingsData.coordinates || "",
           working_hours: settingsData.working_hours || "Bazar ertəsi - Cümə: 09:00-18:00",
           copyright_year: settingsData.copyright_year || new Date().getFullYear(),
           whatsapp_number: settingsData.whatsapp_number || "+994 12 345 67 89",
@@ -100,6 +102,7 @@ export function useSiteSettings() {
           phone: "+994 12 345 67 89",
           email: "info@faziletkitab.az",
           address: "Bakı, Azərbaycan",
+          coordinates: "",
           working_hours: "Bazar ertəsi - Cümə: 09:00-18:00",
           copyright_year: new Date().getFullYear(),
           whatsapp_number: "+994 12 345 67 89",

@@ -76,7 +76,7 @@ export function BookGrid({
       }
     } catch (error) {
       console.error("Failed to fetch categories:", error)
-      setCategories([]) // Set empty array on error
+      setCategories([])
     }
   }
 
@@ -92,15 +92,14 @@ export function BookGrid({
       if (selectedCategory) params.category = selectedCategory
 
       const response = await api.getBooks(params)
-      console.log("Books API response:", response) // Debug
+      console.log("Books API response:", response)
 
       if (response && Array.isArray(response.results)) {
         setBooks(response.results)
         setTotalPages(Math.ceil(response.count / 20))
       } else {
-        console.error("Unexpected books API response:", response)
+        console.error("Unexpected books API response format:", response)
         setBooks([])
-        setTotalPages(1)
       }
     } catch (error) {
       console.error("Failed to fetch books:", error)
@@ -110,46 +109,8 @@ export function BookGrid({
     }
   }
 
-  const handleAddToCart = async (book: Book) => {
-    try {
-      // Stock check - how many of this book are already in cart
-      const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
-      const currentQuantity = currentCartItem?.quantity || 0
-      const availableStock = book.stock_quantity
-      
-      // If this book is already in cart and stock limit is reached
-      if (currentQuantity >= availableStock) {
-        // Show stock information
-        const remainingStock = availableStock - currentQuantity
-        if (remainingStock <= 0) {
-          // No stock available
-          toast({
-            title: "Stokda yoxdur!",
-            description: `Bu kitabdan artıq ${currentQuantity} ədəd səbətinizdə var və stokda yalnız ${availableStock} ədəd var.`,
-            variant: "destructive",
-          })
-          return
-        } else {
-          // Limited stock available
-          toast({
-            title: "Stok məhdudiyyəti!",
-            description: `Bu kitabdan artıq ${currentQuantity} ədəd səbətinizdə var. Stokda yalnız ${remainingStock} ədəd qalıb.`,
-            variant: "destructive",
-          })
-          return
-        }
-      }
-      
-      await addItem(book.id)
-      // Notification removed - cart updates automatically
-    } catch (error: any) {
-      console.error("Səbətə əlavə edərkən xəta:", error)
-      // No notification shown on error
-    }
-  }
-
-  const handleSearch = (value: string) => {
-    setInternalSearchTerm(value)
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInternalSearchTerm(e.target.value)
     setCurrentPage(1)
   }
 
@@ -163,48 +124,61 @@ export function BookGrid({
     setCurrentPage(1)
   }
 
-  if (isLoading && books.length === 0) {
+  const handleAddToCart = async (book: Book) => {
+    try {
+      const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+      const currentQuantity = currentCartItem?.quantity || 0
+      const availableStock = book.stock_quantity
+      
+      if (currentQuantity >= availableStock) {
+        const remainingStock = availableStock - currentQuantity
+        if (remainingStock <= 0) {
+          toast({
+            title: "Stokda yoxdur!",
+            description: `Bu kitabdan artıq ${currentQuantity} ədəd səbətinizdə var və stokda yalnız ${availableStock} ədəd var.`,
+            variant: "destructive",
+          })
+          return
+        } else {
+          toast({
+            title: "Stok məhdudiyyəti!",
+            description: `Bu kitabdan artıq ${currentQuantity} ədəd səbətinizdə var. Stokda yalnız ${remainingStock} ədəd qalıb.`,
+            variant: "destructive",
+          })
+          return
+        }
+      }
+      
+      await addItem(book.id)
+    } catch (error: any) {
+      console.error("Səbətə əlavə edərkən xəta:", error)
+    }
+  }
+
+  if (isLoading) {
     return (
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Bütün Kitablar</h2>
-            <p className="text-lg text-gray-600">Geniş kitab kolleksiyamızı araşdırın</p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="animate-pulse">
-                <div className="bg-gray-300 h-64 rounded-lg mb-4"></div>
-                <div className="h-4 bg-gray-300 rounded mb-2"></div>
-                <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <div className="text-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p className="text-gray-600">Kitablar yüklənir...</p>
+      </div>
     )
   }
 
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Bütün Kitablar</h2>
-          <p className="text-lg text-gray-600">Geniş kitab kolleksiyamızı araşdırın</p>
-        </div>
-
         {/* Filters */}
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8">
           <div className="flex-1">
             <Input
-              placeholder="Kitab və ya müəllif axtarın..."
+              placeholder="Kitab, müəllif və ya kateqoriya axtarın..."
               value={internalSearchTerm}
-              onChange={(e) => handleSearch(e.target.value)}
+              onChange={handleSearchChange}
               className="w-full"
             />
           </div>
           <Select value={selectedCategory || "all"} onValueChange={handleCategoryChange}>
-            <SelectTrigger className="w-full md:w-48">
+            <SelectTrigger className="w-full sm:w-48">
               <SelectValue placeholder="Kateqoriya" />
             </SelectTrigger>
             <SelectContent>
@@ -218,7 +192,7 @@ export function BookGrid({
             </SelectContent>
           </Select>
           <Select value={sortBy} onValueChange={handleSortChange}>
-            <SelectTrigger className="w-full md:w-48">
+            <SelectTrigger className="w-full sm:w-48">
               <SelectValue placeholder="Sırala" />
             </SelectTrigger>
             <SelectContent>
@@ -232,87 +206,111 @@ export function BookGrid({
         </div>
 
         {/* Books Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
           {Array.isArray(books) &&
             books.map((book) => (
-              <Card key={book.id} className="group hover:shadow-lg transition-shadow duration-300">
-                <Link href={`/book/${book.slug}`} className="block">
-                <CardContent className="p-4">
-                  <div className="relative mb-4">
-                    <img
-                      src={book.cover_image || "/placeholder.svg?height=300&width=200"}
-                      alt={book.title}
-                      className="w-full h-64 object-cover rounded-lg"
-                    />
-                    <div className="absolute top-2 left-2 flex flex-col gap-1">
-                      {book.is_featured && <Badge variant="destructive">Seçilmiş</Badge>}
-                      {book.is_bestseller && <Badge variant="secondary">Ən Çox Satılan</Badge>}
-                      {book.is_new && <Badge className="bg-green-500">Yeni</Badge>}
-                    </div>
-                    {book.discount_percentage > 0 && (
-                      <div className="absolute top-2 right-2">
-                        <Badge variant="destructive">-{book.discount_percentage}%</Badge>
+              <div key={book.id} className="group bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden">
+                {/* Image Container */}
+                <div className="relative p-3 pb-2">
+                  <Link href={`/book/${book.slug}`} className="block">
+                    <div className="relative overflow-hidden rounded-lg bg-gray-50">
+                      <img
+                        src={book.cover_imagekit_url || book.cover_image || "/placeholder.svg?height=300&width=200"}
+                        alt={book.title}
+                        className="w-full h-48 sm:h-52 lg:h-56 object-contain transition-transform duration-300 group-hover:scale-105"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = "/placeholder.svg?height=300&width=200";
+                        }}
+                      />
+
+                      {/* Status Badges */}
+                      <div className="absolute top-2 right-2 flex flex-col gap-1">
+                        {book.is_bestseller && (
+                          <Badge className="bg-blue-500 text-white text-xs px-2 py-1 shadow-sm">
+                            Ən Çox Satılan
+                          </Badge>
+                        )}
+                        {book.is_new && (
+                          <Badge className="bg-green-500 text-white text-xs px-2 py-1 shadow-sm">
+                            Yeni
+                          </Badge>
+                        )}
                       </div>
-                    )}
-                  </div>
-
-                  <h3 className="font-semibold text-lg mb-1 line-clamp-2">{book.title}</h3>
-                  <p className="text-gray-600 text-sm mb-2">{book.authors.map((author) => author.name).join(", ")}</p>
-                  <p className="text-gray-500 text-xs mb-2">{book.category.name}</p>
-
-                  <div className="flex items-center mb-3">
-                    <div className="flex text-yellow-400">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-4 w-4 ${i < Math.floor(book.average_rating) ? "fill-current" : ""}`}
-                        />
-                      ))}
                     </div>
-                    <span className="ml-2 text-sm text-gray-600">
-                      {book.average_rating.toFixed(1)} ({book.reviews_count})
+                  </Link>
+                </div>
+
+                {/* Content */}
+                <div className="px-3 pb-3">
+                  {/* Publisher */}
+                  <div className="text-center mb-2">
+                    <span className="text-xs font-medium text-gray-600">
+                      {book.publisher?.name || 'Nəşriyyat'}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-lg font-bold text-green-600">{book.price}₼</span>
-                      {book.original_price && (
-                        <span className="text-sm text-gray-500 line-through">{book.original_price}₼</span>
-                      )}
-                    </div>
-                    <span className="text-xs text-gray-500">Stok: {book.stock_quantity}</span>
+                  {/* Title */}
+                  <div className="text-center mb-2">
+                    <Link href={`/book/${book.slug}`} className="block">
+                      <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 leading-tight hover:text-blue-600 transition-colors">
+                        {book.title}
+                      </h3>
+                    </Link>
                   </div>
-                  </CardContent>
-                </Link>
-                
-                <div className="px-4 pb-4">
+
+                  {/* Author */}
+                  <div className="text-center mb-3">
+                    <p className="text-xs text-gray-600 line-clamp-1">
+                      {book.authors.map((author) => author.name).join(", ")}
+                    </p>
+                  </div>
+
+                  {/* Price */}
+                  <div className="text-center mb-3">
+                    <div className="flex items-center justify-center space-x-2">
+                      {book.original_price && book.original_price > book.price && (
+                        <span className="text-xs text-gray-500 line-through">
+                          {book.original_price}₼
+                        </span>
+                      )}
+                      <span className="text-lg font-bold text-green-600">
+                        {book.price}₼
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Add to Cart Button */}
                   <Button 
-                    className={`w-full ${book.stock_quantity === 0 ? '' : 'bg-green-600 hover:bg-green-700'}`}
-                    onClick={(e) => {
-                      e.preventDefault()
-                      handleAddToCart(book)
-                    }} 
-                    disabled={book.stock_quantity === 0 || (() => {
+                    className={`w-full h-10 text-sm font-medium transition-all duration-200 ${
+                      (() => {
+                        const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                        const currentQuantity = currentCartItem?.quantity || 0
+                        const availableStock = book.stock_quantity - currentQuantity
+                        return availableStock > 0 ? 'bg-green-600 hover:bg-green-700 hover:shadow-md' : 'bg-gray-400 cursor-not-allowed'
+                      })()
+                    }`}
+                    onClick={() => handleAddToCart(book)}
+                    disabled={(() => {
                       const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
                       const currentQuantity = currentCartItem?.quantity || 0
-                      return currentQuantity >= book.stock_quantity
+                      const availableStock = book.stock_quantity - currentQuantity
+                      return availableStock <= 0
                     })()}
                   >
                     <ShoppingCart className="h-4 w-4 mr-2" />
-                    {book.stock_quantity === 0 ? "Stokda Yoxdur" : 
-                     (() => {
-                       const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
-                       const currentQuantity = currentCartItem?.quantity || 0
-                       if (currentQuantity >= book.stock_quantity) {
-                         return "Stokda Maksimum"
-                       }
-                       return "Səbətə At"
-                     })()
-                    }
+                    {(() => {
+                      const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                      const currentQuantity = currentCartItem?.quantity || 0
+                      const availableStock = book.stock_quantity - currentQuantity
+                      if (availableStock <= 0) {
+                        return "Stokda Yoxdur"
+                      }
+                      return "Səbətə At"
+                    })()}
                   </Button>
                 </div>
-              </Card>
+              </div>
             ))}
         </div>
 
@@ -324,21 +322,23 @@ export function BookGrid({
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center mt-8 space-x-2">
+          <div className="flex justify-center items-center mt-8 space-x-2">
             <Button
               variant="outline"
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
               disabled={currentPage === 1}
+              className="px-4 py-2"
             >
               Əvvəlki
             </Button>
-            <span className="flex items-center px-4">
+            <span className="flex items-center px-4 py-2">
               Səhifə {currentPage} / {totalPages}
             </span>
             <Button
               variant="outline"
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
               disabled={currentPage === totalPages}
+              className="px-4 py-2"
             >
               Növbəti
             </Button>
@@ -347,4 +347,4 @@ export function BookGrid({
       </div>
     </section>
   )
-}
+} 

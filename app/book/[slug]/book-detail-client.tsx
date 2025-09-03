@@ -18,7 +18,7 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
   const [book, setBook] = useState<Book | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const { addItem } = useCart()
+  const { addItem, cart } = useCart()
 
   useEffect(() => {
     if (!slug) return
@@ -85,38 +85,30 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
         <div className="space-y-4">
           <div className="relative">
             <img
-              src={book.cover_image || "/placeholder.svg?height=600&width=400"}
+              src={book.cover_imagekit_url || book.cover_image || "/placeholder.svg?height=600&width=400"}
               alt={book.title}
-              className="w-full h-[500px] object-contain rounded-lg shadow-lg bg-gray-50"
+              className="w-full h-[356px] lg:h-[500px] object-contain bg-gray-100 rounded-lg shadow-lg"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = "/placeholder.svg?height=600&width=400";
+              }}
             />
             <div className="absolute top-4 left-4 flex flex-col gap-2">
               {book.is_featured && <Badge variant="destructive">Seçilmiş</Badge>}
               {book.is_bestseller && <Badge variant="secondary">Ən Çox Satılan</Badge>}
               {book.is_new && <Badge className="bg-green-500">Yeni</Badge>}
             </div>
-            {book.discount_percentage > 0 && (
-              <div className="absolute top-4 right-4">
-                <Badge variant="destructive">-{book.discount_percentage}%</Badge>
-              </div>
-            )}
           </div>
-          {/* Təsvir */}
-          {book.description && (
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold">Təsvir</h3>
-              <p className="text-gray-600 leading-relaxed">{book.description}</p>
-            </div>
-          )}
         </div>
 
         {/* Book Details */}
         <div className="space-y-6">
           <div>
-            <h1 className="text-3xl font-bold mb-2">{book.title}</h1>
-            <p className="text-lg text-gray-600 mb-4">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">{book.title}</h1>
+            <p className="text-sm sm:text-base md:text-lg text-gray-600 mb-4">
               {book.authors.map((author) => author.name).join(", ")}
             </p>
-            <p className="text-sm text-gray-500 mb-4">{book.category.name}</p>
+            <p className="text-xs sm:text-sm text-gray-500 mb-4">{book.category.name}</p>
           </div>
 
           {/* Rating */}
@@ -126,11 +118,11 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
-                    className={`h-5 w-5 ${i < Math.floor(book.average_rating) ? "fill-current" : ""}`}
+                    className={`h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 ${i < Math.floor(book.average_rating) ? "fill-current" : ""}`}
                   />
                 ))}
               </div>
-              <span className="text-sm text-gray-600">
+              <span className="text-xs sm:text-sm text-gray-600">
                 {book.average_rating.toFixed(1)} ({book.reviews_count} rəy)
               </span>
             </div>
@@ -139,54 +131,104 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
           {/* Price */}
           <div className="space-y-2">
             <div className="flex items-center space-x-3">
-              <span className="text-3xl font-bold text-green-600">{book.price}₼</span>
+              <span className="text-xl sm:text-2xl md:text-3xl font-bold text-green-600">{book.price}₼</span>
               {book.original_price && (
-                <span className="text-lg text-gray-500 line-through">{book.original_price}₼</span>
+                <span className="text-sm sm:text-base md:text-lg text-gray-500 line-through">{book.original_price}₼</span>
               )}
             </div>
-            <p className="text-sm text-gray-500">Stok: {book.stock_quantity} ədəd</p>
+            <p className={`text-xs sm:text-sm ${(() => {
+              const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+              const currentQuantity = currentCartItem?.quantity || 0
+              const availableStock = book.stock_quantity - currentQuantity
+              return availableStock > 0 ? 'text-green-600' : 'text-red-600'
+            })()}`}>
+              {(() => {
+                const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                const currentQuantity = currentCartItem?.quantity || 0
+                const availableStock = book.stock_quantity - currentQuantity
+                return availableStock > 0 ? 'Stokda var' : 'Stokda bitdi'
+              })()}
+            </p>
           </div>
 
           {/* Add to Cart Button */}
           <Button 
             onClick={handleAddToCart} 
-            disabled={book.stock_quantity === 0}
-            className={`w-full h-12 text-lg ${book.stock_quantity === 0 ? '' : 'bg-green-600 hover:bg-green-700'}`}
+            disabled={(() => {
+              const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+              const currentQuantity = currentCartItem?.quantity || 0
+              const availableStock = book.stock_quantity - currentQuantity
+              return availableStock <= 0
+            })()}
+            className={`w-full h-9 sm:h-10 md:h-12 text-sm sm:text-base md:text-lg ${(() => {
+              const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+              const currentQuantity = currentCartItem?.quantity || 0
+              const availableStock = book.stock_quantity - currentQuantity
+              return availableStock > 0 ? 'bg-green-600 hover:bg-green-700' : ''
+            })()}`}
           >
-            <ShoppingCart className="h-5 w-5 mr-2" />
-            {book.stock_quantity === 0 ? "Stokda Yoxdur" : "Səbətə At"}
+            <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 mr-2" />
+            {(() => {
+              const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+              const currentQuantity = currentCartItem?.quantity || 0
+              const availableStock = book.stock_quantity - currentQuantity
+              if (availableStock <= 0) {
+                return "Stokda Yoxdur"
+              }
+              return "Səbətə At"
+            })()}
           </Button>
 
           {/* Book Details */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Kitab Haqqında</h3>
-            <div className="space-y-2 text-sm">
+            <h3 className="text-lg sm:text-xl font-semibold">Kitab Haqqında</h3>
+            <div className="space-y-3 text-sm sm:text-base">
               <div className="flex justify-between">
-                <span className="text-gray-600">Nəşriyyat:</span>
-                <span>{book.publisher?.name || "Məlumat yoxdur"}</span>
+                <span className="text-gray-600 font-medium">Nəşriyyat:</span>
+                <span className="font-medium">{book.publisher?.name || "Məlumat yoxdur"}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Dil:</span>
-                <span>{getLanguageName(book.language)}</span>
+                <span className="text-gray-600 font-medium">Dil:</span>
+                <span className="font-medium">{getLanguageName(book.language)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Səhifə sayı:</span>
-                <span>{book.pages}</span>
+                <span className="text-gray-600 font-medium">Səhifə sayı:</span>
+                <span className="font-medium">{book.pages}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Nəşr tarixi:</span>
-                <span>{new Date(book.publication_date).toLocaleDateString('az-AZ')}</span>
-              </div>
+              {book.publication_date && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600 font-medium">Nəşr tarixi:</span>
+                  <span className="font-medium">{new Date(book.publication_date).toLocaleDateString('az-AZ')}</span>
+                </div>
+              )}
               {book.isbn && (
                 <div className="flex justify-between">
-                  <span className="text-gray-600">ISBN:</span>
-                  <span>{book.isbn}</span>
+                  <span className="text-gray-600 font-medium">ISBN:</span>
+                  <span className="font-medium">{book.isbn}</span>
                 </div>
               )}
             </div>
           </div>
+
+          {/* Təsvir - Responsive üçün "Kitab Haqqında" bölməsindən aşağıda */}
+          {book.description && (
+            <div className="space-y-3 lg:hidden">
+              <h3 className="text-lg sm:text-xl font-semibold">Təsvir</h3>
+              <p className="text-sm sm:text-base text-gray-600 leading-relaxed">{book.description}</p>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Desktop üçün Təsvir - sağ tərəfdə */}
+      {book.description && (
+        <div className="hidden lg:block mt-8">
+          <div className="space-y-3">
+            <h3 className="text-xl font-semibold">Təsvir</h3>
+            <p className="text-base text-gray-600 leading-relaxed">{book.description}</p>
+          </div>
+        </div>
+      )}
 
       {/* Reviews Section */}
       <BookReviews bookId={book.id} bookSlug={book.slug} />

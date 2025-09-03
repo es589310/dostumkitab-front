@@ -4,11 +4,11 @@ import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button } from './ui/button'
-import { ChevronDown, Search, Menu, X } from 'lucide-react'
+import { ChevronDown, Search, Menu, X, User, ShoppingCart } from 'lucide-react'
 import { useAuth } from '@/contexts/auth-context'
 import { useCart } from '@/contexts/cart-context'
 import { useSiteSettings } from '@/hooks/useSiteSettings'
-import { CartSidebar } from "./cart-sidebar"
+
 import { AuthModal } from './auth-modal'
 
 interface HeaderProps {
@@ -25,6 +25,7 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
   const [searchQuery, setSearchQuery] = useState("")
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [isCartOpen, setIsCartOpenLocal] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
 
   // Default settings for when loading or no data
@@ -43,6 +44,8 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
   useEffect(() => {
     console.log('Header: Cart total items updated:', totalItems)
   }, [totalItems])
+
+
 
   // Track site settings data
   useEffect(() => {
@@ -69,8 +72,6 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
     }
   }, [])
 
-
-
   const handleSearchSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       if (searchQuery.trim()) {
@@ -88,26 +89,20 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
 
   return (
     <>
-      {/* Notification */}
-      {/* Notification component was removed from imports, so this block is removed */}
-      
-      <header className="bg-white shadow-sm border-b sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex items-center justify-between h-24 lg:h-[100px]">
+      <header className="bg-white shadow-sm border-b z-40 lg:fixed lg:top-0 lg:left-0 lg:right-0">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Desktop Header */}
+          <div className="hidden lg:flex items-center justify-between h-[100px]">
             {/* Logo */}
             <div className="flex items-center space-x-2">
               <button 
                 onClick={() => {
-                  // Əgər ana səhifədə deyilsə, ana səhifəyə yönləndir və refresh et
                   if (window.location.pathname !== '/') {
-                    // Ana səhifəyə yönləndir
                     router.push('/')
-                    // Qısa gecikmədən sonra refresh et
                     setTimeout(() => {
                       window.location.reload()
                     }, 100)
                   } else {
-                    // Ana səhifədədirsə sadəcə refresh et
                     window.location.reload()
                   }
                 }}
@@ -115,12 +110,12 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
                 title="Ana səhifəyə qayıt və saytı yenilə"
               >
                 {settingsLoading ? (
-                  <div className="h-12 w-40 lg:h-[39px] lg:w-[250px] bg-gray-200 animate-pulse rounded"></div>
+                  <div className="h-[39px] w-[250px] bg-gray-200 animate-pulse rounded"></div>
                 ) : currentSettings.navbar_logo_imagekit_url ? (
                   <img
                     src={currentSettings.navbar_logo_imagekit_url}
                     alt={currentSettings.site_name || "KitabSat Logo"}
-                    className="h-12 w-40 lg:h-[39px] lg:w-[250px] object-contain"
+                    className="h-[39px] w-[250px] object-contain"
                     onError={(e) => {
                       console.log('Navbar logo failed to load, using default')
                       const target = e.target as HTMLImageElement
@@ -132,7 +127,7 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
                   <img
                     src={currentSettings.navbar_logo}
                     alt={currentSettings.site_name || "KitabSat Logo"}
-                    className="h-12 w-40 lg:h-[39px] lg:w-[250px] object-contain"
+                    className="h-[39px] w-[250px] object-contain"
                     onError={(e) => {
                       console.log('Logo failed to load, using default')
                       const target = e.target as HTMLImageElement
@@ -141,8 +136,8 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
                     }}
                   />
                 ) : (
-                  <div className="h-12 w-40 lg:h-[39px] lg:w-[250px] bg-gray-200 rounded flex items-center justify-center">
-                    <span className="text-gray-600 font-bold text-base lg:text-lg px-2 text-center">
+                  <div className="h-[39px] w-[250px] bg-gray-200 rounded flex items-center justify-center">
+                    <span className="text-gray-600 font-bold text-lg px-2 text-center">
                       {currentSettings.site_name || "dostumkitab.az"}
                     </span>
                   </div>
@@ -151,7 +146,7 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
             </div>
 
             {/* Search Bar */}
-            <div className="flex-1 max-w-lg mx-6 lg:mx-8">
+            <div className="flex-1 max-w-lg mx-8">
               <form onSubmit={(e) => {
                 e.preventDefault()
                 if (searchQuery.trim()) {
@@ -164,7 +159,7 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
                     type="search"
                     name="q"
                     placeholder="Axtardığınız kitab, kateqoriya və ya müəllifi yazın..."
-                    className="w-full pl-6 pr-28 py-3 text-base border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500 placeholder:text-sm placeholder:italic"
+                    className="w-full pl-6 pr-[100px] py-3 text-base border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500 placeholder:text-sm placeholder:italic"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     data-search="live-search"
@@ -189,15 +184,14 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
             </div>
 
             {/* Right Side */}
-            <div className="flex items-center space-x-6 lg:space-x-8">
-              {/* Cart - New beautiful cart icon */}
+            <div className="flex items-center space-x-8">
+              {/* Cart */}
               <div className="flex items-center">
                 <button 
-                  onClick={() => setIsCartOpenLocal(true)}
+                  onClick={() => setIsCartOpen(true)}
                   className="relative group p-3 rounded-full hover:bg-gray-100 transition-all duration-300 ease-in-out transform hover:scale-105"
                 >
                   <div className="relative">
-                    {/* Simple cart icon */}
                     <svg 
                       className="w-7 h-7 text-gray-700 group-hover:text-blue-600 transition-colors duration-300"
                       fill="none" 
@@ -210,7 +204,6 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
                     </svg>
                   </div>
                   
-                  {/* Product count badge */}
                   {totalItems > 0 && (
                     <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center shadow-lg transform scale-100 group-hover:scale-110 transition-transform duration-300">
                       {totalItems}
@@ -219,7 +212,7 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
                 </button>
               </div>
 
-              {/* User Menu - Ayrı div */}
+              {/* User Menu */}
               <div className="flex items-center">
                 {isAuthenticated && user ? (
                   <div className="relative" ref={userMenuRef}>
@@ -263,10 +256,278 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
               </div>
             </div>
           </div>
+
+          {/* Mobile Header */}
+          <div className="lg:hidden relative">
+            {/* Top Row - Menu, Logo, Auth/Cart */}
+            <div className="flex items-center justify-between py-3">
+              {/* Left - Mobile Menu Button */}
+              <div className="flex items-center">
+                <button
+                  onClick={() => {
+                    console.log('Mobile menu clicked, current state:', isMobileMenuOpen)
+                    setIsMobileMenuOpen(!isMobileMenuOpen)
+                    console.log('Mobile menu state changed to:', !isMobileMenuOpen)
+                  }}
+                  className="p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                >
+                  {isMobileMenuOpen ? (
+                    <X className="h-6 w-6" />
+                  ) : (
+                    <Menu className="h-6 w-6" />
+                  )}
+                </button>
+              </div>
+
+              {/* Center - Logo */}
+              <div className="flex items-center justify-start flex-1 pl-1">
+                <button 
+                  onClick={() => {
+                    if (window.location.pathname !== '/') {
+                      router.push('/')
+                      setTimeout(() => {
+                        window.location.reload()
+                      }, 100)
+                    } else {
+                      window.location.reload()
+                    }
+                  }}
+                  className="hover:opacity-80 transition-opacity"
+                >
+                  {settingsLoading ? (
+                    <div className="h-[17.4px] w-[136px] bg-gray-200 animate-pulse rounded"></div>
+                  ) : currentSettings.navbar_logo_imagekit_url ? (
+                    <img
+                      src={currentSettings.navbar_logo_imagekit_url}
+                      alt={currentSettings.site_name || "KitabSat Logo"}
+                      className="h-[17.4px] w-[136px] object-contain"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement
+                        target.style.display = 'none'
+                        target.nextElementSibling?.classList.remove('hidden')
+                      }}
+                    />
+                  ) : currentSettings.navbar_logo ? (
+                    <img
+                      src={currentSettings.navbar_logo}
+                      alt={currentSettings.site_name || "KitabSat Logo"}
+                      className="h-[17.4px] w-[136px] object-contain"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement
+                        target.style.display = 'none'
+                        target.nextElementSibling?.classList.remove('hidden')
+                      }}
+                    />
+                  ) : (
+                    <div className="h-[17.4px] w-[136px] bg-gray-200 rounded flex items-center justify-center">
+                      <span className="text-gray-600 font-bold text-xs px-1 text-center">
+                        {currentSettings.site_name || "dostumkitab.az"}
+                      </span>
+                    </div>
+                  )}
+                </button>
+              </div>
+
+              {/* Right - Auth and Cart */}
+              <div className="flex items-center space-x-2">
+                {/* Auth Button */}
+                {!isAuthenticated ? (
+                  <button
+                    onClick={() => onAuthClick("login")}
+                    className="text-gray-700 hover:text-blue-600 transition-colors"
+                  >
+                    <User className="h-[21px] w-[22px]" />
+                  </button>
+                ) : (
+                  <div className="relative" ref={userMenuRef}>
+                    <button
+                      onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                      className="text-gray-700 hover:text-blue-600 transition-colors"
+                    >
+                      <User className="h-[21px] w-[22px]" />
+                    </button>
+                    
+                    {isUserMenuOpen && (
+                      <div className="absolute top-full right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-50">
+                        <div className="p-2">
+                          <div className="px-3 py-2 text-sm text-gray-600 border-b border-gray-200 mb-2">
+                            Salam, {displayName}
+                          </div>
+                          <button
+                            onClick={() => {
+                              logout()
+                              setIsUserMenuOpen(false)
+                            }}
+                            className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded"
+                          >
+                            Çıxış
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Cart Button */}
+                <button 
+                  onClick={() => setIsCartOpen(true)}
+                  className="relative text-gray-700 hover:text-blue-600 transition-colors"
+                >
+                  <ShoppingCart className="h-[21px] w-[22px]" />
+                  
+                  {totalItems > 0 && (
+                    <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                      {totalItems}
+                    </div>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Bottom Row - Search Bar */}
+            <div className="pb-3">
+              <form onSubmit={(e) => {
+                e.preventDefault()
+                if (searchQuery.trim()) {
+                  router.push(`/search?query=${encodeURIComponent(searchQuery)}`)
+                }
+              }} className="w-full relative">
+                <div className="w-full relative">
+                  <input
+                    id="live-search"
+                    type="search"
+                    name="q"
+                    placeholder="Axtardığınız kitab, kateqoriya və ya müəllifi yazın..."
+                    className="w-full pl-6 pr-[100px] py-3 text-base border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500 placeholder:text-sm placeholder:italic"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    data-search="live-search"
+                    data-licence="1"
+                  />
+                  <button
+                    type="submit"
+                    className="absolute right-0 top-0 bottom-0 w-[100px] text-white text-sm font-medium uppercase transition-all duration-300 border-0 cursor-pointer hover:bg-[#0f3678]"
+                    style={{
+                      backgroundColor: '#13459A',
+                      borderRadius: '0 25px 25px 0',
+                      clipPath: 'polygon(25% 0, 100% 0, 100% 55%, 100% 100%, 0% 100%)',
+                      fontSize: '14px',
+                      fontWeight: '500'
+                    }}
+                    id="live-search-btn"
+                  >
+                    AXTAR
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Mobile Menu */}
+            {isMobileMenuOpen && (
+              <div className="absolute top-full left-0 right-0 bg-white border-2 border-blue-500 shadow-lg z-50 rounded-lg mx-2" style={{minHeight: '200px'}}>
+                <div className="px-4 py-6 space-y-6">
+                  {/* Mobile Navigation Links */}
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Səhifələr</h3>
+                    <div className="space-y-2">
+                      <Link 
+                        href="/"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="block px-3 py-3 text-base text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
+                      >
+                        Ana Səhifə
+                      </Link>
+                      <Link 
+                        href="/categories"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="block px-3 py-3 text-base text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
+                      >
+                        Kateqoriyalar
+                      </Link>
+                      <Link 
+                        href="/bestsellers"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="block px-3 py-3 text-base text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
+                      >
+                        Ən Çox Satılan
+                      </Link>
+                      <Link 
+                        href="/new-books"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="block px-3 py-3 text-base text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
+                      >
+                        Yeni Kitablar
+                      </Link>
+                      <Link 
+                        href="/discounts"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="block px-3 py-3 text-base text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
+                      >
+                        Endirimlər
+                      </Link>
+                    </div>
+                  </div>
+
+                  {/* Mobile Auth Buttons */}
+                  {!isAuthenticated && (
+                    <div className="pt-6 border-t border-gray-200">
+                      <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">Hesab</h3>
+                      <div className="space-y-3">
+                        <Button 
+                          variant="ghost" 
+                          size="lg" 
+                          onClick={() => {
+                            onAuthClick("login")
+                            setIsMobileMenuOpen(false)
+                          }} 
+                          className="w-full justify-start text-base px-4 py-3"
+                        >
+                          Giriş
+                        </Button>
+                        <Button 
+                          size="lg" 
+                          className="w-full justify-start bg-green-500 hover:bg-green-600 text-white text-base px-4 py-3"
+                          onClick={() => {
+                            onAuthClick("register")
+                            setIsMobileMenuOpen(false)
+                          }}
+                        >
+                          Qeydiyyat
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* User Info if authenticated */}
+                  {isAuthenticated && user && (
+                    <div className="pt-6 border-t border-gray-200">
+                      <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">Hesab</h3>
+                      <div className="px-3 py-3 bg-gray-50 rounded-md">
+                        <p className="text-base text-gray-900 font-medium">Salam, {displayName}</p>
+                      </div>
+                      <div className="mt-3">
+                        <Button 
+                          variant="ghost" 
+                          size="lg" 
+                          onClick={() => {
+                            logout()
+                            setIsMobileMenuOpen(false)
+                          }} 
+                          className="w-full justify-start text-base px-4 py-3 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          Çıxış
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
-      <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpenLocal(false)} />
+
     </>
   )
 }
