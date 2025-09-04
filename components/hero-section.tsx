@@ -22,10 +22,11 @@ export function HeroSection() {
   const [aspectRatio, setAspectRatio] = useState(16/9) // Default aspect ratio
 
   useEffect(() => {
-    console.log("HeroSection: Banner API call started")
-    console.log("HeroSection: API URL:", `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api"}/books/banners/`)
-    
-    api.getBanners()
+    if (typeof window !== 'undefined') {
+      console.log("HeroSection: Banner API call started")
+      console.log("HeroSection: API URL:", `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api"}/books/banners/`)
+      
+      api.getBanners()
       .then((response: any) => {
         console.log("HeroSection: API response:", response)
         console.log("HeroSection: Response type:", typeof response)
@@ -61,6 +62,7 @@ export function HeroSection() {
         setError(err.message)
         setLoading(false)
       })
+    }
   }, [])
 
   // Handle image load to calculate dynamic height

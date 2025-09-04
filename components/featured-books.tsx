@@ -63,7 +63,9 @@ export function FeaturedBooks() {
   }
 
   useEffect(() => {
-    fetchFeaturedBooks()
+    if (typeof window !== 'undefined') {
+      fetchFeaturedBooks()
+    }
   }, [])
 
   const fetchFeaturedBooks = async () => {

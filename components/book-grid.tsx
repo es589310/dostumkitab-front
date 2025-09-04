@@ -56,11 +56,15 @@ export function BookGrid({
   }, [categoryId])
 
   useEffect(() => {
-    fetchCategories()
+    if (typeof window !== 'undefined') {
+      fetchCategories()
+    }
   }, [])
 
   useEffect(() => {
-    fetchBooks()
+    if (typeof window !== 'undefined') {
+      fetchBooks()
+    }
   }, [selectedCategory, sortBy, internalSearchTerm, currentPage])
 
   const fetchCategories = async () => {
