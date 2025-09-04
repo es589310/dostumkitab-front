@@ -5,7 +5,7 @@ import api from "@/lib/api"
 
 interface Banner {
   id: number;
-  title: string;
+  title?: string;
   subtitle?: string;
   image?: string;
   imagekit_url?: string;
@@ -163,7 +163,7 @@ export function HeroSection() {
         {banners.map((banner, index) => (
           <div key={index} className="w-full h-full flex-shrink-0 relative">
             <img
-              alt={banner.title}
+              alt={banner.title || "Banner"}
               className="w-full h-full object-contain"
               src={banner.imagekit_url || banner.image}
               onLoad={handleImageLoad}
@@ -172,9 +172,11 @@ export function HeroSection() {
             <div className="absolute inset-0 bg-black bg-opacity-40"></div>
             <div className="absolute inset-0 flex items-center justify-center px-4">
               <div className="text-center text-white z-10 max-w-4xl mx-auto">
-                <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3 md:mb-4 leading-tight">
-                  {banner.title}
-                </h1>
+                {banner.title && (
+                  <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3 md:mb-4 leading-tight">
+                    {banner.title}
+                  </h1>
+                )}
                 {banner.subtitle && (
                   <p className="text-sm sm:text-base md:text-lg lg:text-xl mb-3 sm:mb-4 md:mb-6 opacity-90 leading-relaxed">
                     {banner.subtitle}
