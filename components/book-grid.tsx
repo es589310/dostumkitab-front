@@ -97,6 +97,9 @@ export function BookGrid({
 
       const response = await api.getBooks(params)
       console.log("Books API response:", response)
+      console.log("Books API response type:", typeof response)
+      console.log("Books API response keys:", Object.keys(response || {}))
+      console.log("Books API full response:", JSON.stringify(response, null, 2))
 
       if (response && Array.isArray(response.results)) {
         setBooks(response.results)

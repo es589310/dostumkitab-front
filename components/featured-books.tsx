@@ -85,6 +85,7 @@ export function FeaturedBooks() {
       console.log("FeaturedBooks: API response:", data)
       console.log("FeaturedBooks: Response type:", typeof data)
       console.log("FeaturedBooks: Response keys:", Object.keys(data || {}))
+      console.log("FeaturedBooks: Full response JSON:", JSON.stringify(data, null, 2))
 
       // Check API response
       if (Array.isArray(data)) {
@@ -101,7 +102,9 @@ export function FeaturedBooks() {
     } catch (error) {
       console.error("FeaturedBooks: Failed to fetch featured books:", error)
       console.error("FeaturedBooks: Error details:", error)
-      setError("Kitablar yüklənə bilmədi")
+      console.error("FeaturedBooks: Error message:", error.message)
+      console.error("FeaturedBooks: Error stack:", error.stack)
+      setError(`Kitablar yüklənə bilmədi: ${error.message}`)
       setBooks([])
     } finally {
       setIsLoading(false)
