@@ -269,7 +269,7 @@ export function BookGrid({
                   {/* Price */}
                   <div className="text-center mb-3">
                     <div className="flex items-center justify-center space-x-2">
-                      {book.original_price && book.original_price > book.price && (
+                      {book.original_price && parseFloat(book.original_price) > parseFloat(book.price) && (
                         <span className="text-xs text-gray-500 line-through">
                           {book.original_price}₼
                         </span>
