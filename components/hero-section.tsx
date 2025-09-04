@@ -18,6 +18,8 @@ export function HeroSection() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [bannerHeight, setBannerHeight] = useState(400) // Default height
+  const [aspectRatio, setAspectRatio] = useState(16/9) // Default aspect ratio
 
   useEffect(() => {
     console.log("HeroSection: Banner API call started")
@@ -60,6 +62,43 @@ export function HeroSection() {
         setLoading(false)
       })
   }, [])
+
+  // Handle image load to calculate dynamic height
+  const handleImageLoad = (event: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = event.currentTarget
+    const newAspectRatio = img.naturalWidth / img.naturalHeight
+    setAspectRatio(newAspectRatio)
+    
+    const containerWidth = window.innerWidth
+    
+    // Calculate height based on image aspect ratio and container width
+    const calculatedHeight = containerWidth / newAspectRatio
+    
+    // Set reasonable min/max heights
+    const minHeight = 250
+    const maxHeight = 600
+    const finalHeight = Math.max(minHeight, Math.min(maxHeight, calculatedHeight))
+    
+    setBannerHeight(finalHeight)
+  }
+
+  // Handle window resize to recalculate banner height
+  useEffect(() => {
+    const handleResize = () => {
+      if (banners.length > 0) {
+        // Recalculate height when window resizes
+        const containerWidth = window.innerWidth
+        const calculatedHeight = containerWidth / aspectRatio
+        const minHeight = 250
+        const maxHeight = 600
+        const finalHeight = Math.max(minHeight, Math.min(maxHeight, calculatedHeight))
+        setBannerHeight(finalHeight)
+      }
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [banners.length, aspectRatio])
 
   // Auto carousel
   useEffect(() => {
@@ -116,14 +155,18 @@ export function HeroSection() {
   }
 
   return (
-    <section className="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[500px] overflow-hidden">
+    <section 
+      className="relative w-full overflow-hidden"
+      style={{ height: `${bannerHeight}px` }}
+    >
       <div className="flex w-full h-full transition-transform duration-700 ease-in-out" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
         {banners.map((banner, index) => (
           <div key={index} className="w-full h-full flex-shrink-0 relative">
             <img
               alt={banner.title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
               src={banner.imagekit_url || banner.image}
+              onLoad={handleImageLoad}
             />
             <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 hidden"></div>
             <div className="absolute inset-0 bg-black bg-opacity-40"></div>
