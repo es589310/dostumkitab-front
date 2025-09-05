@@ -166,14 +166,14 @@ export function HeroSection() {
           <div key={index} className="w-full h-full flex-shrink-0 relative">
             <img
               alt={banner.title || "Banner"}
-              className="w-full h-full object-contain"
+              className="w-full h-full object-cover"
               src={banner.imagekit_url || banner.image}
               onLoad={handleImageLoad}
             />
             <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 hidden"></div>
-            <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+            <div className="absolute inset-0 bg-black bg-opacity-10"></div>
             <div className="absolute inset-0 flex items-center justify-center px-4">
-              <div className="text-center text-white z-10 max-w-4xl mx-auto">
+              <div className="text-center text-white z-10 max-w-4xl mx-auto bg-black bg-opacity-30 rounded-lg p-4 sm:p-6">
                 {banner.title && (
                   <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3 md:mb-4 leading-tight">
                     {banner.title}
