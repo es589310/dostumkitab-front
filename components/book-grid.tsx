@@ -216,7 +216,7 @@ export function BookGrid({
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
           {Array.isArray(books) &&
             books.map((book) => (
-              <div key={book.id} className="group bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden">
+              <div key={book.id} className="group bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden h-80 flex flex-col">
                 {/* Image Container */}
                 <div className="relative p-3 pb-2">
                   <Link href={`/book/${book.slug}`} className="block">
@@ -249,7 +249,7 @@ export function BookGrid({
                 </div>
 
                 {/* Content */}
-                <div className="px-3 pb-3">
+                <div className="px-3 pb-3 flex-1 flex flex-col justify-between">
                   {/* Publisher */}
                   <div className="text-center mb-2">
                     <span className="text-xs font-medium text-gray-600">
@@ -260,7 +260,7 @@ export function BookGrid({
                   {/* Title */}
                   <div className="text-center mb-2">
                     <Link href={`/book/${book.slug}`} className="block">
-                      <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 leading-tight hover:text-blue-600 transition-colors">
+                      <h3 className="text-xs font-semibold text-gray-900 line-clamp-2 leading-tight hover:text-blue-600 transition-colors">
                         {book.title}
                       </h3>
                     </Link>
@@ -273,49 +273,52 @@ export function BookGrid({
                     </p>
                   </div>
 
-                  {/* Price */}
-                  <div className="text-center mb-3">
-                    <div className="flex items-center justify-center space-x-2">
-                      {book.original_price && parseFloat(book.original_price) > parseFloat(book.price) && (
-                        <span className="text-xs text-gray-500 line-through">
-                          {book.original_price}₼
+                  {/* Bottom Section - Price and Button */}
+                  <div className="mt-auto">
+                    {/* Price */}
+                    <div className="text-center mb-3">
+                      <div className="flex items-center justify-center space-x-2">
+                        {book.original_price && parseFloat(book.original_price) > parseFloat(book.price) && (
+                          <span className="text-xs text-gray-500 line-through">
+                            {book.original_price}₼
+                          </span>
+                        )}
+                        <span className="text-lg font-bold text-green-600">
+                          {book.price}₼
                         </span>
-                      )}
-                      <span className="text-lg font-bold text-green-600">
-                        {book.price}₼
-                      </span>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Add to Cart Button */}
-                  <Button 
-                    className={`w-full h-10 text-sm font-medium transition-all duration-200 ${
-                      (() => {
+                    {/* Add to Cart Button */}
+                    <Button 
+                      className={`w-full h-10 text-sm font-medium transition-all duration-200 ${
+                        (() => {
+                          const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                          const currentQuantity = currentCartItem?.quantity || 0
+                          const availableStock = book.stock_quantity - currentQuantity
+                          return availableStock > 0 ? 'bg-green-600 hover:bg-green-700 hover:shadow-md' : 'bg-gray-400 cursor-not-allowed'
+                        })()
+                      }`}
+                      onClick={() => handleAddToCart(book)}
+                      disabled={(() => {
                         const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
                         const currentQuantity = currentCartItem?.quantity || 0
                         const availableStock = book.stock_quantity - currentQuantity
-                        return availableStock > 0 ? 'bg-green-600 hover:bg-green-700 hover:shadow-md' : 'bg-gray-400 cursor-not-allowed'
-                      })()
-                    }`}
-                    onClick={() => handleAddToCart(book)}
-                    disabled={(() => {
-                      const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
-                      const currentQuantity = currentCartItem?.quantity || 0
-                      const availableStock = book.stock_quantity - currentQuantity
-                      return availableStock <= 0
-                    })()}
-                  >
-                    <ShoppingCart className="h-4 w-4 mr-2" />
-                    {(() => {
-                      const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
-                      const currentQuantity = currentCartItem?.quantity || 0
-                      const availableStock = book.stock_quantity - currentQuantity
-                      if (availableStock <= 0) {
-                        return "Stokda Yoxdur"
-                      }
-                      return "Səbətə At"
-                    })()}
-                  </Button>
+                        return availableStock <= 0
+                      })()}
+                    >
+                      <ShoppingCart className="h-4 w-4 mr-2" />
+                      {(() => {
+                        const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                        const currentQuantity = currentCartItem?.quantity || 0
+                        const availableStock = book.stock_quantity - currentQuantity
+                        if (availableStock <= 0) {
+                          return "Stokda Yoxdur"
+                        }
+                        return "Səbətə At"
+                      })()}
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))}
