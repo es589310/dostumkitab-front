@@ -18,7 +18,7 @@ export function HeroSection() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [bannerHeight, setBannerHeight] = useState(400) // Default height
+  const [bannerHeight, setBannerHeight] = useState(120) // Default height for mobile
   const [aspectRatio, setAspectRatio] = useState(16/9) // Default aspect ratio
 
   useEffect(() => {
@@ -76,11 +76,23 @@ export function HeroSection() {
     // Calculate height based on image aspect ratio and container width
     const calculatedHeight = containerWidth / newAspectRatio
     
-    // Set reasonable min/max heights
-    const minHeight = 250
-    const maxHeight = 600
-    const finalHeight = Math.max(minHeight, Math.min(maxHeight, calculatedHeight))
+    // Responsive min/max heights based on screen size
+    let minHeight, maxHeight
+    if (containerWidth < 640) { // Mobile - geniş şəkillər üçün çox kiçik hündürlük
+      minHeight = 120
+      maxHeight = 150
+    } else if (containerWidth < 768) { // Small tablet
+      minHeight = 250
+      maxHeight = 350
+    } else if (containerWidth < 1024) { // Tablet
+      minHeight = 300
+      maxHeight = 450
+    } else { // Desktop
+      minHeight = 350
+      maxHeight = 600
+    }
     
+    const finalHeight = Math.max(minHeight, Math.min(maxHeight, calculatedHeight))
     setBannerHeight(finalHeight)
   }
 
@@ -91,8 +103,23 @@ export function HeroSection() {
         // Recalculate height when window resizes
         const containerWidth = window.innerWidth
         const calculatedHeight = containerWidth / aspectRatio
-        const minHeight = 250
-        const maxHeight = 600
+        
+        // Responsive min/max heights based on screen size
+        let minHeight, maxHeight
+        if (containerWidth < 640) { // Mobile - geniş şəkillər üçün çox kiçik hündürlük
+          minHeight = 120
+          maxHeight = 150
+        } else if (containerWidth < 768) { // Small tablet
+          minHeight = 250
+          maxHeight = 350
+        } else if (containerWidth < 1024) { // Tablet
+          minHeight = 300
+          maxHeight = 450
+        } else { // Desktop
+          minHeight = 350
+          maxHeight = 600
+        }
+        
         const finalHeight = Math.max(minHeight, Math.min(maxHeight, calculatedHeight))
         setBannerHeight(finalHeight)
       }
@@ -127,7 +154,7 @@ export function HeroSection() {
 
   if (loading) {
     return (
-      <div className="relative w-full h-[400px] flex items-center justify-center bg-gray-100">
+      <div className="relative w-full h-[120px] sm:h-[250px] md:h-[300px] lg:h-[400px] flex items-center justify-center bg-gray-100">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Banner yüklənir...</p>
@@ -138,7 +165,7 @@ export function HeroSection() {
 
   if (error) {
     return (
-      <div className="relative w-full h-[400px] flex items-center justify-center bg-gray-100">
+      <div className="relative w-full h-[120px] sm:h-[250px] md:h-[300px] lg:h-[400px] flex items-center justify-center bg-gray-100">
         <div className="text-center">
           <p className="text-gray-600">Banner yüklənərkən xəta baş verdi</p>
         </div>
@@ -148,7 +175,7 @@ export function HeroSection() {
 
   if (banners.length === 0) {
     return (
-      <div className="relative w-full h-[300px] sm:h-[350px] md:h-[400px] flex items-center justify-center bg-gray-100">
+      <div className="relative w-full h-[120px] sm:h-[250px] md:h-[300px] lg:h-[400px] flex items-center justify-center bg-gray-100">
         <div className="text-center text-gray-600 text-sm sm:text-base">
           <p>Banner tapılmadı</p>
         </div>
