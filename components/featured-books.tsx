@@ -179,9 +179,9 @@ export function FeaturedBooks() {
           </p>
         </div>
         
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 auto-rows-fr">
           {books.map((book) => (
-            <div key={book.id} className="group bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden h-80 flex flex-col">
+            <div key={book.id} className="group bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col h-full">
               {/* Image Container */}
               <div className="relative p-3 pb-2">
                 <Link href={`/book/${book.slug}`} className="block">
@@ -213,7 +213,7 @@ export function FeaturedBooks() {
               </div>
 
               {/* Content */}
-              <div className="px-3 pb-3 flex-1 flex flex-col justify-between">
+              <div className="px-3 pb-3 flex-1 flex flex-col">
                 {/* Publisher */}
                 <div className="text-center mb-2">
                   <span className="text-xs font-medium text-gray-600">
@@ -222,9 +222,9 @@ export function FeaturedBooks() {
                 </div>
 
                 {/* Title */}
-                <div className="text-center mb-2">
-                  <Link href={`/book/${book.slug}`} className="block">
-                    <h3 className="text-xs font-semibold text-gray-900 line-clamp-2 leading-tight hover:text-blue-600 transition-colors">
+                <div className="text-center mb-2 flex-1 flex items-center justify-center">
+                  <Link href={`/book/${book.slug}`} className="block w-full">
+                    <h3 className="text-xs font-semibold text-gray-900 line-clamp-3 leading-tight hover:text-blue-600 transition-colors min-h-[3rem] flex items-center justify-center">
                       {book.title}
                     </h3>
                   </Link>
