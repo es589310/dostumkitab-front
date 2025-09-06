@@ -76,10 +76,23 @@ export function BookGrid({
         // Bölmənin başlığına scroll et
         const titleElement = allBooksSection.querySelector('h2')
         if (titleElement) {
-          titleElement.scrollIntoView({ 
-            behavior: 'smooth',
-            block: 'start'
-          })
+          // Mobil cihazlar üçün daha dəqiq scroll
+          try {
+            const rect = titleElement.getBoundingClientRect()
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+            const targetPosition = rect.top + scrollTop - 20 // 20px yuxarıdan boşluq
+            
+            window.scrollTo({
+              top: Math.max(0, targetPosition), // Mənfi dəyərləri qarşısını al
+              behavior: 'smooth'
+            })
+          } catch (error) {
+            // Əgər getBoundingClientRect işləmirsə, sadə scrollIntoView istifadə et
+            titleElement.scrollIntoView({ 
+              behavior: 'smooth',
+              block: 'start'
+            })
+          }
         } else {
           allBooksSection.scrollIntoView({ 
             behavior: 'smooth',
@@ -360,7 +373,8 @@ export function BookGrid({
               variant="outline"
               onClick={() => {
                 setCurrentPage(Math.max(currentPage - 1, 1))
-                scrollToBooksSection()
+                // Kiçik gecikmə ilə scroll et (mobil cihazlar üçün)
+                setTimeout(() => scrollToBooksSection(), 100)
               }}
               disabled={currentPage === 1}
               className="px-4 py-2"
@@ -374,7 +388,8 @@ export function BookGrid({
               variant="outline"
               onClick={() => {
                 setCurrentPage(Math.min(currentPage + 1, totalPages))
-                scrollToBooksSection()
+                // Kiçik gecikmə ilə scroll et (mobil cihazlar üçün)
+                setTimeout(() => scrollToBooksSection(), 100)
               }}
               disabled={currentPage === totalPages}
               className="px-4 py-2"
