@@ -67,10 +67,9 @@ export function BookGrid({
     }
   }, [selectedCategory, sortBy, internalSearchTerm, currentPage])
 
-  // Səhifə dəyişdikdə scroll-u yuxarıya apar
-  useEffect(() => {
+  // Pagination butonlarına basdıqda scroll-u yuxarıya apar
+  const scrollToBooksSection = () => {
     if (typeof window !== 'undefined') {
-      // "Bütün Kitablar" bölməsinin başlanğıcını tap
       const allBooksSection = document.getElementById('all-books-section')
       if (allBooksSection) {
         allBooksSection.scrollIntoView({ 
@@ -79,7 +78,7 @@ export function BookGrid({
         })
       }
     }
-  }, [currentPage])
+  }
 
   const fetchCategories = async () => {
     try {
@@ -349,7 +348,10 @@ export function BookGrid({
           <div className="flex justify-center items-center mt-8 space-x-2">
             <Button
               variant="outline"
-              onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
+              onClick={() => {
+                setCurrentPage(Math.max(currentPage - 1, 1))
+                scrollToBooksSection()
+              }}
               disabled={currentPage === 1}
               className="px-4 py-2"
             >
@@ -360,7 +362,10 @@ export function BookGrid({
             </span>
             <Button
               variant="outline"
-              onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
+              onClick={() => {
+                setCurrentPage(Math.min(currentPage + 1, totalPages))
+                scrollToBooksSection()
+              }}
               disabled={currentPage === totalPages}
               className="px-4 py-2"
             >
