@@ -70,12 +70,22 @@ export function BookGrid({
   // Pagination butonlarına basdıqda scroll-u yuxarıya apar
   const scrollToBooksSection = () => {
     if (typeof window !== 'undefined') {
+      // Ana səhifədəki "Bütün Kitablar" bölməsinin başlığını tap
       const allBooksSection = document.getElementById('all-books-section')
       if (allBooksSection) {
-        allBooksSection.scrollIntoView({ 
-          behavior: 'smooth',
-          block: 'start'
-        })
+        // Bölmənin başlığına scroll et
+        const titleElement = allBooksSection.querySelector('h2')
+        if (titleElement) {
+          titleElement.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          })
+        } else {
+          allBooksSection.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          })
+        }
       }
     }
   }
@@ -185,7 +195,7 @@ export function BookGrid({
   }
 
   return (
-    <section id="all-books-section" className="py-8">
+    <section className="py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8">
