@@ -64,12 +64,10 @@ export function getMediaUrl(path: string | null | undefined): string {
     return fullUrl
   }
   
-  // Əgər ImageKit ID-dirsə, ImageKit URL-ini yarat
+  // Əgər ImageKit URL-dirsə, onu olduğu kimi qaytar
   if (path.includes('imagekit') || path.includes('ik.imagekit.io')) {
-    const imagekitUrl = process.env.NEXT_PUBLIC_IMAGEKIT_URL || 'https://ik.imagekit.io/g51py75hl'
-    const fullUrl = `${imagekitUrl}/books/covers/${path}`
-    console.log('🖼️ ImageKit path, full URL:', fullUrl)
-    return fullUrl
+    console.log('🖼️ ImageKit URL detected, returning as is:', path)
+    return path
   }
   
   // Əgər heç biri deyilsə, placeholder qaytar

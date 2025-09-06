@@ -5,7 +5,7 @@ import api from "@/lib/api"
 
 interface Banner {
   id: number;
-  title: string;
+  title?: string;
   subtitle?: string;
   image?: string;
   imagekit_url?: string;
@@ -18,12 +18,15 @@ export function HeroSection() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [bannerHeight, setBannerHeight] = useState(120) // Default height for mobile
+  const [aspectRatio, setAspectRatio] = useState(16/9) // Default aspect ratio
 
   useEffect(() => {
-    console.log("HeroSection: Banner API call started")
-    console.log("HeroSection: API URL:", `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api"}/books/banners/`)
-    
-    api.getBanners()
+    if (typeof window !== 'undefined') {
+      console.log("HeroSection: Banner API call started")
+      console.log("HeroSection: API URL:", `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api"}/books/banners/`)
+      
+      api.getBanners()
       .then((response: any) => {
         console.log("HeroSection: API response:", response)
         console.log("HeroSection: Response type:", typeof response)
@@ -59,7 +62,72 @@ export function HeroSection() {
         setError(err.message)
         setLoading(false)
       })
+    }
   }, [])
+
+  // Handle image load to calculate dynamic height
+  const handleImageLoad = (event: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = event.currentTarget
+    const newAspectRatio = img.naturalWidth / img.naturalHeight
+    setAspectRatio(newAspectRatio)
+    
+    const containerWidth = window.innerWidth
+    
+    // Calculate height based on image aspect ratio and container width
+    const calculatedHeight = containerWidth / newAspectRatio
+    
+    // Responsive min/max heights based on screen size
+    let minHeight, maxHeight
+    if (containerWidth < 640) { // Mobile - geniş şəkillər üçün çox kiçik hündürlük
+      minHeight = 120
+      maxHeight = 150
+    } else if (containerWidth < 768) { // Small tablet
+      minHeight = 250
+      maxHeight = 350
+    } else if (containerWidth < 1024) { // Tablet
+      minHeight = 300
+      maxHeight = 450
+    } else { // Desktop
+      minHeight = 350
+      maxHeight = 600
+    }
+    
+    const finalHeight = Math.max(minHeight, Math.min(maxHeight, calculatedHeight))
+    setBannerHeight(finalHeight)
+  }
+
+  // Handle window resize to recalculate banner height
+  useEffect(() => {
+    const handleResize = () => {
+      if (banners.length > 0) {
+        // Recalculate height when window resizes
+        const containerWidth = window.innerWidth
+        const calculatedHeight = containerWidth / aspectRatio
+        
+        // Responsive min/max heights based on screen size
+        let minHeight, maxHeight
+        if (containerWidth < 640) { // Mobile - geniş şəkillər üçün çox kiçik hündürlük
+          minHeight = 120
+          maxHeight = 150
+        } else if (containerWidth < 768) { // Small tablet
+          minHeight = 250
+          maxHeight = 350
+        } else if (containerWidth < 1024) { // Tablet
+          minHeight = 300
+          maxHeight = 450
+        } else { // Desktop
+          minHeight = 350
+          maxHeight = 600
+        }
+        
+        const finalHeight = Math.max(minHeight, Math.min(maxHeight, calculatedHeight))
+        setBannerHeight(finalHeight)
+      }
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [banners.length, aspectRatio])
 
   // Auto carousel
   useEffect(() => {
@@ -86,7 +154,7 @@ export function HeroSection() {
 
   if (loading) {
     return (
-      <div className="relative w-full h-[400px] flex items-center justify-center bg-gray-100">
+      <div className="relative w-full h-[120px] sm:h-[250px] md:h-[300px] lg:h-[400px] flex items-center justify-center bg-gray-100">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Banner yüklənir...</p>
@@ -97,7 +165,7 @@ export function HeroSection() {
 
   if (error) {
     return (
-      <div className="relative w-full h-[400px] flex items-center justify-center bg-gray-100">
+      <div className="relative w-full h-[120px] sm:h-[250px] md:h-[300px] lg:h-[400px] flex items-center justify-center bg-gray-100">
         <div className="text-center">
           <p className="text-gray-600">Banner yüklənərkən xəta baş verdi</p>
         </div>
@@ -107,7 +175,7 @@ export function HeroSection() {
 
   if (banners.length === 0) {
     return (
-      <div className="relative w-full h-[300px] sm:h-[350px] md:h-[400px] flex items-center justify-center bg-gray-100">
+      <div className="relative w-full h-[120px] sm:h-[250px] md:h-[300px] lg:h-[400px] flex items-center justify-center bg-gray-100">
         <div className="text-center text-gray-600 text-sm sm:text-base">
           <p>Banner tapılmadı</p>
         </div>
@@ -116,22 +184,28 @@ export function HeroSection() {
   }
 
   return (
-    <section className="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[500px] overflow-hidden">
+    <section 
+      className="relative w-full overflow-hidden"
+      style={{ height: `${bannerHeight}px` }}
+    >
       <div className="flex w-full h-full transition-transform duration-700 ease-in-out" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
         {banners.map((banner, index) => (
           <div key={index} className="w-full h-full flex-shrink-0 relative">
             <img
-              alt={banner.title}
+              alt={banner.title || "Banner"}
               className="w-full h-full object-cover"
               src={banner.imagekit_url || banner.image}
+              onLoad={handleImageLoad}
             />
             <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 hidden"></div>
-            <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+            <div className="absolute inset-0 bg-black bg-opacity-10"></div>
             <div className="absolute inset-0 flex items-center justify-center px-4">
-              <div className="text-center text-white z-10 max-w-4xl mx-auto">
-                <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3 md:mb-4 leading-tight">
-                  {banner.title}
-                </h1>
+              <div className="text-center text-white z-10 max-w-4xl mx-auto" style={{textShadow: '2px 2px 4px rgba(0,0,0,0.8)'}}>
+                {banner.title && (
+                  <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3 md:mb-4 leading-tight">
+                    {banner.title}
+                  </h1>
+                )}
                 {banner.subtitle && (
                   <p className="text-sm sm:text-base md:text-lg lg:text-xl mb-3 sm:mb-4 md:mb-6 opacity-90 leading-relaxed">
                     {banner.subtitle}

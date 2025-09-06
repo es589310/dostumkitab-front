@@ -56,12 +56,52 @@ export function BookGrid({
   }, [categoryId])
 
   useEffect(() => {
-    fetchCategories()
+    if (typeof window !== 'undefined') {
+      fetchCategories()
+    }
   }, [])
 
   useEffect(() => {
-    fetchBooks()
+    if (typeof window !== 'undefined') {
+      fetchBooks()
+    }
   }, [selectedCategory, sortBy, internalSearchTerm, currentPage])
+
+  // Pagination butonlarına basdıqda scroll-u yuxarıya apar
+  const scrollToBooksSection = () => {
+    if (typeof window !== 'undefined') {
+      // Ana səhifədəki "Bütün Kitablar" bölməsinin başlığını tap
+      const allBooksSection = document.getElementById('all-books-section')
+      if (allBooksSection) {
+        // Bölmənin başlığına scroll et
+        const titleElement = allBooksSection.querySelector('h2')
+        if (titleElement) {
+          // Mobil cihazlar üçün daha dəqiq scroll
+          try {
+            const rect = titleElement.getBoundingClientRect()
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+            const targetPosition = rect.top + scrollTop - 20 // 20px yuxarıdan boşluq
+            
+            window.scrollTo({
+              top: Math.max(0, targetPosition), // Mənfi dəyərləri qarşısını al
+              behavior: 'smooth'
+            })
+          } catch (error) {
+            // Əgər getBoundingClientRect işləmirsə, sadə scrollIntoView istifadə et
+            titleElement.scrollIntoView({ 
+              behavior: 'smooth',
+              block: 'start'
+            })
+          }
+        } else {
+          allBooksSection.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          })
+        }
+      }
+    }
+  }
 
   const fetchCategories = async () => {
     try {
@@ -93,6 +133,9 @@ export function BookGrid({
 
       const response = await api.getBooks(params)
       console.log("Books API response:", response)
+      console.log("Books API response type:", typeof response)
+      console.log("Books API response keys:", Object.keys(response || {}))
+      console.log("Books API full response:", JSON.stringify(response, null, 2))
 
       if (response && Array.isArray(response.results)) {
         setBooks(response.results)
@@ -206,10 +249,10 @@ export function BookGrid({
         </div>
 
         {/* Books Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 auto-rows-fr">
           {Array.isArray(books) &&
             books.map((book) => (
-              <div key={book.id} className="group bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden">
+              <div key={book.id} className="group bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col h-full">
                 {/* Image Container */}
                 <div className="relative p-3 pb-2">
                   <Link href={`/book/${book.slug}`} className="block">
@@ -242,7 +285,7 @@ export function BookGrid({
                 </div>
 
                 {/* Content */}
-                <div className="px-3 pb-3">
+                <div className="px-3 pb-3 flex-1 flex flex-col">
                   {/* Publisher */}
                   <div className="text-center mb-2">
                     <span className="text-xs font-medium text-gray-600">
@@ -251,9 +294,9 @@ export function BookGrid({
                   </div>
 
                   {/* Title */}
-                  <div className="text-center mb-2">
-                    <Link href={`/book/${book.slug}`} className="block">
-                      <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 leading-tight hover:text-blue-600 transition-colors">
+                  <div className="text-center mb-2 flex-1 flex items-center justify-center">
+                    <Link href={`/book/${book.slug}`} className="block w-full">
+                      <h3 className="text-xs font-semibold text-gray-900 line-clamp-3 leading-tight hover:text-blue-600 transition-colors min-h-[3rem] flex items-center justify-center">
                         {book.title}
                       </h3>
                     </Link>
@@ -266,49 +309,52 @@ export function BookGrid({
                     </p>
                   </div>
 
-                  {/* Price */}
-                  <div className="text-center mb-3">
-                    <div className="flex items-center justify-center space-x-2">
-                      {book.original_price && book.original_price > book.price && (
-                        <span className="text-xs text-gray-500 line-through">
-                          {book.original_price}₼
+                  {/* Bottom Section - Price and Button */}
+                  <div className="mt-auto">
+                    {/* Price */}
+                    <div className="text-center mb-3">
+                      <div className="flex items-center justify-center space-x-2">
+                        {book.original_price && parseFloat(book.original_price) > parseFloat(book.price) && (
+                          <span className="text-xs text-gray-500 line-through">
+                            {book.original_price}₼
+                          </span>
+                        )}
+                        <span className="text-lg font-bold text-green-600">
+                          {book.price}₼
                         </span>
-                      )}
-                      <span className="text-lg font-bold text-green-600">
-                        {book.price}₼
-                      </span>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Add to Cart Button */}
-                  <Button 
-                    className={`w-full h-10 text-sm font-medium transition-all duration-200 ${
-                      (() => {
+                    {/* Add to Cart Button */}
+                    <Button 
+                      className={`w-full h-10 text-sm font-medium transition-all duration-200 ${
+                        (() => {
+                          const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                          const currentQuantity = currentCartItem?.quantity || 0
+                          const availableStock = book.stock_quantity - currentQuantity
+                          return availableStock > 0 ? 'bg-green-600 hover:bg-green-700 hover:shadow-md' : 'bg-gray-400 cursor-not-allowed'
+                        })()
+                      }`}
+                      onClick={() => handleAddToCart(book)}
+                      disabled={(() => {
                         const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
                         const currentQuantity = currentCartItem?.quantity || 0
                         const availableStock = book.stock_quantity - currentQuantity
-                        return availableStock > 0 ? 'bg-green-600 hover:bg-green-700 hover:shadow-md' : 'bg-gray-400 cursor-not-allowed'
-                      })()
-                    }`}
-                    onClick={() => handleAddToCart(book)}
-                    disabled={(() => {
-                      const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
-                      const currentQuantity = currentCartItem?.quantity || 0
-                      const availableStock = book.stock_quantity - currentQuantity
-                      return availableStock <= 0
-                    })()}
-                  >
-                    <ShoppingCart className="h-4 w-4 mr-2" />
-                    {(() => {
-                      const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
-                      const currentQuantity = currentCartItem?.quantity || 0
-                      const availableStock = book.stock_quantity - currentQuantity
-                      if (availableStock <= 0) {
-                        return "Stokda Yoxdur"
-                      }
-                      return "Səbətə At"
-                    })()}
-                  </Button>
+                        return availableStock <= 0
+                      })()}
+                    >
+                      <ShoppingCart className="h-4 w-4 mr-2" />
+                      {(() => {
+                        const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                        const currentQuantity = currentCartItem?.quantity || 0
+                        const availableStock = book.stock_quantity - currentQuantity
+                        if (availableStock <= 0) {
+                          return "Stokda Yoxdur"
+                        }
+                        return "Səbətə At"
+                      })()}
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -325,7 +371,11 @@ export function BookGrid({
           <div className="flex justify-center items-center mt-8 space-x-2">
             <Button
               variant="outline"
-              onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
+              onClick={() => {
+                setCurrentPage(Math.max(currentPage - 1, 1))
+                // Kiçik gecikmə ilə scroll et (mobil cihazlar üçün)
+                setTimeout(() => scrollToBooksSection(), 100)
+              }}
               disabled={currentPage === 1}
               className="px-4 py-2"
             >
@@ -336,7 +386,11 @@ export function BookGrid({
             </span>
             <Button
               variant="outline"
-              onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
+              onClick={() => {
+                setCurrentPage(Math.min(currentPage + 1, totalPages))
+                // Kiçik gecikmə ilə scroll et (mobil cihazlar üçün)
+                setTimeout(() => scrollToBooksSection(), 100)
+              }}
               disabled={currentPage === totalPages}
               className="px-4 py-2"
             >
