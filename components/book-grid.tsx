@@ -67,6 +67,20 @@ export function BookGrid({
     }
   }, [selectedCategory, sortBy, internalSearchTerm, currentPage])
 
+  // Səhifə dəyişdikdə scroll-u yuxarıya apar
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // "Bütün Kitablar" bölməsinin başlanğıcını tap
+      const allBooksSection = document.getElementById('all-books-section')
+      if (allBooksSection) {
+        allBooksSection.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        })
+      }
+    }
+  }, [currentPage])
+
   const fetchCategories = async () => {
     try {
       const data = await api.getCategories()
@@ -172,7 +186,7 @@ export function BookGrid({
   }
 
   return (
-    <section className="py-8">
+    <section id="all-books-section" className="py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8">
