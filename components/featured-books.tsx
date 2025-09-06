@@ -214,27 +214,13 @@ export function FeaturedBooks() {
 
               {/* Content */}
               <div className="px-3 pb-3 flex-1 flex flex-col">
-                {/* Publisher */}
-                <div className="text-center mb-2">
-                  <span className="text-xs font-medium text-gray-600">
-                    {book.publisher?.name || 'Nəşriyyat'}
-                  </span>
-                </div>
-
                 {/* Title */}
-                <div className="text-center mb-2 flex-1 flex items-center justify-center">
+                <div className="text-center mb-6 h-16 flex items-center justify-center">
                   <Link href={`/book/${book.slug}`} className="block w-full">
-                    <h3 className="text-xs font-semibold text-gray-900 line-clamp-3 leading-tight hover:text-blue-600 transition-colors min-h-[3rem] flex items-center justify-center">
+                    <h3 className="text-xs font-semibold text-gray-900 line-clamp-2 leading-tight hover:text-blue-600 transition-colors">
                       {book.title}
                     </h3>
                   </Link>
-                </div>
-
-                {/* Author */}
-                <div className="text-center mb-3">
-                  <p className="text-xs text-gray-600 line-clamp-1">
-                    {book.authors.map((author) => author.name).join(", ")}
-                  </p>
                 </div>
 
                 {/* Bottom Section - Price and Button */}
