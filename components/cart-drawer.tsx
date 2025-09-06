@@ -81,8 +81,6 @@ export default function CartDrawer() {
                     />
                     <div className="flex-1 min-w-0">
                       <h3 className="font-medium text-xs sm:text-sm line-clamp-2 leading-tight">{item.book.title}</h3>
-                      <p className="text-xs text-gray-600 line-clamp-1">{item.book.authors.map((a) => a.name).join(", ")}</p>
-                      <p className="text-xs text-gray-500 line-clamp-1">{item.book.publisher?.name || 'Nəşriyyat'}</p>
                       <p className="text-sm font-semibold text-green-600">{item.book.price}₼</p>
                     </div>
                     <div className="flex flex-col items-center space-y-2 flex-shrink-0">
