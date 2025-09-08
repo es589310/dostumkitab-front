@@ -1,12 +1,15 @@
 "use client"
 
+import { useState } from "react"
 import { useCart } from "@/contexts/cart-context"
 import { Button } from "@/components/ui/button"
 import { X, ShoppingBag, Plus, Minus } from "lucide-react"
 import { getMediaUrl } from "@/lib/utils"
+import { OrderConfirmation } from "@/components/order-confirmation"
 
 export default function CartDrawer() {
   const { shouldOpenCart, setShouldOpenCart, cart, updateItem, removeItem, getTotalPrice, loading } = useCart()
+  const [showOrderConfirmation, setShowOrderConfirmation] = useState(false)
 
   if (!shouldOpenCart) return null
 
@@ -30,6 +33,7 @@ export default function CartDrawer() {
   }
 
   return (
+    <>
     <div className="fixed inset-0 z-50 overflow-hidden">
       <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setShouldOpenCart(false)} />
       
@@ -131,10 +135,7 @@ export default function CartDrawer() {
               <Button 
                 className="w-full min-h-[44px] text-sm sm:text-base" 
                 size="lg"
-                onClick={() => {
-                  // Sifarişi tamamlama funksiyası burada olacaq
-                  console.log('Sifarişi tamamla')
-                }}
+                onClick={() => setShowOrderConfirmation(true)}
               >
                 Sifarişi Tamamla
               </Button>
@@ -143,5 +144,12 @@ export default function CartDrawer() {
         </div>
       </div>
     </div>
+
+    {/* Order Confirmation Modal */}
+    <OrderConfirmation 
+      isOpen={showOrderConfirmation}
+      onClose={() => setShowOrderConfirmation(false)}
+    />
+  </>
   )
 }

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import api, { type Book } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Star, ShoppingCart, ArrowLeft } from "lucide-react"
+import { Star, ShoppingCart, ArrowLeft, Phone } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import Link from "next/link"
 import { BookReviews } from "@/components/book-reviews"
@@ -18,7 +18,7 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
   const [book, setBook] = useState<Book | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const { addItem, cart } = useCart()
+  const { addItem, cart, orderSingleBook } = useCart()
 
   useEffect(() => {
     if (!slug) return
@@ -48,6 +48,25 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
       await addItem(book.id)
     } catch (error: any) {
       console.error("Səbətə əlavə edərkən xəta:", error)
+    }
+  }
+
+  const handleOrderSingleBook = async () => {
+    if (!book) return
+    
+    // Stok yoxlaması - səbətdəki miqdarı da nəzərə al
+    const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+    const currentQuantity = currentCartItem?.quantity || 0
+    const availableStock = book.stock_quantity - currentQuantity
+    
+    if (availableStock <= 0) {
+      return // Stokda yoxdursa heç nə etmə
+    }
+    
+    try {
+      await orderSingleBook(book)
+    } catch (error: any) {
+      console.error("Sifariş edərkən xəta:", error)
     }
   }
 
@@ -102,7 +121,7 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
         </div>
 
         {/* Book Details */}
-        <div className="space-y-6">
+        <div className="space-y-3">
           <div>
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">{book.title}</h1>
             <p className="text-sm sm:text-base md:text-lg text-gray-600 mb-4">
@@ -152,32 +171,61 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
           </div>
 
           {/* Add to Cart Button */}
-          <Button 
-            onClick={handleAddToCart} 
-            disabled={(() => {
-              const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
-              const currentQuantity = currentCartItem?.quantity || 0
-              const availableStock = book.stock_quantity - currentQuantity
-              return availableStock <= 0
-            })()}
-            className={`w-full h-9 sm:h-10 md:h-12 text-sm sm:text-base md:text-lg ${(() => {
-              const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
-              const currentQuantity = currentCartItem?.quantity || 0
-              const availableStock = book.stock_quantity - currentQuantity
-              return availableStock > 0 ? 'bg-green-600 hover:bg-green-700' : ''
-            })()}`}
-          >
-            <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 mr-2" />
-            {(() => {
-              const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
-              const currentQuantity = currentCartItem?.quantity || 0
-              const availableStock = book.stock_quantity - currentQuantity
-              if (availableStock <= 0) {
-                return "Stokda Yoxdur"
-              }
-              return "Səbətə At"
-            })()}
-          </Button>
+          {book.stock_quantity > 0 ? (
+            <Button 
+              onClick={handleAddToCart} 
+              disabled={(() => {
+                const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                const currentQuantity = currentCartItem?.quantity || 0
+                const availableStock = book.stock_quantity - currentQuantity
+                return availableStock <= 0
+              })()}
+              className={`w-full h-9 sm:h-10 md:h-12 text-sm sm:text-base md:text-lg ${(() => {
+                const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                const currentQuantity = currentCartItem?.quantity || 0
+                const availableStock = book.stock_quantity - currentQuantity
+                return availableStock > 0 ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed'
+              })()}`}
+            >
+              <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 mr-2" />
+              {(() => {
+                const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                const currentQuantity = currentCartItem?.quantity || 0
+                const availableStock = book.stock_quantity - currentQuantity
+                if (availableStock <= 0) {
+                  return "Stokda Yoxdur"
+                }
+                return "Səbətə At"
+              })()}
+            </Button>
+          ) : (
+            <div className="w-full h-9 sm:h-10 md:h-12 bg-gray-400 text-white rounded-md flex items-center justify-center text-sm sm:text-base md:text-lg cursor-not-allowed">
+              <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 mr-2" />
+              Stokda Yoxdur
+            </div>
+          )}
+
+          {/* Order Single Book Button */}
+          {(() => {
+            const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+            const currentQuantity = currentCartItem?.quantity || 0
+            const availableStock = book.stock_quantity - currentQuantity
+            
+            return (
+              <Button 
+                onClick={handleOrderSingleBook}
+                disabled={availableStock <= 0}
+                className={`w-full h-9 sm:h-10 md:h-12 text-sm sm:text-base md:text-lg ${
+                  availableStock > 0 
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                    : 'bg-blue-200 text-blue-400 cursor-not-allowed'
+                }`}
+              >
+                <Phone className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 mr-2" />
+                Sifariş Et
+              </Button>
+            )
+          })()}
 
           {/* Book Details */}
           <div className="space-y-4">

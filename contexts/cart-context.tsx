@@ -34,6 +34,7 @@ interface CartContextType {
   shouldOpenCart: boolean
   setShouldOpenCart: (shouldOpen: boolean) => void
   notification: { message: string; type: 'success' | 'error' } | null
+  orderSingleBook: (book: Book) => Promise<void>
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
@@ -239,6 +240,90 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return cart?.total_price || 0
   }
 
+  // Tək kitab sifarişi
+  const orderSingleBook = async (book: Book) => {
+    try {
+      // Stok yoxlaması
+      if (book.stock_quantity <= 0) {
+        toast({
+          title: "❌ Stokda Yoxdur",
+          description: "Bu kitab stokda bitib, sifariş edilə bilməz.",
+          variant: "destructive",
+        })
+        return
+      }
+
+      // Əvvəlcə kitabı səbətə əlavə et
+      await addItem(book.id, 1)
+      
+      // Kiçik gecikmə - səbətin yenilənməsini gözlə
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      // Create order in backend
+      const orderData = {
+        delivery_name: 'WhatsApp',
+        delivery_phone: '0000000000',
+        delivery_address_text: 'WhatsApp-də təyin ediləcək',
+        payment_method: 'cash',
+        notes: 'WhatsApp sifarişi - Tək kitab'
+      }
+      
+      const orderResponse = await api.createOrder(orderData)
+      console.log('Single book order created:', orderResponse)
+      
+      // Get WhatsApp number
+      const whatsappNumber = await api.getWhatsAppNumber()
+      const cleanWhatsAppNumber = whatsappNumber.whatsapp_number.replace(/[^0-9]/g, '')
+      
+      // Prepare WhatsApp message
+      const bookUrl = `${window.location.origin}/book/${book.slug}`
+      const authorsText = book.authors?.map((author) => author.name).join(", ") || "Məlumat yoxdur"
+      
+      const whatsappMessage = `Salam! Kitab sifarişi vermək istəyirəm.
+
+Sifariş məlumatları:
+
+Kitab: ${book.title}
+Miqdar: 1 ədəd
+Qiymət: ${book.price}₼
+Müəllif: ${authorsText}
+Link: ${bookUrl}
+
+Ümumi məbləğ: ${book.price}₼
+
+Təşəkkürlər!`
+      
+      // Encode message for WhatsApp
+      const encodedMessage = encodeURIComponent(whatsappMessage)
+      const whatsappUrl = `https://wa.me/${cleanWhatsAppNumber}?text=${encodedMessage}`
+      
+      console.log('📱 Single Book WhatsApp Message:', whatsappMessage)
+      console.log('🔗 Single Book WhatsApp URL:', whatsappUrl)
+      
+      // Redirect to WhatsApp
+      window.open(whatsappUrl, '_blank')
+      
+      // Show success notification
+      toast({
+        title: "🎉 Sifariş Uğurla Yaradıldı!",
+        description: "Sifarişiniz təsdiqləndi və WhatsApp-a yönləndirildiniz.",
+        variant: "success",
+      })
+      
+    } catch (error: any) {
+      console.error('Error creating single book order:', error)
+      
+      // Show error notification
+      toast({
+        title: "❌ Xəta Baş Verdi",
+        description: error.message || 'Sifariş yaradılarkən xəta baş verdi!',
+        variant: "destructive",
+      })
+      
+      throw error
+    }
+  }
+
   const value: CartContextType = {
     cart,
     loading,
@@ -253,6 +338,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     shouldOpenCart,
     setShouldOpenCart,
     notification,
+    orderSingleBook,
   }
 
   return (
