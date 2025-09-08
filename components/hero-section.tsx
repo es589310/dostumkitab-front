@@ -197,10 +197,8 @@ export function HeroSection() {
               src={banner.imagekit_url || banner.image}
               onLoad={handleImageLoad}
             />
-            <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 hidden"></div>
-            <div className="absolute inset-0 bg-black bg-opacity-10"></div>
             <div className="absolute inset-0 flex items-center justify-center px-4">
-              <div className="text-center text-white z-10 max-w-4xl mx-auto" style={{textShadow: '2px 2px 4px rgba(0,0,0,0.8)'}}>
+              <div className="text-center text-white z-10 max-w-4xl mx-auto" style={{textShadow: '3px 3px 6px rgba(0,0,0,0.9)'}}>
                 {banner.title && (
                   <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3 md:mb-4 leading-tight">
                     {banner.title}
