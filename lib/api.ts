@@ -165,7 +165,15 @@ class ApiClient {
   }
 
   async getCategories(): Promise<CategoriesResponse | Category[]> {
-    return this.request<CategoriesResponse | Category[]>('/books/categories/');
+    return this.request<CategoriesResponse | Category[]>('/books/categories/tree/');
+  }
+
+  async getCategory(categoryId: number): Promise<Category> {
+    return this.request<Category>(`/books/categories/${categoryId}/`);
+  }
+
+  async getBooksByCategory(categoryId: number): Promise<BookListResponse | Book[]> {
+    return this.request<BookListResponse | Book[]>(`/books/category/${categoryId}/`);
   }
 
   async getBookReviews(bookId: number) {
@@ -355,8 +363,15 @@ export interface Author {
 export interface Category {
   id: number;
   name: string;
+  slug?: string;
   description?: string;
   books_count?: number;
+  parent?: number;
+  parent_name?: string;
+  level?: number;
+  is_leaf?: boolean;
+  order?: number;
+  children?: Category[];
 }
 
 export interface Publisher {

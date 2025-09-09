@@ -8,8 +8,10 @@ import { ChevronDown, Search, Menu, X, User, ShoppingCart } from 'lucide-react'
 import { useAuth } from '@/contexts/auth-context'
 import { useCart } from '@/contexts/cart-context'
 import { useSiteSettings } from '@/hooks/useSiteSettings'
+import SocialMediaIcons from './social-media-icons'
 
 import { AuthModal } from './auth-modal'
+import { MobileCategoryAccordion } from './mobile-category-accordion'
 
 interface HeaderProps {
   onAuthClick: (mode: "login" | "register") => void
@@ -89,7 +91,76 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
 
   return (
     <>
-      <header className="bg-white shadow-sm border-b z-40 lg:fixed lg:top-0 lg:left-0 lg:right-0">
+      {/* Top Navigation Bar - Ən Çox Satılan, Yeni Kitablar, Endirimlər */}
+      <div className="bg-gray-50 border-b border-gray-200 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center justify-between py-2">
+            {/* Sol tərəf - Mətnlər */}
+            <nav className="flex items-center space-x-8">
+              <Link 
+                href="/bestsellers"
+                className="text-sm text-gray-600 hover:text-blue-600 transition-colors px-3 py-2 rounded-md hover:bg-gray-100 font-medium"
+              >
+                Ən Çox Satılan
+              </Link>
+              
+              <Link 
+                href="/new-books"
+                className="text-sm text-gray-600 hover:text-blue-600 transition-colors px-3 py-2 rounded-md hover:bg-gray-100 font-medium"
+              >
+                Yeni Kitablar
+              </Link>
+              
+              <Link 
+                href="/discounts"
+                className="text-sm text-gray-600 hover:text-blue-600 transition-colors px-3 py-2 rounded-md hover:bg-gray-100 font-medium"
+              >
+                Endirimlər
+              </Link>
+            </nav>
+
+            {/* Sağ tərəf - Sosial Media İkonları */}
+            <div className="flex items-center">
+              <SocialMediaIcons variant="navbar" />
+            </div>
+          </div>
+
+          {/* Mobile Navigation */}
+          <div className="lg:hidden flex items-center justify-between py-2">
+            {/* Sol tərəf - Mətnlər */}
+            <nav className="flex items-center space-x-2">
+              <Link 
+                href="/bestsellers"
+                className="text-[10px] text-gray-600 hover:text-blue-600 transition-colors px-1 py-1 rounded-md hover:bg-gray-100 font-medium"
+              >
+                Ən Çox Satılan
+              </Link>
+              
+              <Link 
+                href="/new-books"
+                className="text-[10px] text-gray-600 hover:text-blue-600 transition-colors px-1 py-1 rounded-md hover:bg-gray-100 font-medium"
+              >
+                Yeni Kitablar
+              </Link>
+              
+              <Link 
+                href="/discounts"
+                className="text-[10px] text-gray-600 hover:text-blue-600 transition-colors px-1 py-1 rounded-md hover:bg-gray-100 font-medium"
+              >
+                Endirimlər
+              </Link>
+            </nav>
+
+            {/* Sağ tərəf - Sosial Media İkonları */}
+            <div className="flex items-center">
+              <SocialMediaIcons variant="navbar" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <header className="bg-white shadow-sm border-b z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Desktop Header */}
           <div className="hidden lg:flex items-center justify-between h-[100px]">
@@ -422,106 +493,106 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
               </form>
             </div>
 
-            {/* Mobile Menu */}
+            {/* Mobile Menu Drawer */}
             {isMobileMenuOpen && (
-              <div className="absolute top-full left-0 right-0 bg-white border-2 border-blue-500 shadow-lg z-50 rounded-lg mx-2" style={{minHeight: '200px'}}>
-                <div className="px-4 py-6 space-y-6">
-                  {/* Mobile Navigation Links */}
-                  <div className="space-y-3">
-                    <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Səhifələr</h3>
-                    <div className="space-y-2">
-                      <Link 
-                        href="/"
+              <>
+                {/* Backdrop */}
+                <div 
+                  className="fixed inset-0 bg-black bg-opacity-50 z-40"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                />
+                
+                {/* Drawer */}
+                <div className="fixed top-0 left-0 h-full w-80 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out">
+                  <div className="h-full flex flex-col">
+                    {/* Header */}
+                    <div className="bg-gray-100 p-4 border-b border-gray-200 flex items-center justify-between">
+                      <h2 className="text-lg font-bold text-blue-600 uppercase">Menyu</h2>
+                      <button
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className="block px-3 py-3 text-base text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
+                        className="p-2 hover:bg-gray-200 rounded-full transition-colors"
                       >
-                        Ana Səhifə
-                      </Link>
-                      <Link 
-                        href="/categories"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="block px-3 py-3 text-base text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
-                      >
-                        Kateqoriyalar
-                      </Link>
-                      <Link 
-                        href="/bestsellers"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="block px-3 py-3 text-base text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
-                      >
-                        Ən Çox Satılan
-                      </Link>
-                      <Link 
-                        href="/new-books"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="block px-3 py-3 text-base text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
-                      >
-                        Yeni Kitablar
-                      </Link>
-                      <Link 
-                        href="/discounts"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="block px-3 py-3 text-base text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
-                      >
-                        Endirimlər
-                      </Link>
+                        <X className="h-5 w-5" />
+                      </button>
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 overflow-y-auto">
+                      <div className="p-4 space-y-6">
+                        {/* Səhifələr */}
+                        <div className="space-y-3">
+                          <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Səhifələr</h3>
+                          <div className="space-y-2">
+                            <Link 
+                              href="/"
+                              onClick={() => setIsMobileMenuOpen(false)}
+                              className="block px-3 py-3 text-base text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
+                            >
+                              Ana Səhifə
+                            </Link>
+                            
+                            {/* Mobile Category Accordion */}
+                            <MobileCategoryAccordion onCategorySelect={onCategorySelect} onClose={() => setIsMobileMenuOpen(false)} />
+                          </div>
+                        </div>
+
+                        {/* Hesab */}
+                        {!isAuthenticated && (
+                          <div className="pt-6 border-t border-gray-200">
+                            <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">Hesab</h3>
+                            <div className="space-y-3">
+                              <Button 
+                                variant="ghost" 
+                                size="lg" 
+                                onClick={() => {
+                                  onAuthClick("login")
+                                  setIsMobileMenuOpen(false)
+                                }} 
+                                className="w-full justify-start text-base px-4 py-3"
+                              >
+                                Giriş
+                              </Button>
+                              <Button 
+                                size="lg" 
+                                className="w-full justify-start bg-green-500 hover:bg-green-600 text-white text-base px-4 py-3"
+                                onClick={() => {
+                                  onAuthClick("register")
+                                  setIsMobileMenuOpen(false)
+                                }}
+                              >
+                                Qeydiyyat
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* User Info if authenticated */}
+                        {isAuthenticated && user && (
+                          <div className="pt-6 border-t border-gray-200">
+                            <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">Hesab</h3>
+                            <div className="px-3 py-3 bg-gray-50 rounded-md">
+                              <p className="text-base text-gray-900 font-medium">Salam, {user.email}</p>
+                            </div>
+                            <div className="mt-3">
+                              <Button 
+                                variant="ghost" 
+                                size="lg" 
+                                onClick={() => {
+                                  logout()
+                                  setIsMobileMenuOpen(false)
+                                }} 
+                                className="w-full justify-start text-base px-4 py-3 text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                Çıxış
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-
-                  {/* Mobile Auth Buttons */}
-                  {!isAuthenticated && (
-                    <div className="pt-6 border-t border-gray-200">
-                      <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">Hesab</h3>
-                      <div className="space-y-3">
-                        <Button 
-                          variant="ghost" 
-                          size="lg" 
-                          onClick={() => {
-                            onAuthClick("login")
-                            setIsMobileMenuOpen(false)
-                          }} 
-                          className="w-full justify-start text-base px-4 py-3"
-                        >
-                          Giriş
-                        </Button>
-                        <Button 
-                          size="lg" 
-                          className="w-full justify-start bg-green-500 hover:bg-green-600 text-white text-base px-4 py-3"
-                          onClick={() => {
-                            onAuthClick("register")
-                            setIsMobileMenuOpen(false)
-                          }}
-                        >
-                          Qeydiyyat
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* User Info if authenticated */}
-                  {isAuthenticated && user && (
-                    <div className="pt-6 border-t border-gray-200">
-                      <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">Hesab</h3>
-                      <div className="px-3 py-3 bg-gray-50 rounded-md">
-                        <p className="text-base text-gray-900 font-medium">Salam, {displayName}</p>
-                      </div>
-                      <div className="mt-3">
-                        <Button 
-                          variant="ghost" 
-                          size="lg" 
-                          onClick={() => {
-                            logout()
-                            setIsMobileMenuOpen(false)
-                          }} 
-                          className="w-full justify-start text-base px-4 py-3 text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          Çıxış
-                        </Button>
-                      </div>
-                    </div>
-                  )}
                 </div>
-              </div>
+              </>
             )}
           </div>
         </div>
