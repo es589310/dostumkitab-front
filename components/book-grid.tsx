@@ -211,41 +211,55 @@ export function BookGrid({
     <section className="py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8">
-          <div className="flex-1">
-            <Input
-              placeholder="Kitab, müəllif və ya kateqoriya axtarın..."
-              value={internalSearchTerm}
-              onChange={handleSearchChange}
-              className="w-full"
-            />
+        <div className="flex flex-col sm:flex-row gap-3 mb-6 sm:mb-8">
+          {/* Axtarış Input - İkonlu */}
+          <div className="relative flex-1">
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg pointer-events-none z-20">
+                🔍
+              </span>
+              <Input
+                placeholder="Kitab, müəllif və ya kateqoriya axtarın..."
+                value={internalSearchTerm}
+                onChange={handleSearchChange}
+                className="pl-10 w-full bg-white focus:ring-blue-500 focus:border-blue-500 rounded-full h-10"
+              />
+            </div>
           </div>
-          <Select value={selectedCategory || "all"} onValueChange={handleCategoryChange}>
-            <SelectTrigger className="w-full sm:w-48">
-              <SelectValue placeholder="Kateqoriya" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Hamısı</SelectItem>
-              {Array.isArray(categories) &&
-                categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id.toString()}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
-          <Select value={sortBy} onValueChange={handleSortChange}>
-            <SelectTrigger className="w-full sm:w-48">
-              <SelectValue placeholder="Sırala" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="created_at">Yeni Əlavələr</SelectItem>
-              <SelectItem value="sales_count">Populyarlıq</SelectItem>
-              <SelectItem value="views_count">Ən Çox Baxılan</SelectItem>
-              <SelectItem value="price-low">Qiymət (Aşağı)</SelectItem>
-              <SelectItem value="price-high">Qiymət (Yüksək)</SelectItem>
-            </SelectContent>
-          </Select>
+          
+          {/* Kateqoriya Filter */}
+          <div className="w-full sm:w-48">
+            <Select value={selectedCategory || "all"} onValueChange={handleCategoryChange}>
+              <SelectTrigger className="w-full bg-white focus:ring-blue-500 focus:border-blue-500 rounded-full hover:bg-gray-50 h-10">
+                <SelectValue placeholder="Hamısı" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">📚 Hamısı</SelectItem>
+                {Array.isArray(categories) &&
+                  categories.map((category) => (
+                    <SelectItem key={category.id} value={category.id.toString()}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {/* Sıralama Filter */}
+          <div className="w-full sm:w-48">
+            <Select value={sortBy} onValueChange={handleSortChange}>
+              <SelectTrigger className="w-full bg-white focus:ring-blue-500 focus:border-blue-500 rounded-full hover:bg-gray-50 h-10">
+                <SelectValue placeholder="Yeni Əlavələr" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="created_at">🆕 Yeni Əlavələr</SelectItem>
+                <SelectItem value="sales_count">🔥 Populyarlıq</SelectItem>
+                <SelectItem value="views_count">👁️ Ən Çox Baxılan</SelectItem>
+                <SelectItem value="price-low">💰 Qiymət (Aşağı)</SelectItem>
+                <SelectItem value="price-high">💰 Qiymət (Yüksək)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* Books Grid */}
