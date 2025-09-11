@@ -91,7 +91,7 @@ Təşəkkürlər!`
       
       // Show success notification
       toast({
-        title: "🎉 Sifariş Uğurla Yaradıldı!",
+        title: "🎉 Sifarişiniz Uğurla Tamamlandı!",
         description: "Sifarişiniz təsdiqləndi və WhatsApp-a yönləndirildiniz.",
         variant: "success",
       })
