@@ -9,6 +9,7 @@ export function cn(...inputs: ClassValue[]) {
 export function getLanguageName(languageCode: string): string {
   const languageMap: { [key: string]: string } = {
     'az': 'Azərbaycan dili',
+    'az_ru': 'Azərbaycan və Rus dili',
     'tr': 'Türk dili',
     'ru': 'Rus dili',
     'ar': 'Ərəb dili',
@@ -27,7 +28,8 @@ export function getLanguageName(languageCode: string): string {
     'bn': 'Benqal dili',
     'th': 'Tay dili',
     'vi': 'Vyetnam dili',
-    'id': 'İndoneziya dili'
+    'id': 'İndoneziya dili',
+    'other': 'Digər'
   }
   
   return languageMap[languageCode] || languageCode

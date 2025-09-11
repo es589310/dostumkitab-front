@@ -91,35 +91,11 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
 
   return (
     <>
-      {/* Top Navigation Bar - Ən Çox Satılan, Yeni Kitablar, Endirimlər */}
+      {/* Top Navigation Bar - Sosial Media İkonları */}
       <div className="bg-gray-50 border-b border-gray-200 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center justify-between py-2">
-            {/* Sol tərəf - Mətnlər */}
-            <nav className="flex items-center space-x-8">
-              <Link 
-                href="/bestsellers"
-                className="text-sm text-gray-600 hover:text-blue-600 transition-colors px-3 py-2 rounded-md hover:bg-gray-100 font-medium"
-              >
-                Ən Çox Satılan
-              </Link>
-              
-              <Link 
-                href="/new-books"
-                className="text-sm text-gray-600 hover:text-blue-600 transition-colors px-3 py-2 rounded-md hover:bg-gray-100 font-medium"
-              >
-                Yeni Kitablar
-              </Link>
-              
-              <Link 
-                href="/discounts"
-                className="text-sm text-gray-600 hover:text-blue-600 transition-colors px-3 py-2 rounded-md hover:bg-gray-100 font-medium"
-              >
-                Endirimlər
-              </Link>
-            </nav>
-
+          <div className="hidden lg:flex items-center justify-end py-2">
             {/* Sağ tərəf - Sosial Media İkonları */}
             <div className="flex items-center">
               <SocialMediaIcons variant="navbar" />
@@ -127,31 +103,7 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
           </div>
 
           {/* Mobile Navigation */}
-          <div className="lg:hidden flex items-center justify-between py-2">
-            {/* Sol tərəf - Mətnlər */}
-            <nav className="flex items-center space-x-2">
-              <Link 
-                href="/bestsellers"
-                className="text-[10px] text-gray-600 hover:text-blue-600 transition-colors px-1 py-1 rounded-md hover:bg-gray-100 font-medium"
-              >
-                Ən Çox Satılan
-              </Link>
-              
-              <Link 
-                href="/new-books"
-                className="text-[10px] text-gray-600 hover:text-blue-600 transition-colors px-1 py-1 rounded-md hover:bg-gray-100 font-medium"
-              >
-                Yeni Kitablar
-              </Link>
-              
-              <Link 
-                href="/discounts"
-                className="text-[10px] text-gray-600 hover:text-blue-600 transition-colors px-1 py-1 rounded-md hover:bg-gray-100 font-medium"
-              >
-                Endirimlər
-              </Link>
-            </nav>
-
+          <div className="lg:hidden flex items-center justify-end py-2">
             {/* Sağ tərəf - Sosial Media İkonları */}
             <div className="flex items-center">
               <SocialMediaIcons variant="navbar" />

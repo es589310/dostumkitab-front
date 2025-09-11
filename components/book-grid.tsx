@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -33,8 +33,10 @@ export function BookGrid({
   const [selectedCategory, setSelectedCategory] = useState(categoryId)
   const [sortBy, setSortBy] = useState("created_at")
   const [internalSearchTerm, setInternalSearchTerm] = useState(searchTerm)
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [isSearching, setIsSearching] = useState(false)
 
   const { addItem, cart } = useCart()
   
@@ -61,11 +63,23 @@ export function BookGrid({
     }
   }, [])
 
+  // Debounce search term - 800ms gecikmə
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (internalSearchTerm !== debouncedSearchTerm) {
+        setDebouncedSearchTerm(internalSearchTerm)
+        setIsSearching(true)
+      }
+    }, 800)
+
+    return () => clearTimeout(timer)
+  }, [internalSearchTerm, debouncedSearchTerm])
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       fetchBooks()
     }
-  }, [selectedCategory, sortBy, internalSearchTerm, currentPage])
+  }, [selectedCategory, sortBy, debouncedSearchTerm, currentPage])
 
   // Pagination butonlarına basdıqda scroll-u yuxarıya apar
   const scrollToBooksSection = () => {
@@ -128,7 +142,7 @@ export function BookGrid({
         ordering: sortBy === "price-low" ? "price" : sortBy === "price-high" ? "-price" : `-${sortBy}`,
       }
 
-      if (internalSearchTerm) params.search = internalSearchTerm
+      if (debouncedSearchTerm) params.search = debouncedSearchTerm
       if (selectedCategory) params.category = selectedCategory
 
       const response = await api.getBooks(params)
@@ -149,12 +163,20 @@ export function BookGrid({
       setBooks([])
     } finally {
       setIsLoading(false)
+      setIsSearching(false)
     }
   }
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInternalSearchTerm(e.target.value)
+    const value = e.target.value
+    setInternalSearchTerm(value)
     setCurrentPage(1)
+    
+    // Əgər input boşdursa, dərhal axtarışı təmizlə
+    if (value === '') {
+      setDebouncedSearchTerm('')
+      setIsSearching(false)
+    }
   }
 
   const handleCategoryChange = (value: string) => {
@@ -211,41 +233,59 @@ export function BookGrid({
     <section className="py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8">
-          <div className="flex-1">
-            <Input
-              placeholder="Kitab, müəllif və ya kateqoriya axtarın..."
-              value={internalSearchTerm}
-              onChange={handleSearchChange}
-              className="w-full"
-            />
+        <div className="flex flex-col sm:flex-row gap-3 mb-6 sm:mb-8">
+          {/* Axtarış Input - İkonlu */}
+          <div className="relative flex-1">
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg pointer-events-none z-20">
+                {isSearching ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                ) : (
+                  "🔍"
+                )}
+              </span>
+              <Input
+                placeholder="Kitab, müəllif və ya kateqoriya axtarın..."
+                value={internalSearchTerm}
+                onChange={handleSearchChange}
+                className="pl-10 w-full bg-white focus:ring-blue-500 focus:border-blue-500 rounded-full h-10"
+              />
+            </div>
           </div>
-          <Select value={selectedCategory || "all"} onValueChange={handleCategoryChange}>
-            <SelectTrigger className="w-full sm:w-48">
-              <SelectValue placeholder="Kateqoriya" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Hamısı</SelectItem>
-              {Array.isArray(categories) &&
-                categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id.toString()}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
-          <Select value={sortBy} onValueChange={handleSortChange}>
-            <SelectTrigger className="w-full sm:w-48">
-              <SelectValue placeholder="Sırala" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="created_at">Yeni Əlavələr</SelectItem>
-              <SelectItem value="sales_count">Populyarlıq</SelectItem>
-              <SelectItem value="views_count">Ən Çox Baxılan</SelectItem>
-              <SelectItem value="price-low">Qiymət (Aşağı)</SelectItem>
-              <SelectItem value="price-high">Qiymət (Yüksək)</SelectItem>
-            </SelectContent>
-          </Select>
+          
+          {/* Kateqoriya Filter */}
+          <div className="w-full sm:w-48">
+            <Select value={selectedCategory || "all"} onValueChange={handleCategoryChange}>
+              <SelectTrigger className="w-full bg-white focus:ring-blue-500 focus:border-blue-500 rounded-full hover:bg-gray-50 h-10">
+                <SelectValue placeholder="Hamısı" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">📚 Hamısı</SelectItem>
+                {Array.isArray(categories) &&
+                  categories.map((category) => (
+                    <SelectItem key={category.id} value={category.id.toString()}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {/* Sıralama Filter */}
+          <div className="w-full sm:w-48">
+            <Select value={sortBy} onValueChange={handleSortChange}>
+              <SelectTrigger className="w-full bg-white focus:ring-blue-500 focus:border-blue-500 rounded-full hover:bg-gray-50 h-10">
+                <SelectValue placeholder="Yeni Əlavələr" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="created_at">🆕 Yeni Əlavələr</SelectItem>
+                <SelectItem value="sales_count">🔥 Populyarlıq</SelectItem>
+                <SelectItem value="views_count">👁️ Ən Çox Baxılan</SelectItem>
+                <SelectItem value="price-low">💰 Qiymət (Aşağı)</SelectItem>
+                <SelectItem value="price-high">💰 Qiymət (Yüksək)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* Books Grid */}
