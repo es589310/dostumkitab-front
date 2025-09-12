@@ -5,7 +5,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { X } from "lucide-react"
+import { X, Eye, EyeOff } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import { useToast } from "@/hooks/use-toast"
 
@@ -24,6 +24,8 @@ export function AuthModal({ isOpen, onClose, mode, onModeChange }: AuthModalProp
     confirmPassword: "",
   })
   const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const { login, register } = useAuth()
   const { toast } = useToast()
 
@@ -43,8 +45,11 @@ export function AuthModal({ isOpen, onClose, mode, onModeChange }: AuthModalProp
           })
           return
         }
+        // Email-dən username yaratmaq
+        const username = formData.email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '') + Math.floor(Math.random() * 1000)
+        
         await register({
-          username: formData.name, 
+          username: username, 
           email: formData.email,
           first_name: formData.name.split(" ")[0] || "",
           last_name: formData.name.split(" ").slice(1).join(" ") || "",
@@ -95,7 +100,7 @@ export function AuthModal({ isOpen, onClose, mode, onModeChange }: AuthModalProp
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden">
+    <div className="fixed inset-0 z-[9999] overflow-hidden">
       <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose} />
       <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-lg shadow-xl">
         <div className="p-6">
@@ -143,29 +148,49 @@ export function AuthModal({ isOpen, onClose, mode, onModeChange }: AuthModalProp
 
             <div>
               <Label htmlFor="password">Şifrə</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                required
-                value={formData.password}
-                onChange={handleInputChange}
-                placeholder="Şifrənizi daxil edin"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  required
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  placeholder="Şifrənizi daxil edin"
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
 
             {mode === "register" && (
               <div>
                 <Label htmlFor="confirmPassword">Şifrəni Təkrarla</Label>
-                <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  required
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  placeholder="Şifrənizi təkrar daxil edin"
-                />
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    required
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    placeholder="Şifrənizi təkrar daxil edin"
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                  >
+                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
             )}
 

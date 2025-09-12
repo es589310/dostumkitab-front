@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button } from './ui/button'
-import { ChevronDown, Search, Menu, X, User, ShoppingCart } from 'lucide-react'
+import { Search, Menu, X, User, ShoppingCart } from 'lucide-react'
 import { useAuth } from '@/contexts/auth-context'
 import { useCart } from '@/contexts/cart-context'
 import { useSiteSettings } from '@/hooks/useSiteSettings'
@@ -240,27 +240,33 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
                 {isAuthenticated && user ? (
                   <div className="relative" ref={userMenuRef}>
                     <button
-                      onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                      className="flex items-center space-x-2 text-base font-medium text-gray-700 hover:text-blue-600 transition-colors"
+                      onClick={() => {
+                        console.log('User menu clicked, current state:', isUserMenuOpen)
+                        setIsUserMenuOpen(!isUserMenuOpen)
+                      }}
+                      className="text-base font-medium text-gray-700 hover:text-blue-600 transition-colors"
                     >
                       <span className="px-3 py-1 bg-blue-600 text-white text-sm rounded-full shadow">
                         {displayName}
                       </span>
-                      <ChevronDown className="h-4 w-4" />
                     </button>
                     
-                    {isUserMenuOpen && (
-                      <div className="absolute top-full right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-50">
-                        <div className="p-2">
-                          <button
-                            onClick={logout}
-                            className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded"
-                          >
-                            Çıxış
-                          </button>
-                        </div>
+                    <div className={`absolute top-full right-0 mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-xl z-[9999] transition-all duration-200 ${
+                      isUserMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+                    }`}>
+                      <div className="p-2">
+                        <button
+                          onClick={() => {
+                            console.log('Logout button clicked')
+                            logout()
+                            setIsUserMenuOpen(false)
+                          }}
+                          className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                        >
+                          Çıxış
+                        </button>
                       </div>
-                    )}
+                    </div>
                   </div>
                 ) : (
                   <div className="flex items-center space-x-2">

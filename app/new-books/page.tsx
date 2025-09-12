@@ -51,8 +51,8 @@ export default function NewBooksPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6">Yeni Kitablar</h1>
+    <div className="bg-white rounded-lg shadow-sm p-4">
+      <h2 className="text-xl font-semibold text-gray-900 mb-6">Yeni Kitablar</h2>
       {loading && <div>Yüklənir...</div>}
       {error && <div className="text-red-500">{error}</div>}
       {!loading && !error && books.length === 0 && (
@@ -60,7 +60,7 @@ export default function NewBooksPage() {
       )}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 auto-rows-fr">
         {books.map((book) => (
-          <div key={book.id} className="group bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col h-full" style={{ width: '264px' }}>
+          <div key={book.id} className="group bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col h-full">
             {/* Image Container */}
             <div className="relative p-3 pb-2">
               <Link href={`/book/${book.slug}`} className="block">
