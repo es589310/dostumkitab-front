@@ -251,22 +251,22 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
                       </span>
                     </button>
                     
-                    <div className={`absolute top-full right-0 mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-xl z-[9999] transition-all duration-200 ${
-                      isUserMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
-                    }`}>
-                      <div className="p-2">
-                        <button
-                          onClick={() => {
-                            console.log('Logout button clicked')
-                            logout()
-                            setIsUserMenuOpen(false)
-                          }}
-                          className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors"
-                        >
-                          Çıxış
-                        </button>
+                    {isUserMenuOpen && (
+                      <div className="absolute top-full right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-[9999]">
+                        <div className="p-2">
+                          <button
+                            onClick={() => {
+                              console.log('Logout button clicked')
+                              logout()
+                              setIsUserMenuOpen(false)
+                            }}
+                            className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded"
+                          >
+                            Çıxış
+                          </button>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 ) : (
                   <div className="flex items-center space-x-2">

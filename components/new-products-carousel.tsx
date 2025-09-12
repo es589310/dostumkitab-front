@@ -73,44 +73,33 @@ export function NewProductsCarousel({ books }: NewProductsCarouselProps) {
         <div className="relative">
           <Swiper
             modules={[Autoplay]}
-            spaceBetween={24}
-            slidesPerView={1}
+            spaceBetween={32}
+            slidesPerView="auto"
             autoplay={{
-              delay: 3000,
+              delay: 2500,
               disableOnInteraction: false,
             }}
             breakpoints={{
               0: {
-                slidesPerView: 2,
                 spaceBetween: 8,
-                slidesPerGroup: 1,
               },
               640: {
-                slidesPerView: 2,
                 spaceBetween: 16,
-                slidesPerGroup: 1,
               },
               768: {
-                slidesPerView: 3,
                 spaceBetween: 24,
-                slidesPerGroup: 1,
               },
               1024: {
-                slidesPerView: 4,
                 spaceBetween: 32,
-                slidesPerGroup: 1,
-              },
-              1280: {
-                slidesPerView: 4,
-                spaceBetween: 32,
-                slidesPerGroup: 1,
               },
             }}
             loop={true}
+            centeredSlides={false}
+            speed={1000}
             className="mySwiper"
           >
             {books.map((book) => (
-              <SwiperSlide key={book.id} style={{ width: '140px' }} className="sm:!w-auto">
+              <SwiperSlide key={book.id} className="!w-[140px] sm:!w-[200px] md:!w-[240px] lg:!w-[280px]">
                 <div className="group bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col h-full w-full">
               {/* Image Container */}
               <div className="relative p-2 sm:p-3 pb-2">
@@ -158,7 +147,7 @@ export function NewProductsCarousel({ books }: NewProductsCarouselProps) {
                   {/* Price */}
                   <div className="text-center mb-3">
                     <div className="flex items-center justify-center space-x-2">
-                      {book.original_price && parseFloat(book.original_price) > parseFloat(book.price) && (
+                      {book.original_price && parseFloat(book.original_price.toString()) > parseFloat(book.price.toString()) && (
                         <span className="text-xs text-gray-500 line-through">
                           {book.original_price}₼
                         </span>
