@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter } from 'next/font/google'
+import { Poppins } from 'next/font/google'
 import './globals.css'
 import { HeaderWrapper } from '@/components/header'
 import { NavigationBar } from '@/components/navigation-bar'
@@ -8,7 +8,11 @@ import { AuthProvider } from '@/contexts/auth-context'
 import { CartProvider } from '@/contexts/cart-context'
 import { Toaster } from '@/components/ui/toaster'
 
-const inter = Inter({ subsets: ['latin'] })
+const poppins = Poppins({ 
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-poppins'
+})
 
 export const metadata: Metadata = {
   title: 'Dostum Kitab - dostumkitab.az',
@@ -61,7 +65,7 @@ export default function RootLayout({
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
         />
       </head>
-      <body className={inter.className}>
+      <body className={poppins.className}>
         <AuthProvider>
           <CartProvider>
             {/* Web Header - Always Visible */}

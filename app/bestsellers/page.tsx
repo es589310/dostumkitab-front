@@ -51,8 +51,8 @@ export default function BestsellersPage() {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-4">
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">Ən Çox Satılan Kitablar</h2>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6">Ən Çox Satılan Kitablar</h1>
       {loading && <div>Yüklənir...</div>}
       {error && <div className="text-red-500">{error}</div>}
       {!loading && !error && books.length === 0 && (

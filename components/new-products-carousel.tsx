@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { Autoplay } from 'swiper/modules'
+import { Autoplay, Navigation } from 'swiper/modules'
 import 'swiper/css'
+import 'swiper/css/navigation'
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ShoppingCart } from "lucide-react"
@@ -60,11 +61,38 @@ export function NewProductsCarousel({ books }: NewProductsCarouselProps) {
   return (
     <section className="py-12 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
+        {/* Header with Navigation */}
         <div className="w-full mb-4">
-          <div className="w-full flex items-center justify-center text-center mb-4">
-            <div className="text-2xl sm:text-3xl font-bold text-gray-900">
+          <div className="flex items-center justify-center text-center mb-4">
+            {/* Sol ox */}
+            <div 
+              id="swiper-prev"
+              className="swiper-button-prev-custom cursor-pointer"
+              tabIndex={0}
+              role="button"
+              aria-label="Əvvəlki slayd"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </div>
+
+            {/* Başlıq */}
+            <div className="showcase-block-title">
               Yeni Məhsullar
+            </div>
+
+            {/* Sağ ox */}
+            <div 
+              id="swiper-next"
+              className="swiper-button-next-custom cursor-pointer"
+              tabIndex={0}
+              role="button"
+              aria-label="Növbəti slayd"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </div>
           </div>
         </div>
@@ -72,45 +100,39 @@ export function NewProductsCarousel({ books }: NewProductsCarouselProps) {
         {/* Carousel */}
         <div className="relative">
           <Swiper
-            modules={[Autoplay]}
-            spaceBetween={24}
-            slidesPerView={1}
+            modules={[Autoplay, Navigation]}
+            spaceBetween={32}
+            slidesPerView="auto"
             autoplay={{
-              delay: 3000,
+              delay: 2500,
               disableOnInteraction: false,
             }}
             breakpoints={{
               0: {
-                slidesPerView: 2,
                 spaceBetween: 8,
-                slidesPerGroup: 1,
               },
               640: {
-                slidesPerView: 2,
                 spaceBetween: 16,
-                slidesPerGroup: 1,
               },
               768: {
-                slidesPerView: 3,
                 spaceBetween: 24,
-                slidesPerGroup: 1,
               },
               1024: {
-                slidesPerView: 4,
                 spaceBetween: 32,
-                slidesPerGroup: 1,
-              },
-              1280: {
-                slidesPerView: 4,
-                spaceBetween: 32,
-                slidesPerGroup: 1,
               },
             }}
             loop={true}
+            centeredSlides={false}
+            speed={1000}
+            navigation={{
+              nextEl: '#swiper-next',
+              prevEl: '#swiper-prev',
+            }}
+            direction="horizontal"
             className="mySwiper"
           >
             {books.map((book) => (
-              <SwiperSlide key={book.id} style={{ width: '140px' }} className="sm:!w-auto">
+              <SwiperSlide key={book.id} className="!w-[140px] sm:!w-[200px] md:!w-[240px] lg:!w-[280px]">
                 <div className="group bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col h-full w-full">
               {/* Image Container */}
               <div className="relative p-2 sm:p-3 pb-2">
@@ -158,7 +180,7 @@ export function NewProductsCarousel({ books }: NewProductsCarouselProps) {
                   {/* Price */}
                   <div className="text-center mb-3">
                     <div className="flex items-center justify-center space-x-2">
-                      {book.original_price && parseFloat(book.original_price) > parseFloat(book.price) && (
+                      {book.original_price && parseFloat(book.original_price.toString()) > parseFloat(book.price.toString()) && (
                         <span className="text-xs text-gray-500 line-through">
                           {book.original_price}₼
                         </span>
