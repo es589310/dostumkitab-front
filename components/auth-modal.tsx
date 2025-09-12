@@ -45,8 +45,11 @@ export function AuthModal({ isOpen, onClose, mode, onModeChange }: AuthModalProp
           })
           return
         }
+        // Email-dən username yaratmaq
+        const username = formData.email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '') + Math.floor(Math.random() * 1000)
+        
         await register({
-          username: formData.name, 
+          username: username, 
           email: formData.email,
           first_name: formData.name.split(" ")[0] || "",
           last_name: formData.name.split(" ").slice(1).join(" ") || "",
