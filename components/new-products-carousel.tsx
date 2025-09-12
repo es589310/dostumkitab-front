@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { Autoplay } from 'swiper/modules'
+import { Autoplay, Navigation } from 'swiper/modules'
 import 'swiper/css'
+import 'swiper/css/navigation'
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ShoppingCart } from "lucide-react"
@@ -60,11 +61,38 @@ export function NewProductsCarousel({ books }: NewProductsCarouselProps) {
   return (
     <section className="py-12 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
+        {/* Header with Navigation */}
         <div className="w-full mb-4">
-          <div className="w-full flex items-center justify-center text-center mb-4">
-            <div className="text-2xl sm:text-3xl font-bold text-gray-900">
+          <div className="flex items-center justify-center text-center mb-4">
+            {/* Sol ox */}
+            <div 
+              id="swiper-prev"
+              className="swiper-button-prev-custom cursor-pointer"
+              tabIndex={0}
+              role="button"
+              aria-label="Əvvəlki slayd"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </div>
+
+            {/* Başlıq */}
+            <div className="showcase-block-title">
               Yeni Məhsullar
+            </div>
+
+            {/* Sağ ox */}
+            <div 
+              id="swiper-next"
+              className="swiper-button-next-custom cursor-pointer"
+              tabIndex={0}
+              role="button"
+              aria-label="Növbəti slayd"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </div>
           </div>
         </div>
@@ -72,7 +100,7 @@ export function NewProductsCarousel({ books }: NewProductsCarouselProps) {
         {/* Carousel */}
         <div className="relative">
           <Swiper
-            modules={[Autoplay]}
+            modules={[Autoplay, Navigation]}
             spaceBetween={32}
             slidesPerView="auto"
             autoplay={{
@@ -96,6 +124,11 @@ export function NewProductsCarousel({ books }: NewProductsCarouselProps) {
             loop={true}
             centeredSlides={false}
             speed={1000}
+            navigation={{
+              nextEl: '#swiper-next',
+              prevEl: '#swiper-prev',
+            }}
+            direction="horizontal"
             className="mySwiper"
           >
             {books.map((book) => (
