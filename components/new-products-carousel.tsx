@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { Navigation, Autoplay } from 'swiper/modules'
+import { Autoplay } from 'swiper/modules'
 import 'swiper/css'
-import 'swiper/css/navigation'
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ShoppingCart } from "lucide-react"
@@ -64,40 +63,18 @@ export function NewProductsCarousel({ books }: NewProductsCarouselProps) {
         {/* Header */}
         <div className="w-full mb-4">
           <div className="w-full flex items-center justify-center text-center mb-4">
-            <button 
-              id="swiper-prev-new" 
-              className="swiper-button-prev hidden sm:flex items-center justify-center w-10 h-10 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full transition-all duration-200 border border-gray-200 hover:border-gray-300" 
-              tabIndex={0} 
-              role="button" 
-              aria-label="Previous slide"
-            >
-              <span className="text-2xl font-bold">&lt;</span>
-            </button>
-            <div className="text-2xl sm:text-3xl font-bold text-gray-900 mx-6">
+            <div className="text-2xl sm:text-3xl font-bold text-gray-900">
               Yeni Məhsullar
             </div>
-            <button 
-              id="swiper-next-new" 
-              className="swiper-button-next hidden sm:flex items-center justify-center w-10 h-10 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full transition-all duration-200 border border-gray-200 hover:border-gray-300" 
-              tabIndex={0} 
-              role="button" 
-              aria-label="Next slide"
-            >
-              <span className="text-2xl font-bold">&gt;</span>
-            </button>
           </div>
         </div>
 
         {/* Carousel */}
         <div className="relative">
           <Swiper
-            modules={[Navigation, Autoplay]}
+            modules={[Autoplay]}
             spaceBetween={24}
             slidesPerView={1}
-            navigation={{
-              nextEl: '#swiper-next-new',
-              prevEl: '#swiper-prev-new',
-            }}
             autoplay={{
               delay: 3000,
               disableOnInteraction: false,
