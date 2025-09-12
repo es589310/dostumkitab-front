@@ -64,7 +64,7 @@ export function NewProductsCarousel({ books }: NewProductsCarouselProps) {
         {/* Header */}
         <div className="w-full mb-4">
           <div className="w-full flex items-center justify-center text-center mb-4">
-            {/* <button 
+            <button 
               id="swiper-prev-new" 
               className="swiper-button-prev hidden sm:flex items-center justify-center w-10 h-10 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full transition-all duration-200 border border-gray-200 hover:border-gray-300" 
               tabIndex={0} 
@@ -72,11 +72,11 @@ export function NewProductsCarousel({ books }: NewProductsCarouselProps) {
               aria-label="Previous slide"
             >
               <span className="text-2xl font-bold">&lt;</span>
-            </button> */}
+            </button>
             <div className="text-2xl sm:text-3xl font-bold text-gray-900 mx-6">
               Yeni Məhsullar
             </div>
-            {/* <button 
+            <button 
               id="swiper-next-new" 
               className="swiper-button-next hidden sm:flex items-center justify-center w-10 h-10 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full transition-all duration-200 border border-gray-200 hover:border-gray-300" 
               tabIndex={0} 
@@ -84,7 +84,7 @@ export function NewProductsCarousel({ books }: NewProductsCarouselProps) {
               aria-label="Next slide"
             >
               <span className="text-2xl font-bold">&gt;</span>
-            </button> */}
+            </button>
           </div>
         </div>
 
