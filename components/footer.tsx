@@ -10,12 +10,14 @@ export const Footer = memo(function Footer() {
 
   // Track site settings data
   useEffect(() => {
-    console.log('Footer: Site settings updated:', settings)
-    if (settings) {
-      console.log('Footer: Navbar logo URL:', settings.navbar_logo_imagekit_url)
-      console.log('Footer: Footer logo URL:', settings.footer_logo_imagekit_url)
-      console.log('Footer: Navbar logo file:', settings.navbar_logo)
-      console.log('Footer: Footer logo file:', settings.footer_logo)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Footer: Site settings updated:', settings)
+      if (settings) {
+        console.log('Footer: Navbar logo URL:', settings.navbar_logo_imagekit_url)
+        console.log('Footer: Footer logo URL:', settings.footer_logo_imagekit_url)
+        console.log('Footer: Navbar logo file:', settings.navbar_logo)
+        console.log('Footer: Footer logo file:', settings.footer_logo)
+      }
     }
   }, [settings])
 
@@ -40,7 +42,9 @@ export const Footer = memo(function Footer() {
                     alt={settings.site_name || "KitabSat Logo"}
                     className="h-8 w-32 sm:h-[39px] sm:w-[250px] object-contain"
                     onError={(e) => {
-                      console.log('Footer logo failed to load, using default')
+                      if (process.env.NODE_ENV === 'development') {
+                        console.log('Footer logo failed to load, using default')
+                      }
                       const target = e.target as HTMLImageElement
                       target.style.display = 'none'
                       target.nextElementSibling?.classList.remove('hidden')
@@ -52,7 +56,9 @@ export const Footer = memo(function Footer() {
                     alt={settings.site_name || "KitabSat Logo"}
                     className="h-8 w-32 sm:h-[39px] sm:w-[250px] object-contain"
                     onError={(e) => {
-                      console.log('Logo failed to load, using default')
+                      if (process.env.NODE_ENV === 'development') {
+                        console.log('Logo failed to load, using default')
+                      }
                       const target = e.target as HTMLImageElement
                       target.style.display = 'none'
                       target.nextElementSibling?.classList.remove('hidden')

@@ -44,19 +44,23 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
 
   // Track cart count updates
   useEffect(() => {
-    console.log('Header: Cart total items updated:', totalItems)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Header: Cart total items updated:', totalItems)
+    }
   }, [totalItems])
 
 
 
   // Track site settings data
   useEffect(() => {
-    console.log('Header: Site settings updated:', currentSettings)
-    if (currentSettings) {
-      console.log('Header: Navbar logo URL:', currentSettings.navbar_logo_imagekit_url)
-      console.log('Header: Footer logo URL:', currentSettings.footer_logo_imagekit_url)
-      console.log('Header: Navbar logo file:', currentSettings.navbar_logo)
-      console.log('Header: Footer logo file:', currentSettings.footer_logo)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Header: Site settings updated:', currentSettings)
+      if (currentSettings) {
+        console.log('Header: Navbar logo URL:', currentSettings.navbar_logo_imagekit_url)
+        console.log('Header: Footer logo URL:', currentSettings.footer_logo_imagekit_url)
+        console.log('Header: Navbar logo file:', currentSettings.navbar_logo)
+        console.log('Header: Footer logo file:', currentSettings.footer_logo)
+      }
     }
   }, [currentSettings])
 

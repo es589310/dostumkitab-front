@@ -217,21 +217,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
     
     // Əgər total_items varsa onu istifadə et, yoxdursa items array-indən hesabla
     if (cart.total_items !== undefined) {
-      console.log('Using total_items from cart:', cart.total_items)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Using total_items from cart:', cart.total_items)
+      }
       return cart.total_items
     }
     
     // Items array-indən hesabla
     const calculatedTotal = cart.items?.reduce((total, item) => total + item.quantity, 0) || 0
-    console.log('Calculated total from items:', calculatedTotal)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Calculated total from items:', calculatedTotal)
+    }
     return calculatedTotal
   }
   
   // Cart state-inin yenilənməsini izlə
   useEffect(() => {
-    console.log('Cart context: Cart state changed:', cart)
-    if (cart) {
-      console.log('Cart context: Total items:', getTotalItems())
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Cart context: Cart state changed:', cart)
+      if (cart) {
+        console.log('Cart context: Total items:', getTotalItems())
+      }
     }
   }, [cart])
 

@@ -27,9 +27,11 @@ export function NewProductsCarousel({ books }: NewProductsCarouselProps) {
   
   // Track cart updates
   useEffect(() => {
-    console.log('NewProductsCarousel: Cart updated:', cart)
-    if (cart) {
-      console.log('NewProductsCarousel: Total items in cart:', cart.total_items)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('NewProductsCarousel: Cart updated:', cart)
+      if (cart) {
+        console.log('NewProductsCarousel: Total items in cart:', cart.total_items)
+      }
     }
   }, [cart])
 

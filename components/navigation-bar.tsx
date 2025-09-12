@@ -27,16 +27,24 @@ export function NavigationBar({ onCategorySelect }: NavigationBarProps) {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        console.log("NavigationBar: Fetching categories...")
+        if (process.env.NODE_ENV === 'development') {
+          console.log("NavigationBar: Fetching categories...")
+        }
         const data: CategoriesResponse | Category[] = await api.getCategories()
-        console.log("NavigationBar: Received categories data:", data)
+        if (process.env.NODE_ENV === 'development') {
+          console.log("NavigationBar: Received categories data:", data)
+        }
         
         if (Array.isArray(data)) {
           setCategories(data as CategoryWithChildren[])
-          console.log("NavigationBar: Set categories (direct array):", data.length, "items")
+          if (process.env.NODE_ENV === 'development') {
+            console.log("NavigationBar: Set categories (direct array):", data.length, "items")
+          }
         } else if (data && typeof data === "object" && "results" in data && Array.isArray((data as CategoriesResponse).results)) {
           setCategories((data as CategoriesResponse).results as CategoryWithChildren[])
-          console.log("NavigationBar: Set categories (from results):", (data as CategoriesResponse).results.length, "items")
+          if (process.env.NODE_ENV === 'development') {
+            console.log("NavigationBar: Set categories (from results):", (data as CategoriesResponse).results.length, "items")
+          }
         } else {
           console.error("NavigationBar: Unexpected categories API response format:", data)
           setCategories([])

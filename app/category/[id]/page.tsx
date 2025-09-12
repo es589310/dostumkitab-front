@@ -24,17 +24,23 @@ export default function CategoryPage() {
     const fetchCategoryData = async () => {
       try {
         setLoading(true)
-        console.log("CategoryPage: Fetching category data for ID:", categoryId)
+        if (process.env.NODE_ENV === 'development') {
+          console.log("CategoryPage: Fetching category data for ID:", categoryId)
+        }
         
         // Fetch category details
         const categoryData = await api.getCategory(parseInt(categoryId))
-        console.log("CategoryPage: Received category data:", categoryData)
+        if (process.env.NODE_ENV === 'development') {
+          console.log("CategoryPage: Received category data:", categoryData)
+        }
         setCategory(categoryData as CategoryWithChildren)
         
         // Fetch books for this category
         setBooksLoading(true)
         const booksData = await api.getBooksByCategory(parseInt(categoryId))
-        console.log("CategoryPage: Received books data:", booksData)
+        if (process.env.NODE_ENV === 'development') {
+          console.log("CategoryPage: Received books data:", booksData)
+        }
         
         if (Array.isArray(booksData)) {
           setBooks(booksData)

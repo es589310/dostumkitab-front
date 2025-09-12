@@ -1,14 +1,18 @@
 // lib/api.ts
 import { getDeviceId } from './device-id';
 
-// Debug: Environment variables yoxlayırıq
-console.log('API Client - Environment Variables:');
-console.log('NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
-console.log('NODE_ENV:', process.env.NODE_ENV);
+// Environment variables yoxlayırıq (development mühitində)
+if (process.env.NODE_ENV === 'development') {
+  console.log('API Client - Environment Variables:');
+  console.log('NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
+  console.log('NODE_ENV:', process.env.NODE_ENV);
+}
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
 
-console.log('API Client - Final API_BASE_URL:', API_BASE_URL);
+if (process.env.NODE_ENV === 'development') {
+  console.log('API Client - Final API_BASE_URL:', API_BASE_URL);
+}
 
 class ApiClient {
   private baseURL: string;
@@ -78,9 +82,13 @@ class ApiClient {
     };
 
     try {
-      console.log('API: Sending request to:', url, config);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('API: Sending request to:', url, config);
+      }
       const response = await fetch(url, config);
-      console.log('API: Response status:', response.status);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('API: Response status:', response.status);
+      }
 
       if (!response.ok) {
         let errorData: any = {};
@@ -130,10 +138,14 @@ class ApiClient {
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
         const data = await response.json();
-        console.log('API: JSON response:', data);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('API: JSON response:', data);
+        }
         return data;
       }
-      console.log('API: Non-JSON response');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('API: Non-JSON response');
+      }
       return {} as T;
     } catch (error) {
       console.error('API request failed:', error);
@@ -316,7 +328,9 @@ class ApiClient {
       delete cleanData.email;
     }
     
-    console.log('Contact API - Sending data:', cleanData);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Contact API - Sending data:', cleanData);
+    }
     
     return this.request<any>('/contact/send/', {
       method: 'POST',

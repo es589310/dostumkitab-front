@@ -37,7 +37,9 @@ export function useSiteSettings() {
         // Environment variable-dan API URL-ni al
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api'
         
-        console.log('Fetching site settings, logo and social media data...')
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Fetching site settings, logo and social media data...')
+        }
         
         // Paralel olaraq bütün məlumatları al
         const [settingsResponse, logoResponse, socialMediaResponse] = await Promise.all([
@@ -52,17 +54,23 @@ export function useSiteSettings() {
         
         if (settingsResponse.ok) {
           settingsData = await settingsResponse.json()
-          console.log('Site settings data received:', settingsData)
+          if (process.env.NODE_ENV === 'development') {
+            console.log('Site settings data received:', settingsData)
+          }
         }
         
         if (logoResponse.ok) {
           logoData = await logoResponse.json()
-          console.log('Logo data received:', logoData)
+          if (process.env.NODE_ENV === 'development') {
+            console.log('Logo data received:', logoData)
+          }
         }
         
         if (socialMediaResponse.ok) {
           socialMediaData = await socialMediaResponse.json()
-          console.log('Social media data received:', socialMediaData)
+          if (process.env.NODE_ENV === 'development') {
+            console.log('Social media data received:', socialMediaData)
+          }
         }
         
         // Bütün məlumatları birləşdir
@@ -83,7 +91,9 @@ export function useSiteSettings() {
           social_media_links: socialMediaData.links || []
         }
         
-        console.log('Combined data:', combinedData)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Combined data:', combinedData)
+        }
         setSettings(combinedData)
         setError(null)
         

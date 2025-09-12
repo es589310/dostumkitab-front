@@ -42,9 +42,11 @@ export function BookGrid({
   
   // Track cart updates
   useEffect(() => {
-    console.log('BookGrid: Cart updated:', cart)
-    if (cart) {
-      console.log('BookGrid: Total items in cart:', cart.total_items)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('BookGrid: Cart updated:', cart)
+      if (cart) {
+        console.log('BookGrid: Total items in cart:', cart.total_items)
+      }
     }
   }, [cart])
 
@@ -146,10 +148,12 @@ export function BookGrid({
       if (selectedCategory) params.category = selectedCategory
 
       const response = await api.getBooks(params)
-      console.log("Books API response:", response)
-      console.log("Books API response type:", typeof response)
-      console.log("Books API response keys:", Object.keys(response || {}))
-      console.log("Books API full response:", JSON.stringify(response, null, 2))
+      if (process.env.NODE_ENV === 'development') {
+        console.log("Books API response:", response)
+        console.log("Books API response type:", typeof response)
+        console.log("Books API response keys:", Object.keys(response || {}))
+        console.log("Books API full response:", JSON.stringify(response, null, 2))
+      }
 
       if (response && Array.isArray(response.results)) {
         setBooks(response.results)
