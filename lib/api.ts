@@ -98,41 +98,95 @@ class ApiClient {
           console.error('API: Failed to parse error response');
         }
         
-        // Stok hatası durumunda daha anlamlı mesaj
-        if (response.status === 400 && errorData.error && errorData.error.includes('Stokda yalnız')) {
-          throw new Error(errorData.error);
+        // İstifadəçi dostu xəta mesajları
+        let userFriendlyMessage = "";
+        
+        // HTTP Status kodlarına görə mesajlar
+        switch (response.status) {
+          case 400:
+            if (errorData.error && errorData.error.includes('Stokda yalnız')) {
+              userFriendlyMessage = errorData.error;
+            } else if (errorData.password) {
+              const passwordErrors = errorData.password;
+              userFriendlyMessage = "Şifrə tələbləri qarşılanmır:\n";
+              
+              if (Array.isArray(passwordErrors)) {
+                passwordErrors.forEach((error: string) => {
+                  userFriendlyMessage += `• ${error}\n`;
+                });
+              } else {
+                userFriendlyMessage += `• ${passwordErrors}`;
+              }
+              userFriendlyMessage = userFriendlyMessage.trim();
+            } else if (errorData.error) {
+              userFriendlyMessage = errorData.error;
+            } else {
+              userFriendlyMessage = "Göndərilən məlumatlar düzgün deyil. Zəhmət olmasa yenidən yoxlayın.";
+            }
+            break;
+            
+          case 401:
+            if (errorData.error) {
+              userFriendlyMessage = errorData.error;
+            } else {
+              userFriendlyMessage = "İstifadəçi adı və ya şifrə yanlışdır!";
+            }
+            break;
+            
+          case 403:
+            userFriendlyMessage = "Bu əməliyyatı yerinə yetirmək üçün icazəniz yoxdur.";
+            break;
+            
+          case 404:
+            userFriendlyMessage = "Axtardığınız səhifə tapılmadı.";
+            break;
+            
+          case 409:
+            if (errorData.error) {
+              userFriendlyMessage = errorData.error;
+            } else {
+              userFriendlyMessage = "Bu məlumat artıq mövcuddur.";
+            }
+            break;
+            
+          case 422:
+            if (errorData.error) {
+              userFriendlyMessage = errorData.error;
+            } else {
+              userFriendlyMessage = "Göndərilən məlumatlar qəbul edilə bilmir.";
+            }
+            break;
+            
+          case 429:
+            userFriendlyMessage = "Çox tez-tez istək göndərirsiniz. Zəhmət olmasa bir az gözləyin.";
+            break;
+            
+          case 500:
+            userFriendlyMessage = "Server xətası baş verdi. Zəhmət olmasa daha sonra cəhd edin.";
+            break;
+            
+          case 502:
+          case 503:
+          case 504:
+            userFriendlyMessage = "Server hazırda əlçatan deyil. Zəhmət olmasa daha sonra cəhd edin.";
+            break;
+            
+          default:
+            if (errorData.error) {
+              userFriendlyMessage = errorData.error;
+            } else if (errorData.message) {
+              userFriendlyMessage = errorData.message;
+            } else {
+              userFriendlyMessage = "Gözlənilməz xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.";
+            }
         }
         
-        // Şifrə xətalarını daha səliqəli göstər
-        if (response.status === 400 && errorData.password) {
-          const passwordErrors = errorData.password;
-          let errorMessage = "Şifrə tələbləri qarşılanmır:\n";
-          
-          if (Array.isArray(passwordErrors)) {
-            passwordErrors.forEach((error: string, index: number) => {
-              errorMessage += `• ${error}\n`;
-            });
-          } else {
-            errorMessage += `• ${passwordErrors}`;
-          }
-          
-          throw new Error(errorMessage.trim());
+        // Development mühitində ətraflı log
+        if (process.env.NODE_ENV === 'development') {
+          console.error('API: Response not ok:', response.status, errorData);
         }
         
-        // 429 xətası üçün xüsusi mesaj (Rate Limiting)
-        if (response.status === 429) {
-          let errorMessage = "Çox tez-tez istək göndərirsiniz. ";
-          if (errorData.detail) {
-            errorMessage += errorData.detail;
-          } else {
-            errorMessage += "Zəhmət olmasa bir az gözləyin və yenidən cəhd edin.";
-          }
-          throw new Error(errorMessage);
-        }
-        
-        // Digər xətalar üçün console.error
-        console.error('API: Response not ok:', response.status, errorData);
-        throw new Error(`HTTP error! status: ${response.status}, message: ${JSON.stringify(errorData)}`);
+        throw new Error(userFriendlyMessage);
       }
 
       const contentType = response.headers.get('content-type');
