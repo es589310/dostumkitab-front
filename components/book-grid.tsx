@@ -398,42 +398,38 @@ export function BookGrid({
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center items-center mt-8 space-x-4">
-            <Button
-              variant="outline"
+          <div className="flex justify-center items-center mt-8 space-x-6">
+            <button
               onClick={() => {
                 setCurrentPage(Math.max(currentPage - 1, 1))
                 // Kiçik gecikmə ilə scroll et (mobil cihazlar üçün)
                 setTimeout(() => scrollToBooksSection(), 100)
               }}
               disabled={currentPage === 1}
-              className="flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-md"
+              className="p-3 rounded-full border bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-md flex items-center justify-center"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              Əvvəlki
-            </Button>
+            </button>
             
-            <span className="text-sm text-gray-600 font-medium bg-gray-50 px-4 py-2 rounded-lg border">
-              Səhifə {currentPage} / {totalPages}
+            <span className="text-sm font-medium text-gray-700">
+              {currentPage} / {totalPages}
             </span>
             
-            <Button
-              variant="outline"
+            <button
               onClick={() => {
                 setCurrentPage(Math.min(currentPage + 1, totalPages))
                 // Kiçik gecikmə ilə scroll et (mobil cihazlar üçün)
                 setTimeout(() => scrollToBooksSection(), 100)
               }}
               disabled={currentPage === totalPages}
-              className="flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-md"
+              className="p-3 rounded-full border bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-md flex items-center justify-center"
             >
-              Növbəti
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-            </Button>
+            </button>
           </div>
         )}
       </div>
