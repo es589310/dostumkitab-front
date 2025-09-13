@@ -184,8 +184,8 @@ class ApiClient {
     return this.request<Category>(`/books/categories/${categoryId}/`);
   }
 
-  async getBooksByCategory(categoryId: number): Promise<BookListResponse | Book[]> {
-    return this.request<BookListResponse | Book[]>(`/books/category/${categoryId}/`);
+  async getBooksByCategory(categoryId: number, page: number = 1): Promise<BookListResponse | Book[]> {
+    return this.request<BookListResponse | Book[]>(`/books/category/${categoryId}/?page=${page}`);
   }
 
   async getBookReviews(bookId: number) {
