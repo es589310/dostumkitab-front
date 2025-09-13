@@ -65,14 +65,14 @@ export function BookGrid({
     }
   }, [])
 
-  // Debounce search term - 800ms gecikmə
+  // Debounce search term - 5000ms gecikmə
   useEffect(() => {
     const timer = setTimeout(() => {
       if (internalSearchTerm !== debouncedSearchTerm) {
         setDebouncedSearchTerm(internalSearchTerm)
         setIsSearching(true)
       }
-    }, 800)
+    }, 5000)
 
     return () => clearTimeout(timer)
   }, [internalSearchTerm, debouncedSearchTerm])
