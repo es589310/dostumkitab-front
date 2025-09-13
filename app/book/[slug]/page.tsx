@@ -7,9 +7,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     // Next.js 15-də params Promise olduğu üçün await etmək lazımdır
     const { slug } = await params
     
-    console.log('🔍 Generating metadata for slug:', slug)
-    console.log('🌐 NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL)
-    console.log('🏠 NEXT_PUBLIC_SITE_URL:', process.env.NEXT_PUBLIC_SITE_URL)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 Generating metadata for slug:', slug)
+      console.log('🌐 NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL)
+      console.log('🏠 NEXT_PUBLIC_SITE_URL:', process.env.NEXT_PUBLIC_SITE_URL)
+    }
     
     // Production-da mütləq tam URL istifadə etməliyik
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://dostumkitab.az'
@@ -24,17 +26,21 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     
     const fullApiUrl = `${apiUrl}/books/${slug}/`
     
-    console.log('📡 API URL:', apiUrl)
-    console.log('📡 Full API URL:', fullApiUrl)
-    console.log('🏠 Site URL:', siteUrl)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('📡 API URL:', apiUrl)
+      console.log('📡 Full API URL:', fullApiUrl)
+      console.log('🏠 Site URL:', siteUrl)
+    }
     
     // Server-də API çağırışı - 60 saniyə cache əlavə edirik
     const response = await fetch(fullApiUrl, {
       next: { revalidate: 60 }
     })
     
-    console.log('📡 API Response Status:', response.status)
-    console.log('📡 API Response Headers:', Object.fromEntries(response.headers.entries()))
+    if (process.env.NODE_ENV === 'development') {
+      console.log('📡 API Response Status:', response.status)
+      console.log('📡 API Response Headers:', Object.fromEntries(response.headers.entries()))
+    }
     
     if (!response.ok) {
       const errorText = await response.text()
@@ -43,15 +49,19 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     }
     
     const bookData = await response.json()
-    console.log('📚 Book Data:', {
-      title: bookData.title,
-      authors: bookData.authors,
-      cover_image: bookData.cover_image,
-      price: bookData.price
-    })
+    if (process.env.NODE_ENV === 'development') {
+      console.log('📚 Book Data:', {
+        title: bookData.title,
+        authors: bookData.authors,
+        cover_image: bookData.cover_image,
+        price: bookData.price
+      })
+    }
     
     const bookUrl = `${siteUrl}/book/${slug}`
-    console.log('🔗 Book URL:', bookUrl)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔗 Book URL:', bookUrl)
+    }
     
     // Image URL-i düzgün formatla
     let imageUrl: string

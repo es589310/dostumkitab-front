@@ -18,9 +18,11 @@ export function FeaturedBooks() {
   
   // Track cart updates
   useEffect(() => {
-    console.log('FeaturedBooks: Cart updated:', cart)
-    if (cart) {
-      console.log('FeaturedBooks: Total items in cart:', cart.total_items)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('FeaturedBooks: Cart updated:', cart)
+      if (cart) {
+        console.log('FeaturedBooks: Total items in cart:', cart.total_items)
+      }
     }
   }, [cart])
 
@@ -71,28 +73,36 @@ export function FeaturedBooks() {
   const fetchFeaturedBooks = async () => {
     try {
       setError(null)
-      console.log("FeaturedBooks: API call started")
-      
-      // Debug: Environment variables yoxlayırıq
-      console.log("FeaturedBooks: NEXT_PUBLIC_API_URL:", process.env.NEXT_PUBLIC_API_URL)
-      console.log("FeaturedBooks: NODE_ENV:", process.env.NODE_ENV)
-      
-      // API URL-i düzgün alırıq
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api"
-      console.log("FeaturedBooks: Final API URL:", apiUrl)
+      if (process.env.NODE_ENV === 'development') {
+        console.log("FeaturedBooks: API call started")
+        
+        // Debug: Environment variables yoxlayırıq
+        console.log("FeaturedBooks: NEXT_PUBLIC_API_URL:", process.env.NEXT_PUBLIC_API_URL)
+        console.log("FeaturedBooks: NODE_ENV:", process.env.NODE_ENV)
+        
+        // API URL-i düzgün alırıq
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api"
+        console.log("FeaturedBooks: Final API URL:", apiUrl)
+      }
       
       const data = await api.getFeaturedBooks()
-      console.log("FeaturedBooks: API response:", data)
-      console.log("FeaturedBooks: Response type:", typeof data)
-      console.log("FeaturedBooks: Response keys:", Object.keys(data || {}))
-      console.log("FeaturedBooks: Full response JSON:", JSON.stringify(data, null, 2))
+      if (process.env.NODE_ENV === 'development') {
+        console.log("FeaturedBooks: API response:", data)
+        console.log("FeaturedBooks: Response type:", typeof data)
+        console.log("FeaturedBooks: Response keys:", Object.keys(data || {}))
+        console.log("FeaturedBooks: Full response JSON:", JSON.stringify(data, null, 2))
+      }
 
       // Check API response
       if (Array.isArray(data)) {
-        console.log("FeaturedBooks: Response is array")
+        if (process.env.NODE_ENV === 'development') {
+          console.log("FeaturedBooks: Response is array")
+        }
         setBooks(data)
       } else if (data && typeof data === "object" && "results" in data && Array.isArray((data as any).results)) {
-        console.log("FeaturedBooks: Response has results array")
+        if (process.env.NODE_ENV === 'development') {
+          console.log("FeaturedBooks: Response has results array")
+        }
         setBooks((data as any).results)
       } else {
         console.error("FeaturedBooks: Unexpected API response format:", data)
@@ -101,9 +111,11 @@ export function FeaturedBooks() {
       }
     } catch (error) {
       console.error("FeaturedBooks: Failed to fetch featured books:", error)
-      console.error("FeaturedBooks: Error details:", error)
-      console.error("FeaturedBooks: Error message:", error.message)
-      console.error("FeaturedBooks: Error stack:", error.stack)
+      if (process.env.NODE_ENV === 'development') {
+        console.error("FeaturedBooks: Error details:", error)
+        console.error("FeaturedBooks: Error message:", error.message)
+        console.error("FeaturedBooks: Error stack:", error.stack)
+      }
       setError(`Kitablar yüklənə bilmədi: ${error.message}`)
       setBooks([])
     } finally {

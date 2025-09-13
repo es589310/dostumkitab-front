@@ -3,12 +3,19 @@
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
-import { ChevronRight, BookOpen, Star, ShoppingCart } from "lucide-react"
+import { ChevronRight, BookOpen, Star, ShoppingCart, ChevronLeft, ChevronRight as ChevronRightIcon } from "lucide-react"
 import api, { type Book, type Category } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 
 interface CategoryWithChildren extends Category {
   children?: CategoryWithChildren[]
+}
+
+interface BookListResponse {
+  count: number
+  next: string | null
+  previous: string | null
+  results: Book[]
 }
 
 export default function CategoryPage() {
@@ -19,29 +26,45 @@ export default function CategoryPage() {
   const [books, setBooks] = useState<Book[]>([])
   const [loading, setLoading] = useState(true)
   const [booksLoading, setBooksLoading] = useState(true)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalCount, setTotalCount] = useState(0)
 
   useEffect(() => {
     const fetchCategoryData = async () => {
       try {
         setLoading(true)
-        console.log("CategoryPage: Fetching category data for ID:", categoryId)
+        if (process.env.NODE_ENV === 'development') {
+          console.log("CategoryPage: Fetching category data for ID:", categoryId)
+        }
         
         // Fetch category details
         const categoryData = await api.getCategory(parseInt(categoryId))
-        console.log("CategoryPage: Received category data:", categoryData)
+        if (process.env.NODE_ENV === 'development') {
+          console.log("CategoryPage: Received category data:", categoryData)
+        }
         setCategory(categoryData as CategoryWithChildren)
         
         // Fetch books for this category
         setBooksLoading(true)
-        const booksData = await api.getBooksByCategory(parseInt(categoryId))
-        console.log("CategoryPage: Received books data:", booksData)
+        const booksData = await api.getBooksByCategory(parseInt(categoryId), currentPage)
+        if (process.env.NODE_ENV === 'development') {
+          console.log("CategoryPage: Received books data:", booksData)
+        }
         
         if (Array.isArray(booksData)) {
           setBooks(booksData)
+          setTotalCount(booksData.length)
+          setTotalPages(1)
         } else if (booksData && typeof booksData === "object" && "results" in booksData) {
-          setBooks((booksData as any).results)
+          const response = booksData as BookListResponse
+          setBooks(response.results)
+          setTotalCount(response.count)
+          setTotalPages(Math.ceil(response.count / 20))
         } else {
           setBooks([])
+          setTotalCount(0)
+          setTotalPages(1)
         }
       } catch (error) {
         console.error("CategoryPage: Failed to fetch category data:", error)
@@ -57,6 +80,40 @@ export default function CategoryPage() {
       fetchCategoryData()
     }
   }, [categoryId])
+
+  // currentPage dəyişdikdə məhsulları yenidən yüklə
+  useEffect(() => {
+    const fetchBooks = async () => {
+      if (!categoryId) return
+      
+      try {
+        setBooksLoading(true)
+        const booksData = await api.getBooksByCategory(parseInt(categoryId), currentPage)
+        
+        if (Array.isArray(booksData)) {
+          setBooks(booksData)
+          setTotalCount(booksData.length)
+          setTotalPages(1)
+        } else if (booksData && typeof booksData === "object" && "results" in booksData) {
+          const response = booksData as BookListResponse
+          setBooks(response.results)
+          setTotalCount(response.count)
+          setTotalPages(Math.ceil(response.count / 20))
+        } else {
+          setBooks([])
+          setTotalCount(0)
+          setTotalPages(1)
+        }
+      } catch (error) {
+        console.error("CategoryPage: Failed to fetch books:", error)
+        setBooks([])
+      } finally {
+        setBooksLoading(false)
+      }
+    }
+
+    fetchBooks()
+  }, [categoryId, currentPage])
 
   if (loading) {
     return (
@@ -227,6 +284,72 @@ export default function CategoryPage() {
               <p className="text-gray-500">
                 Tezliklə yeni məhsullar əlavə ediləcək.
               </p>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-12 flex justify-center">
+              <div className="flex items-center space-x-2">
+                {/* Previous Button */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className="flex items-center"
+                >
+                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  Əvvəlki
+                </Button>
+
+                {/* Page Numbers */}
+                <div className="flex items-center space-x-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={currentPage === pageNum ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(pageNum)}
+                        className="min-w-[40px]"
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                </div>
+
+                {/* Next Button */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  className="flex items-center"
+                >
+                  Növbəti
+                  <ChevronRightIcon className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Results Info */}
+          {totalCount > 0 && (
+            <div className="mt-6 text-center text-sm text-gray-600">
+              {totalCount} məhsuldan {(currentPage - 1) * 20 + 1}-{Math.min(currentPage * 20, totalCount)} arası göstərilir
             </div>
           )}
         </div>

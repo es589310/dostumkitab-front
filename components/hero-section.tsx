@@ -23,42 +23,60 @@ export function HeroSection() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      console.log("HeroSection: Banner API call started")
-      console.log("HeroSection: API URL:", `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api"}/books/banners/`)
+      if (process.env.NODE_ENV === 'development') {
+        console.log("HeroSection: Banner API call started")
+        console.log("HeroSection: API URL:", `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api"}/books/banners/`)
+      }
       
       api.getBanners()
       .then((response: any) => {
-        console.log("HeroSection: API response:", response)
-        console.log("HeroSection: Response type:", typeof response)
-        console.log("HeroSection: Response keys:", Object.keys(response || {}))
+        if (process.env.NODE_ENV === 'development') {
+          console.log("HeroSection: API response:", response)
+          console.log("HeroSection: Response type:", typeof response)
+          console.log("HeroSection: Response keys:", Object.keys(response || {}))
+        }
         
         // Check API response structure
         let bannerList = []
         if (response && typeof response === 'object') {
           if (Array.isArray(response)) {
             bannerList = response
-            console.log("HeroSection: Response is array")
+            if (process.env.NODE_ENV === 'development') {
+              console.log("HeroSection: Response is array")
+            }
           } else if (response.results && Array.isArray(response.results)) {
             bannerList = response.results
-            console.log("HeroSection: Response has results array")
+            if (process.env.NODE_ENV === 'development') {
+              console.log("HeroSection: Response has results array")
+            }
           } else {
-            console.log("HeroSection: Unexpected response structure")
+            if (process.env.NODE_ENV === 'development') {
+              console.log("HeroSection: Unexpected response structure")
+            }
           }
         }
         
-        console.log("HeroSection: Processed banners:", bannerList)
+        if (process.env.NODE_ENV === 'development') {
+          console.log("HeroSection: Processed banners:", bannerList)
+        }
         
         if (bannerList.length > 0) {
-          console.log("HeroSection: Banners found:", bannerList.length)
+          if (process.env.NODE_ENV === 'development') {
+            console.log("HeroSection: Banners found:", bannerList.length)
+          }
           setBanners(bannerList)
         } else {
-          console.log("HeroSection: No banners found")
+          if (process.env.NODE_ENV === 'development') {
+            console.log("HeroSection: No banners found")
+          }
         }
         setLoading(false)
       })
       .catch((err) => {
         console.error("HeroSection: API error:", err)
-        console.error("HeroSection: Error details:", err.message, err.stack)
+        if (process.env.NODE_ENV === 'development') {
+          console.error("HeroSection: Error details:", err.message, err.stack)
+        }
         setError(err.message)
         setLoading(false)
       })

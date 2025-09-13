@@ -44,19 +44,38 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
 
   // Track cart count updates
   useEffect(() => {
-    console.log('Header: Cart total items updated:', totalItems)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Header: Cart total items updated:', totalItems)
+    }
   }, [totalItems])
+
+  // Click outside handler for user menu
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        console.log('Click outside detected, closing menu')
+        setIsUserMenuOpen(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
 
 
 
   // Track site settings data
   useEffect(() => {
-    console.log('Header: Site settings updated:', currentSettings)
-    if (currentSettings) {
-      console.log('Header: Navbar logo URL:', currentSettings.navbar_logo_imagekit_url)
-      console.log('Header: Footer logo URL:', currentSettings.footer_logo_imagekit_url)
-      console.log('Header: Navbar logo file:', currentSettings.navbar_logo)
-      console.log('Header: Footer logo file:', currentSettings.footer_logo)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Header: Site settings updated:', currentSettings)
+      if (currentSettings) {
+        console.log('Header: Navbar logo URL:', currentSettings.navbar_logo_imagekit_url)
+        console.log('Header: Footer logo URL:', currentSettings.footer_logo_imagekit_url)
+        console.log('Header: Navbar logo file:', currentSettings.navbar_logo)
+        console.log('Header: Footer logo file:', currentSettings.footer_logo)
+      }
     }
   }, [currentSettings])
 
@@ -88,6 +107,30 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
 
   // Combine user first name and last name
   const displayName = user ? `${user.first_name || user.username}${user.last_name ? ` ${user.last_name}` : ""}` : ""
+  
+  // Handle logout function
+  const handleLogout = () => {
+    console.log('handleLogout called')
+    console.log('Current user:', user)
+    try {
+      logout()
+      console.log('Logout function called successfully')
+    } catch (error) {
+      console.error('Error calling logout:', error)
+    }
+    setIsUserMenuOpen(false)
+    console.log('Menu closed')
+  }
+  
+  // Debug info
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Header Debug:', {
+      isAuthenticated,
+      user,
+      displayName,
+      isUserMenuOpen
+    })
+  }
 
   return (
     <>
@@ -238,9 +281,11 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
               {/* User Menu */}
               <div className="flex items-center">
                 {isAuthenticated && user ? (
-                  <div className="relative" ref={userMenuRef}>
+                  <div className="relative">
                     <button
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
                         console.log('User menu clicked, current state:', isUserMenuOpen)
                         setIsUserMenuOpen(!isUserMenuOpen)
                       }}
@@ -252,15 +297,31 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
                     </button>
                     
                     {isUserMenuOpen && (
-                      <div className="absolute top-full right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-[9999]">
+                      <div 
+                        ref={userMenuRef}
+                        className="absolute top-full right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-xl z-[99999] opacity-100"
+                        style={{ 
+                          position: 'absolute',
+                          top: '100%',
+                          right: '0',
+                          marginTop: '8px',
+                          width: '192px',
+                          backgroundColor: 'white',
+                          border: '2px solid #3b82f6',
+                          borderRadius: '8px',
+                          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                          zIndex: 99999,
+                          display: 'block',
+                          visibility: 'visible'
+                        }}
+                      >
                         <div className="p-2">
                           <button
-                            onClick={() => {
-                              console.log('Logout button clicked')
-                              logout()
-                              setIsUserMenuOpen(false)
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleLogout();
                             }}
-                            className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded"
+                            className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors"
                           >
                             Çıxış
                           </button>
