@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import api, { type Book } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Star, ShoppingCart, ArrowLeft, Phone } from "lucide-react"
+import { Star, ShoppingCart, ArrowLeft, Phone, ChevronLeft, ChevronRight } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import Link from "next/link"
 import { BookReviews } from "@/components/book-reviews"
@@ -18,6 +18,7 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
   const [book, setBook] = useState<Book | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const { addItem, cart, orderSingleBook } = useCart()
 
   useEffect(() => {
@@ -70,6 +71,47 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
     }
   }
 
+  // Carousel funksionallığı
+  const getAvailableImages = () => {
+    if (!book) return []
+    
+    const images = []
+    
+    // Üz qabığı
+    if (book.cover_imagekit_url || book.cover_image) {
+      images.push({
+        src: book.cover_imagekit_url || book.cover_image,
+        alt: `${book.title} - Üz qabığı`,
+        type: 'cover'
+      })
+    }
+    
+    // Arxa qabıq
+    if (book.back_imagekit_url || book.back_image) {
+      images.push({
+        src: book.back_imagekit_url || book.back_image,
+        alt: `${book.title} - Arxa qabıq`,
+        type: 'back'
+      })
+    }
+    
+    return images
+  }
+
+  const nextImage = () => {
+    const images = getAvailableImages()
+    if (images.length > 1) {
+      setCurrentImageIndex((prev) => (prev + 1) % images.length)
+    }
+  }
+
+  const prevImage = () => {
+    const images = getAvailableImages()
+    if (images.length > 1) {
+      setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length)
+    }
+  }
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -100,23 +142,101 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
       </Link>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Book Image və Təsvir */}
+        {/* Book Images və Təsvir */}
         <div className="space-y-4">
-          <div className="relative">
-            <img
-              src={book.cover_imagekit_url || book.cover_image || "/placeholder.svg?height=600&width=400"}
-              alt={book.title}
-              className="w-full h-[356px] lg:h-[500px] object-contain bg-gray-100 rounded-lg shadow-lg"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = "/placeholder.svg?height=600&width=400";
-              }}
-            />
-            <div className="absolute top-4 left-4 flex flex-col gap-2">
-              {book.is_featured && <Badge variant="destructive">Seçilmiş</Badge>}
-              {book.is_bestseller && <Badge variant="secondary">Ən Çox Satılan</Badge>}
-              {book.is_new && <Badge className="bg-green-500">Yeni</Badge>}
-            </div>
+          {/* Carousel */}
+          <div className="relative overflow-hidden rounded-lg shadow-lg">
+            {(() => {
+              const images = getAvailableImages()
+              
+              if (images.length === 0) {
+                return (
+                  <div className="w-full h-[356px] lg:h-[500px] bg-gray-100 flex items-center justify-center">
+                    <span className="text-gray-500">Şəkil yoxdur</span>
+                  </div>
+                )
+              }
+              
+              return (
+                <>
+                  {/* Şəkil konteyneri */}
+                  <div className="relative w-full h-[356px] lg:h-[500px] bg-gray-100 overflow-hidden">
+                    <div 
+                      className="flex transition-transform duration-500 ease-in-out"
+                      style={{ 
+                        transform: `translateX(-${currentImageIndex * 100}%)`
+                      }}
+                    >
+                      {images.map((image, index) => (
+                        <div
+                          key={index}
+                          className="w-full h-full flex-shrink-0 flex items-center justify-center"
+                        >
+                          <img
+                            src={image.src || "/placeholder.svg?height=600&width=400"}
+                            alt={image.alt}
+                            className="w-full h-[356px] lg:h-[500px] object-contain bg-gray-100"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = "/placeholder.svg?height=600&width=400";
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Badge-lər */}
+                  <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
+                    {book.is_featured && <Badge variant="destructive">Seçilmiş</Badge>}
+                    {book.is_bestseller && <Badge variant="secondary">Ən Çox Satılan</Badge>}
+                    {book.is_new && <Badge className="bg-green-500">Yeni</Badge>}
+                  </div>
+                  
+                  {/* Navigation oxları - yalnız birdən çox şəkil varsa */}
+                  {images.length > 1 && (
+                    <>
+                      {/* Sol ox */}
+                      <button
+                        onClick={prevImage}
+                        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg transition-all duration-200 hover:scale-110 z-10"
+                        aria-label="Əvvəlki şəkil"
+                      >
+                        <ChevronLeft className="h-5 w-5 text-gray-700" />
+                      </button>
+                      
+                      {/* Sağ ox */}
+                      <button
+                        onClick={nextImage}
+                        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg transition-all duration-200 hover:scale-110 z-10"
+                        aria-label="Növbəti şəkil"
+                      >
+                        <ChevronRight className="h-5 w-5 text-gray-700" />
+                      </button>
+                    </>
+                  )}
+                  
+                  
+                  {/* Dots göstəricisi */}
+                  {images.length > 1 && (
+                    <div className="absolute bottom-4 right-4 flex space-x-2 z-10">
+                      {images.map((_, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setCurrentImageIndex(index)}
+                          className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                            index === currentImageIndex 
+                              ? 'bg-white' 
+                              : 'bg-white/50 hover:bg-white/70'
+                          }`}
+                          aria-label={`Şəkil ${index + 1}`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </>
+              )
+            })()}
           </div>
         </div>
 

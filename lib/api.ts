@@ -411,6 +411,8 @@ export interface Book {
   original_price?: number;
   cover_image?: string;
   cover_imagekit_url?: string;
+  back_image?: string;
+  back_imagekit_url?: string;
   stock_quantity: number;
   average_rating: number;
   reviews_count: number;
