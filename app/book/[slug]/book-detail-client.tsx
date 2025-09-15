@@ -349,7 +349,7 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
 
           {/* Book Details */}
           <div className="space-y-4">
-            <h3 className="text-lg sm:text-xl font-semibold">Kitab Haqqında</h3>
+            <h3 className="text-lg sm:text-xl font-semibold">Məhsul Haqqında</h3>
             <div className="space-y-3 text-sm sm:text-base">
               <div className="flex justify-between">
                 <span className="text-gray-600 font-medium">Nəşriyyat:</span>
