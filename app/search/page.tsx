@@ -74,7 +74,7 @@ function SearchContent() {
           console.log("ElasticSearch: Starting SMART search for:", query)
           
           const searchTerm = query.toLowerCase().trim()
-          const searchWords = searchTerm.split(' ').filter(word => word.length > 2)
+          const searchWords = searchTerm.split(' ').filter(word => word.length > 1)
           
           // SMART RELEVANCE FUNCTION
           const calculateRelevance = (book: any, searchTerm: string, searchWords: string[]) => {
@@ -118,6 +118,24 @@ function SearchContent() {
               if (description.includes(word)) score += 15
             })
 
+            // SPECIAL CASE: Short words (like "Zehin") get extra points if they start words
+            if (searchTerm.length <= 5) {
+              const titleWords = title.split(' ')
+              const descriptionWords = description.split(' ')
+              
+              titleWords.forEach(word => {
+                if (word.startsWith(searchTerm)) {
+                  score += 40 // Extra points for word start match
+                }
+              })
+              
+              descriptionWords.forEach(word => {
+                if (word.startsWith(searchTerm)) {
+                  score += 25 // Extra points for word start match
+                }
+              })
+            }
+
             return { score, reasons }
           }
 
@@ -129,7 +147,7 @@ function SearchContent() {
                   const relevance = calculateRelevance(book, searchTerm, searchWords)
                   return { ...book, relevanceScore: relevance.score, relevanceReasons: relevance.reasons }
                 })
-                .filter(book => book.relevanceScore >= 15)
+                .filter(book => book.relevanceScore >= 10)
                 .sort((a, b) => b.relevanceScore - a.relevanceScore)
 
               allBooks = scoredBooks

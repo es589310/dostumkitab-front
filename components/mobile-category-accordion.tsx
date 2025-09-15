@@ -72,20 +72,14 @@ export function MobileCategoryAccordion({ onCategorySelect, onClose }: MobileCat
     return (
       <div key={category.id} className="w-full">
         {/* Category Header */}
-        <div 
-          className={`flex items-center justify-between p-3 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors cursor-pointer ${
-            level > 0 ? 'ml-4' : ''
-          }`}
-          onClick={() => {
-            if (hasChildren) {
-              toggleCategory(category.id)
-            } else {
-              handleCategoryClick(category.id.toString())
-            }
-          }}
-        >
-          <span className="uppercase">{category.name}</span>
-          {hasChildren && (
+        {hasChildren ? (
+          <div 
+            className={`flex items-center justify-between p-3 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors cursor-pointer ${
+              level > 0 ? 'ml-4' : ''
+            }`}
+            onClick={() => toggleCategory(category.id)}
+          >
+            <span className="uppercase">{category.name}</span>
             <div className="flex items-center space-x-1">
               {isExpanded ? (
                 <Minus className="h-4 w-4" />
@@ -93,8 +87,18 @@ export function MobileCategoryAccordion({ onCategorySelect, onClose }: MobileCat
                 <Plus className="h-4 w-4" />
               )}
             </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <Link
+            href={`/category/${category.id}`}
+            onClick={() => handleCategoryClick(category.id.toString())}
+            className={`flex items-center justify-between p-3 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors cursor-pointer ${
+              level > 0 ? 'ml-4' : ''
+            }`}
+          >
+            <span className="uppercase">{category.name}</span>
+          </Link>
+        )}
 
         {/* Category Children */}
         {hasChildren && isExpanded && (
@@ -102,18 +106,12 @@ export function MobileCategoryAccordion({ onCategorySelect, onClose }: MobileCat
             {category.children!.map((child) => (
               <div key={child.id}>
                 {/* 2nd Level Category */}
-                <div 
-                  className="flex items-center justify-between p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors cursor-pointer"
-                  onClick={() => {
-                    if (child.children && child.children.length > 0) {
-                      toggleCategory(child.id)
-                    } else {
-                      handleCategoryClick(child.id.toString())
-                    }
-                  }}
-                >
-                  <span className="uppercase">{child.name}</span>
-                  {child.children && child.children.length > 0 && (
+                {child.children && child.children.length > 0 ? (
+                  <div 
+                    className="flex items-center justify-between p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors cursor-pointer"
+                    onClick={() => toggleCategory(child.id)}
+                  >
+                    <span className="uppercase">{child.name}</span>
                     <div className="flex items-center space-x-1">
                       {expandedCategories.has(child.id) ? (
                         <Minus className="h-3 w-3" />
@@ -121,8 +119,16 @@ export function MobileCategoryAccordion({ onCategorySelect, onClose }: MobileCat
                         <Plus className="h-3 w-3" />
                       )}
                     </div>
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  <Link
+                    href={`/category/${child.id}`}
+                    onClick={() => handleCategoryClick(child.id.toString())}
+                    className="flex items-center justify-between p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors cursor-pointer"
+                  >
+                    <span className="uppercase">{child.name}</span>
+                  </Link>
+                )}
 
                 {/* 3rd Level Categories */}
                 {child.children && child.children.length > 0 && expandedCategories.has(child.id) && (

@@ -20,7 +20,9 @@ class ApiClient {
 
   constructor() {
     this.baseURL = API_BASE_URL;
-    console.log('ApiClient constructor - baseURL:', this.baseURL);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('ApiClient constructor - baseURL:', this.baseURL);
+    }
     this.loadToken();
   }
 
@@ -83,7 +85,7 @@ class ApiClient {
 
     try {
       if (process.env.NODE_ENV === 'development') {
-        console.log('API: Sending request to:', url, config);
+        console.log('API Request:', url);
       }
       const response = await fetch(url, config);
       if (process.env.NODE_ENV === 'development') {
@@ -202,7 +204,9 @@ class ApiClient {
       }
       return {} as T;
     } catch (error) {
-      console.error('API request failed:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('API request failed:', error);
+      }
       throw error;
     }
   }
@@ -407,6 +411,8 @@ export interface Book {
   original_price?: number;
   cover_image?: string;
   cover_imagekit_url?: string;
+  back_image?: string;
+  back_imagekit_url?: string;
   stock_quantity: number;
   average_rating: number;
   reviews_count: number;

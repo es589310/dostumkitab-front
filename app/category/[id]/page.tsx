@@ -169,7 +169,6 @@ export default function CategoryPage() {
         {/* Subcategories */}
         {category.children && category.children.length > 0 && (
           <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Alt Kateqoriyalar</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {category.children.map((subCategory) => (
                 <Link
