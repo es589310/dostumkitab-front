@@ -2,7 +2,15 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { Metadata } from "next"
 import api, { type Category, type CategoriesResponse } from "@/lib/api"
+import { Breadcrumb, BreadcrumbSchema } from "@/components/breadcrumb"
+
+export const metadata: Metadata = {
+  title: 'Kitab Kateqoriyaları | DostumKitab.az',
+  description: 'Maraqlandığınız sahədəki kitabları kəşf edin. Hər kateqoriyada minlərlə keyfiyyətli kitab. DostumKitab.az-da geniş kitab kolleksiyası.',
+  keywords: 'kitab kateqoriyaları, ədəbiyyat, din, fəlsəfə, uşaq kitabları, kitab mağazası',
+}
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -94,6 +102,21 @@ export default function CategoriesPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {/* Breadcrumb */}
+      <Breadcrumb 
+        items={[
+          { label: 'Kateqoriyalar' }
+        ]}
+        className="mb-8"
+      />
+      
+      {/* Structured Data */}
+      <BreadcrumbSchema 
+        items={[
+          { label: 'Kateqoriyalar' }
+        ]}
+      />
+      
       <div className="text-center mb-12">
         <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-6">
           <Library className="h-8 w-8 text-blue-600" />

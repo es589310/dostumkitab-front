@@ -8,7 +8,8 @@ import { Star, ShoppingCart, ArrowLeft, Phone, ChevronLeft, ChevronRight } from 
 import { useCart } from "@/contexts/cart-context"
 import Link from "next/link"
 import { BookReviews } from "@/components/book-reviews"
-import { getLanguageName } from "@/lib/utils"
+import { Breadcrumb, BreadcrumbSchema } from "@/components/breadcrumb"
+import { getLanguageName, getMediaUrl } from "@/lib/utils"
 
 interface BookDetailClientProps {
   slug: string
@@ -135,11 +136,52 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      {/* Back Button */}
-      <Link href="/" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-6">
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Ana səhifəyə qayıt
-      </Link>
+      {/* Breadcrumb */}
+      <Breadcrumb 
+        items={[
+          { label: 'Kitablar', href: '/categories' },
+          { label: book.title }
+        ]}
+        className="mb-6"
+      />
+      
+      {/* Structured Data */}
+      <BreadcrumbSchema 
+        items={[
+          { label: 'Kitablar', href: '/categories' },
+          { label: book.title }
+        ]}
+      />
+      
+      {/* Book Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Book",
+            "name": book.title,
+            "author": book.authors?.map((author: any) => ({
+              "@type": "Person",
+              "name": author.name
+            })) || [],
+            "image": book.cover_imagekit_url || book.cover_image || "/placeholder.svg",
+            "description": book.description || `${book.title} kitabı`,
+            "publisher": book.publisher?.name || "Məlumat yoxdur",
+            "datePublished": book.publication_date,
+            "isbn": book.isbn,
+            "numberOfPages": book.pages,
+            "inLanguage": getLanguageName(book.language),
+            "offers": {
+              "@type": "Offer",
+              "url": `https://dostumkitab.az/book/${book.slug}`,
+              "price": book.price,
+              "priceCurrency": "AZN",
+              "availability": book.stock_quantity > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+            }
+          })
+        }}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Book Images və Təsvir */}
@@ -400,6 +442,17 @@ export default function BookDetailClient({ slug }: BookDetailClientProps) {
 
       {/* Reviews Section */}
       <BookReviews bookId={book.id} bookSlug={book.slug} />
+
+      {/* Oxşar Kitablar Bölməsi */}
+      <div className="mt-12">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Oxşar Kitablar</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {/* Burada oxşar kitablar göstəriləcək - API-dən gələn məlumatlar əsasında */}
+          <div className="text-center text-gray-500 py-8">
+            <p>Oxşar kitablar tezliklə əlavə ediləcək</p>
+          </div>
+        </div>
+      </div>
     </div>
   )
 } 

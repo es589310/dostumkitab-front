@@ -1,7 +1,14 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { Metadata } from "next"
 import api, { type Book } from "@/lib/api"
+
+export const metadata: Metadata = {
+  title: 'Yeni Kitablar | DostumKitab.az',
+  description: 'Yeni çıxan kitabları kəşf edin. DostumKitab.az-da ən son nəşr olunan kitablar ən yaxşı qiymətlərlə!',
+  keywords: 'yeni kitablar, yeni nəşr kitablar, yeni çıxan kitablar, kitab mağazası',
+}
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"

@@ -116,7 +116,8 @@ export function FeaturedBooks() {
         console.error("FeaturedBooks: Error message:", error.message)
         console.error("FeaturedBooks: Error stack:", error.stack)
       }
-      setError(`Kitablar yüklənə bilmədi: ${error.message}`)
+      // Fallback: Show empty state instead of error
+      setError("")
       setBooks([])
     } finally {
       setIsLoading(false)
