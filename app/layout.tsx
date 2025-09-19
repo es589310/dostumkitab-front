@@ -22,6 +22,9 @@ export const metadata: Metadata = {
   creator: 'Dostum Kitab',
   publisher: 'Dostum Kitab',
   robots: 'index, follow',
+  verification: {
+    google: 'sr29C49SiQuO_v3HLfppLLR5a1cKRXFcoMsLiv9LL0g',
+  },
   openGraph: {
     title: 'Dostum Kitab - dostumkitab.az',
     description: 'Azərbaycanda ən böyük onlayn kitab mağazası. Minlərlə kitab, ən yaxşı qiymətlər və sürətli çatdırılma xidməti.',
