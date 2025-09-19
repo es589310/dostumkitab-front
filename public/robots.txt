@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+
+# Disallow admin and API routes
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /private/
+
+# Sitemap location
+Sitemap: https://dostumkitab.az/sitemap.xml
+
+# Additional sitemaps
+Sitemap: https://dostumkitab.az/sitemap.xml
