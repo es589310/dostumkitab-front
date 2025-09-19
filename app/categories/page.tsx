@@ -2,15 +2,8 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Metadata } from "next"
 import api, { type Category, type CategoriesResponse } from "@/lib/api"
 import { Breadcrumb, BreadcrumbSchema } from "@/components/breadcrumb"
-
-export const metadata: Metadata = {
-  title: 'Kitab Kateqoriyaları | DostumKitab.az',
-  description: 'Maraqlandığınız sahədəki kitabları kəşf edin. Hər kateqoriyada minlərlə keyfiyyətli kitab. DostumKitab.az-da geniş kitab kolleksiyası.',
-  keywords: 'kitab kateqoriyaları, ədəbiyyat, din, fəlsəfə, uşaq kitabları, kitab mağazası',
-}
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"

@@ -1,14 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Metadata } from "next"
 import api, { type Book } from "@/lib/api"
-
-export const metadata: Metadata = {
-  title: 'Ən Çox Satılan Kitablar | DostumKitab.az',
-  description: 'Ən çox satılan və populyar kitabları kəşf edin. DostumKitab.az-da ən məşhur kitablar ən yaxşı qiymətlərlə!',
-  keywords: 'ən çox satılan kitablar, populyar kitablar, bestseller kitablar, kitab mağazası',
-}
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
