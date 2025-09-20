@@ -6,6 +6,8 @@ import Link from "next/link"
 import { ChevronRight, BookOpen, Star, ShoppingCart, ChevronLeft, ChevronRight as ChevronRightIcon } from "lucide-react"
 import api, { type Book, type Category } from "@/lib/api"
 import { Button } from "@/components/ui/button"
+import { useCart } from "@/contexts/cart-context"
+import { useToast } from "@/hooks/use-toast"
 
 interface CategoryWithChildren extends Category {
   children?: CategoryWithChildren[]
@@ -22,6 +24,9 @@ export default function CategoryPage() {
   const params = useParams()
   const categoryId = params.id as string
   
+  const { cart, addItem } = useCart()
+  const { toast } = useToast()
+  
   const [category, setCategory] = useState<CategoryWithChildren | null>(null)
   const [books, setBooks] = useState<Book[]>([])
   const [loading, setLoading] = useState(true)
@@ -29,6 +34,45 @@ export default function CategoryPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [totalCount, setTotalCount] = useState(0)
+
+  // Səbətə əlavə etmə funksiyası
+  const handleAddToCart = async (book: Book) => {
+    try {
+      // Stock check - how many of this book are already in cart
+      const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+      const currentQuantity = currentCartItem?.quantity || 0
+      const availableStock = book.stock_quantity
+      
+      // If this book is already in cart and stock limit is reached
+      if (currentQuantity >= availableStock) {
+        // Show stock information
+        const remainingStock = availableStock - currentQuantity
+        if (remainingStock <= 0) {
+          // No stock available
+          toast({
+            title: "Stokda yoxdur!",
+            description: `Bu kitabdan artıq ${currentQuantity} ədəd səbətinizdə var və stokda yalnız ${availableStock} ədəd var.`,
+            variant: "destructive",
+          })
+          return
+        } else {
+          // Limited stock available
+          toast({
+            title: "Stok məhdudiyyəti!",
+            description: `Bu kitabdan artıq ${currentQuantity} ədəd səbətinizdə var. Stokda yalnız ${remainingStock} ədəd qalıb.`,
+            variant: "destructive",
+          })
+          return
+        }
+      }
+      
+      await addItem(book.id)
+      // Notification removed - cart updates automatically
+    } catch (error: any) {
+      console.error("Səbətə əlavə edərkən xəta:", error)
+      // No notification shown on error
+    }
+  }
 
   useEffect(() => {
     const fetchCategoryData = async () => {
@@ -260,14 +304,32 @@ export default function CategoryPage() {
 
                       {/* Add to Cart Button */}
                       <Button 
-                        className="w-full h-10 text-sm font-medium transition-all duration-200 bg-green-600 hover:bg-green-700 hover:shadow-md"
-                        onClick={() => {
-                          // Add to cart functionality
-                          console.log("Add to cart:", book.id)
-                        }}
+                        className={`w-full h-10 text-sm font-medium transition-all duration-200 ${
+                          (() => {
+                            const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                            const currentQuantity = currentCartItem?.quantity || 0
+                            const availableStock = book.stock_quantity - currentQuantity
+                            return availableStock > 0 ? 'bg-green-600 hover:bg-green-700 hover:shadow-md' : 'bg-gray-400 cursor-not-allowed'
+                          })()
+                        }`}
+                        onClick={() => handleAddToCart(book)}
+                        disabled={(() => {
+                          const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                          const currentQuantity = currentCartItem?.quantity || 0
+                          const availableStock = book.stock_quantity - currentQuantity
+                          return availableStock <= 0
+                        })()}
                       >
                         <ShoppingCart className="h-4 w-4 mr-2" />
-                        Səbətə At
+                        {(() => {
+                          const currentCartItem = cart?.items?.find(item => item.book.id === book.id)
+                          const currentQuantity = currentCartItem?.quantity || 0
+                          const availableStock = book.stock_quantity - currentQuantity
+                          if (availableStock <= 0) {
+                            return "Stokda Yoxdur"
+                          }
+                          return "Səbətə At"
+                        })()}
                       </Button>
                     </div>
                   </div>
