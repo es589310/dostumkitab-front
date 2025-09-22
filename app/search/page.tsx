@@ -140,27 +140,43 @@ function SearchContent() {
           }
 
           try {
-            const allBooksData = await api.getBooks()
-            if (allBooksData?.results) {
-              const scoredBooks = allBooksData.results
-                .map(book => {
-                  const relevance = calculateRelevance(book, searchTerm, searchWords)
-                  return { ...book, relevanceScore: relevance.score, relevanceReasons: relevance.reasons }
-                })
-                .filter(book => book.relevanceScore >= 10)
-                .sort((a, b) => b.relevanceScore - a.relevanceScore)
+            // Əvvəlcə backend API-dən axtarış et
+            const searchData = await api.getBooks({ search: query })
+            if (searchData?.results && searchData.results.length > 0) {
+              allBooks = searchData.results
+            } else {
+              // Əgər backend API-dən nəticə gəlmirsə, Smart Search istifadə et
+              const allBooksData = await api.getBooks()
+              if (allBooksData?.results) {
+                const scoredBooks = allBooksData.results
+                  .map(book => {
+                    const relevance = calculateRelevance(book, searchTerm, searchWords)
+                    return { ...book, relevanceScore: relevance.score, relevanceReasons: relevance.reasons }
+                  })
+                  .filter(book => book.relevanceScore >= 10)
+                  .sort((a, b) => b.relevanceScore - a.relevanceScore)
 
-              allBooks = scoredBooks
+                allBooks = scoredBooks
+              }
             }
           } catch (e) {
-            console.log("ElasticSearch: Smart search failed, falling back to API:", e)
+            console.log("Search failed:", e)
+            // Son çarə olaraq Smart Search istifadə et
             try {
-              const fallbackData = await api.getBooks({ search: query })
-              if (fallbackData?.results) {
-                allBooks = fallbackData.results
+              const allBooksData = await api.getBooks()
+              if (allBooksData?.results) {
+                const scoredBooks = allBooksData.results
+                  .map(book => {
+                    const relevance = calculateRelevance(book, searchTerm, searchWords)
+                    return { ...book, relevanceScore: relevance.score, relevanceReasons: relevance.reasons }
+                  })
+                  .filter(book => book.relevanceScore >= 10)
+                  .sort((a, b) => b.relevanceScore - a.relevanceScore)
+
+                allBooks = scoredBooks
               }
             } catch (fallbackError) {
-              console.log("ElasticSearch: Fallback also failed:", fallbackError)
+              console.log("Smart search also failed:", fallbackError)
             }
           }
 

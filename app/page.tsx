@@ -38,8 +38,11 @@ export default function HomePage() {
       <section id="all-books-section" className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Azərbaycan və digər dillərdə ən yaxşı kitablar
+            </h1>
             <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4 sm:px-0">
-              Geniş kitab kolleksiyamızı araşdırın
+              Geniş kitab kolleksiyamızı araşdırın və maraqlandığınız sahədəki kitabları tapın
             </p>
           </div>
           

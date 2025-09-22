@@ -10,6 +10,9 @@ if (process.env.NODE_ENV === 'development') {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
 
+// Fallback API URL for development when backend is not running
+const FALLBACK_API_URL = 'http://localhost:8000/api';
+
 if (process.env.NODE_ENV === 'development') {
   console.log('API Client - Final API_BASE_URL:', API_BASE_URL);
 }
@@ -87,7 +90,23 @@ class ApiClient {
       if (process.env.NODE_ENV === 'development') {
         console.log('API Request:', url);
       }
-      const response = await fetch(url, config);
+      
+      let response: Response;
+      try {
+        response = await fetch(url, config);
+      } catch (error) {
+        // If local API fails, try fallback API
+        if (this.baseURL.includes('127.0.0.1') && process.env.NODE_ENV === 'development') {
+          console.log('Local API failed, trying fallback API...');
+          const fallbackUrl = `${FALLBACK_API_URL}${endpoint}`;
+          response = await fetch(fallbackUrl, {
+            ...config,
+            credentials: 'omit', // Remove credentials for cross-origin requests
+          });
+        } else {
+          throw error;
+        }
+      }
       if (process.env.NODE_ENV === 'development') {
         console.log('API: Response status:', response.status);
       }
@@ -277,6 +296,10 @@ class ApiClient {
     });
     if (response.tokens && response.tokens.access) {
       this.saveToken(response.tokens.access);
+      // Refresh token-i də saxla
+      if (response.tokens.refresh && typeof window !== 'undefined') {
+        localStorage.setItem('refresh_token', response.tokens.refresh);
+      }
     }
     return response;
   }
@@ -288,6 +311,10 @@ class ApiClient {
     });
     if (response.tokens && response.tokens.access) {
       this.saveToken(response.tokens.access);
+      // Refresh token-i də saxla
+      if (response.tokens.refresh && typeof window !== 'undefined') {
+        localStorage.setItem('refresh_token', response.tokens.refresh);
+      }
     }
     return response;
   }
@@ -296,8 +323,32 @@ class ApiClient {
     return this.request<any>('/auth/profile/');
   }
 
-  logout() {
-    this.clearToken();
+  async logout() {
+    try {
+      // Refresh token-i localStorage-dan al
+      const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('refresh_token') : null;
+      
+      // Backend logout endpoint-ini çağır
+      await this.request<any>('/auth/logout/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          refresh: refreshToken
+        }),
+      });
+    } catch (error) {
+      // Xəta olsa belə token-i təmizlə
+      console.error('Logout API call failed:', error);
+    } finally {
+      // Hər halda token-i təmizlə
+      this.clearToken();
+      // Refresh token-i də təmizlə
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('refresh_token');
+      }
+    }
   }
 
   // Cart API

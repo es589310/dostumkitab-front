@@ -88,11 +88,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     console.log('✍️ Authors Text:', authorsText)
     
     const metadata = {
-      title: `${bookData.title} | Dostum Kitab`,
-      description: `${authorsText} - ${bookData.price}₼`,
+      title: `${bookData.title} | DostumKitab.az`,
+      description: `${bookData.title} kitabını online əldə edin. ${authorsText} tərəfindən yazılmış bu kitab ${bookData.price}₼ qiymətində DostumKitab.az-da!`,
+      alternates: {
+        canonical: bookUrl,
+      },
       openGraph: {
-        title: bookData.title,
-        description: `${authorsText} - ${bookData.price}₼`,
+        title: `${bookData.title} | DostumKitab.az`,
+        description: `${bookData.title} kitabını online əldə edin. ${authorsText} tərəfindən yazılmış bu kitab ${bookData.price}₼ qiymətində DostumKitab.az-da!`,
         url: bookUrl,
         siteName: 'Dostum Kitab',
         type: 'book',

@@ -15,16 +15,19 @@ const poppins = Poppins({
 })
 
 export const metadata: Metadata = {
-  title: 'Dostum Kitab - dostumkitab.az',
-  description: 'Azərbaycanda ən böyük onlayn kitab mağazası. Minlərlə kitab, ən yaxşı qiymətlər və sürətli çatdırılma xidməti.',
-  keywords: 'kitab, kitab mağazası, online kitab, Azərbaycan, dostum kitab',
+  title: 'DostumKitab.az – Azərbaycan dilində ən yaxşı kitablar',
+  description: 'Azərbaycanda ən böyük onlayn kitab mağazası. Minlərlə kitab, ən yaxşı qiymətlər və sürətli çatdırılma xidməti. DostumKitab.az-da kitablarınızı tapın!',
+  keywords: 'kitab, kitab mağazası, online kitab, Azərbaycan, dostum kitab, kitab satışı, ədəbiyyat, dini kitablar',
   authors: [{ name: 'Dostum Kitab' }],
   creator: 'Dostum Kitab',
   publisher: 'Dostum Kitab',
   robots: 'index, follow',
+  verification: {
+    google: 'sr29C49SiQuO_v3HLfppLLR5a1cKRXFcoMsLiv9LL0g',
+  },
   openGraph: {
-    title: 'Dostum Kitab - dostumkitab.az',
-    description: 'Azərbaycanda ən böyük onlayn kitab mağazası. Minlərlə kitab, ən yaxşı qiymətlər və sürətli çatdırılma xidməti.',
+    title: 'DostumKitab.az – Azərbaycan dilində ən yaxşı kitablar',
+    description: 'Azərbaycanda ən böyük onlayn kitab mağazası. Minlərlə kitab, ən yaxşı qiymətlər və sürətli çatdırılma xidməti. DostumKitab.az-da kitablarınızı tapın!',
     url: 'https://dostumkitab.az',
     siteName: 'Dostum Kitab',
     locale: 'az_AZ',
@@ -32,13 +35,16 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Dostum Kitab - dostumkitab.az',
-    description: 'Azərbaycanda ən böyük onlayn kitab mağazası. Minlərlə kitab, ən yaxşı qiymətlər və sürətli çatdırılma xidməti.',
+    title: 'DostumKitab.az – Azərbaycan dilində ən yaxşı kitablar',
+    description: 'Azərbaycanda ən böyük onlayn kitab mağazası. Minlərlə kitab, ən yaxşı qiymətlər və sürətli çatdırılma xidməti. DostumKitab.az-da kitablarınızı tapın!',
   },
   icons: {
     icon: '/camlicalogo.png',
     shortcut: '/camlicalogo.png',
     apple: '/camlicalogo.png',
+  },
+  alternates: {
+    canonical: 'https://dostumkitab.az',
   },
 }
 

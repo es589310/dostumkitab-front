@@ -77,7 +77,16 @@ export function HeroSection() {
         if (process.env.NODE_ENV === 'development') {
           console.error("HeroSection: Error details:", err.message, err.stack)
         }
-        setError(err.message)
+        // Fallback: Use default banner if API fails
+        setBanners([{
+          id: 1,
+          title: "DostumKitab.az",
+          subtitle: "Azərbaycan dilində ən yaxşı kitablar",
+          image: "/placeholder.jpg",
+          link: "/",
+          is_active: true
+        }])
+        setError("")
         setLoading(false)
       })
     }
