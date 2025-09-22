@@ -11,7 +11,7 @@ if (process.env.NODE_ENV === 'development') {
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
 
 // Fallback API URL for development when backend is not running
-const FALLBACK_API_URL = 'https://dostumkitabapp-backend-eu-47b73694c0c1.herokuapp.com/api';
+const FALLBACK_API_URL = 'http://localhost:8000/api';
 
 if (process.env.NODE_ENV === 'development') {
   console.log('API Client - Final API_BASE_URL:', API_BASE_URL);
