@@ -29,6 +29,7 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
   const [isCartOpen, setIsCartOpenLocal] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
+  const desktopUserMenuRef = useRef<HTMLDivElement>(null)
 
   // Default settings for when loading or no data
   const defaultSettings = {
@@ -49,23 +50,6 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
     }
   }, [totalItems])
 
-  // Click outside handler for user menu
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
-        console.log('Click outside detected, closing menu')
-        setIsUserMenuOpen(false)
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [])
-
-
-
   // Track site settings data
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
@@ -81,15 +65,20 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
 
   // Click outside handler for user menu
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+    function handleClickOutside(event: MouseEvent) {
+      // Həm mobil həm də desktop ref-ləri yoxla
+      const isInsideMobile = userMenuRef.current && userMenuRef.current.contains(event.target as Node)
+      const isInsideDesktop = desktopUserMenuRef.current && desktopUserMenuRef.current.contains(event.target as Node)
+      
+      if (!isInsideMobile && !isInsideDesktop) {
+        console.log('Click outside detected, closing menu')
         setIsUserMenuOpen(false)
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener("mousedown", handleClickOutside)
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener("mousedown", handleClickOutside)
     }
   }, [])
 
@@ -108,19 +97,6 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
   // Combine user first name and last name
   const displayName = user ? `${user.first_name || user.username}${user.last_name ? ` ${user.last_name}` : ""}` : ""
   
-  // Handle logout function
-  const handleLogout = () => {
-    console.log('handleLogout called')
-    console.log('Current user:', user)
-    try {
-      logout()
-      console.log('Logout function called successfully')
-    } catch (error) {
-      console.error('Error calling logout:', error)
-    }
-    setIsUserMenuOpen(false)
-    console.log('Menu closed')
-  }
   
   // Debug info
   if (process.env.NODE_ENV === 'development') {
@@ -281,13 +257,12 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
               {/* User Menu */}
               <div className="flex items-center">
                 {isAuthenticated && user ? (
-                  <div className="relative">
+                  <div className="relative" ref={desktopUserMenuRef}>
                     <button
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        console.log('User menu clicked, current state:', isUserMenuOpen)
+                      onClick={() => {
+                        console.log('Desktop user menu clicked, current state:', isUserMenuOpen)
                         setIsUserMenuOpen(!isUserMenuOpen)
+                        console.log('Desktop user menu state changed to:', !isUserMenuOpen)
                       }}
                       className="text-base font-medium text-gray-700 hover:text-blue-600 transition-colors"
                     >
@@ -298,7 +273,6 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
                     
                     {isUserMenuOpen && (
                       <div 
-                        ref={userMenuRef}
                         className="absolute top-full right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-xl z-[99999] opacity-100"
                         style={{ 
                           position: 'absolute',
@@ -316,10 +290,20 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
                         }}
                       >
                         <div className="p-2">
+                          <div className="px-3 py-2 text-sm text-gray-600 border-b border-gray-200 mb-2">
+                            Salam, {displayName}
+                          </div>
                           <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleLogout();
+                            onClick={async () => {
+                              console.log('Desktop logout button clicked');
+                              try {
+                                await logout();
+                                console.log('Logout successful');
+                              } catch (error) {
+                                console.error('Logout error:', error);
+                              } finally {
+                                setIsUserMenuOpen(false);
+                              }
                             }}
                             className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors"
                           >
@@ -429,26 +413,40 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
                     <User className="h-[21px] w-[22px]" />
                   </button>
                 ) : (
-                  <div className="relative" ref={userMenuRef}>
+                  <div className="relative">
                     <button
-                      onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                      className="text-gray-700 hover:text-blue-600 transition-colors"
+                      onClick={() => {
+                        console.log('User menu button clicked, current state:', isUserMenuOpen)
+                        setIsUserMenuOpen(!isUserMenuOpen)
+                        console.log('User menu state changed to:', !isUserMenuOpen)
+                      }}
+                      className="text-gray-700 hover:text-blue-600 transition-colors p-1"
                     >
                       <User className="h-[21px] w-[22px]" />
                     </button>
                     
                     {isUserMenuOpen && (
-                      <div className="absolute top-full right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-50">
+                      <div 
+                        ref={userMenuRef}
+                        className="absolute top-full right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-50 animate-in fade-in-0 zoom-in-95 duration-200"
+                      >
                         <div className="p-2">
                           <div className="px-3 py-2 text-sm text-gray-600 border-b border-gray-200 mb-2">
                             Salam, {displayName}
                           </div>
                           <button
-                            onClick={() => {
-                              logout()
-                              setIsUserMenuOpen(false)
+                            onClick={async () => {
+                              console.log('Mobile logout button clicked')
+                              try {
+                                await logout()
+                                console.log('Logout successful')
+                              } catch (error) {
+                                console.error('Logout error:', error)
+                              } finally {
+                                setIsUserMenuOpen(false)
+                              }
                             }}
-                            className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded"
+                            className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors"
                           >
                             Çıxış
                           </button>
@@ -597,8 +595,11 @@ export function Header({ onAuthClick, onSearch, onCategorySelect }: HeaderProps)
                                 variant="ghost" 
                                 size="lg" 
                                 onClick={() => {
+                                  console.log('Mobile logout button clicked')
                                   logout()
+                                  // Mobil menyunu bağla
                                   setIsMobileMenuOpen(false)
+                                  console.log('Mobile logout completed')
                                 }} 
                                 className="w-full justify-start text-base px-4 py-3 text-red-600 hover:text-red-700 hover:bg-red-50"
                               >

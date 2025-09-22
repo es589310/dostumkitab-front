@@ -296,6 +296,10 @@ class ApiClient {
     });
     if (response.tokens && response.tokens.access) {
       this.saveToken(response.tokens.access);
+      // Refresh token-i də saxla
+      if (response.tokens.refresh && typeof window !== 'undefined') {
+        localStorage.setItem('refresh_token', response.tokens.refresh);
+      }
     }
     return response;
   }
@@ -307,6 +311,10 @@ class ApiClient {
     });
     if (response.tokens && response.tokens.access) {
       this.saveToken(response.tokens.access);
+      // Refresh token-i də saxla
+      if (response.tokens.refresh && typeof window !== 'undefined') {
+        localStorage.setItem('refresh_token', response.tokens.refresh);
+      }
     }
     return response;
   }
@@ -315,8 +323,32 @@ class ApiClient {
     return this.request<any>('/auth/profile/');
   }
 
-  logout() {
-    this.clearToken();
+  async logout() {
+    try {
+      // Refresh token-i localStorage-dan al
+      const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('refresh_token') : null;
+      
+      // Backend logout endpoint-ini çağır
+      await this.request<any>('/auth/logout/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          refresh: refreshToken
+        }),
+      });
+    } catch (error) {
+      // Xəta olsa belə token-i təmizlə
+      console.error('Logout API call failed:', error);
+    } finally {
+      // Hər halda token-i təmizlə
+      this.clearToken();
+      // Refresh token-i də təmizlə
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('refresh_token');
+      }
+    }
   }
 
   // Cart API

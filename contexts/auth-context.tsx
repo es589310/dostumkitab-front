@@ -75,17 +75,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const logout = () => {
-    api.logout()
-    setUser(null)
-    
-    // Çıxış uğurlu toast notification
-    toast({
-      title: "Çıxış edildi! 👋",
-      description: "Təhlükəsiz şəkildə çıxış etdiniz. Təkrar görüşə qədər!",
-      variant: "default",
-      duration: 3000,
-    })
+  const logout = async () => {
+    try {
+      // Əvvəlcə state-i təmizlə
+      setUser(null)
+      
+      // Sonra API logout çağır
+      await api.logout()
+      
+      // Çıxış uğurlu toast notification
+      toast({
+        title: "Çıxış edildi! 👋",
+        description: "Təhlükəsiz şəkildə çıxış etdiniz. Təkrar görüşə qədər!",
+        variant: "default",
+        duration: 3000,
+      })
+      
+      // LocalStorage-i də təmizlə (API logout artıq bunu edir, amma əlavə təhlükəsizlik üçün)
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('auth_token')
+      }
+    } catch (error) {
+      console.error('Logout error:', error)
+      // Xəta olsa belə state-i təmizlə
+      setUser(null)
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('auth_token')
+      }
+    }
   }
 
   const isAuthenticated = user !== null
