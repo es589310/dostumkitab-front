@@ -199,9 +199,6 @@ export default function CategoryPage() {
         {/* Category Header */}
         <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">{category.name}</h1>
-          {category.description && (
-            <p className="text-gray-600 mb-4">{category.description}</p>
-          )}
           <div className="flex items-center space-x-4 text-sm text-gray-500">
             <span className="flex items-center">
               <BookOpen className="h-4 w-4 mr-1" />
@@ -414,6 +411,19 @@ export default function CategoryPage() {
             </div>
           )}
         </div>
+
+        {/* Category Description Section */}
+        {category.description && (
+          <div className="mt-8 mb-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+              <div className="text-center">
+                <p className="text-gray-700 text-base leading-relaxed">
+                  {category.description}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
